@@ -18,12 +18,30 @@
         app:layout_constraintBottom_toTopOf="@+id/chat_bottom_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chat_toolbar">
+        app:layout_constraintTop_toBottomOf="@+id/chat_toolbar"
+        android:fillViewport="true">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/chat_recycler_view"
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/target_message_test"
+                layout="@layout/chat_target_message_item"/>
+
+            <include layout="@layout/chat_date_item"/>
+
+            <include
+                android:id="@+id/host_message_test"
+                layout="@layout/chat_host_message_item"/>
+
+        </LinearLayout>
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/chat_messages_container"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content" />-->
     </ScrollView>
 
     <LinearLayout
@@ -133,7 +151,7 @@
                         android:layout_alignEnd="@+id/send_button_icon"
                         android:layout_marginTop="-2dp"
                         android:layout_marginEnd="-5dp"
-                        android:src="@drawable/ic_vk_logo"
+                        android:src="@drawable/ic_vk_logo_backgroud"
                         tools:layout_editor_absoluteX="61dp"
                         tools:layout_editor_absoluteY="30dp" />
                 </RelativeLayout>
