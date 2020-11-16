@@ -2,6 +2,7 @@ package com.inplace
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.EditText
 import android.widget.ImageView
@@ -41,6 +42,10 @@ class ChatFragment() : Fragment() {
 
         //setting toolbar
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
+
+        toolbar.setNavigationOnClickListener {
+            activity?.onBackPressed()
+        }
 
         val messageEditText: EditText = view.findViewById(R.id.chat_message_editText)
         val sendButton: RelativeLayout = view.findViewById(R.id.chat_send_button)
