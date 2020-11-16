@@ -2,8 +2,10 @@ package com.inplace
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.inplace.chat.ChatFragment
 import com.inplace.chats.ItemFragment
 import com.inplace.chats.NumberFragment
+import com.inplace.chats.SwitcherInterface
 
 class MainActivity : AppCompatActivity(), SwitcherInterface {
 
@@ -14,16 +16,26 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
 
         val transaction = supportFragmentManager.beginTransaction()
         if (savedInstanceState == null) {
-            transaction.add(R.id.items, ItemFragment.newInstance(100))
+            transaction.add(R.id.fragment_container, ItemFragment.newInstance(100))
             transaction.commitAllowingStateLoss()
         }
     }
 
     override fun switch(number: Int, color: Int) {
         supportFragmentManager.beginTransaction().apply {
-            replace(R.id.items, NumberFragment.newInstance(number, color))
+            replace(R.id.fragment_container, ChatFragment())
             addToBackStack(null)
             commitAllowingStateLoss()
+        }
+    }
+
+    override fun onBackPressed() {
+        when (supportFragmentManager.backStackEntryCount) {
+            0 -> {
+                super.onBackPressed()
+                finish()
+            }
+            else -> supportFragmentManager.popBackStack()
         }
     }
 

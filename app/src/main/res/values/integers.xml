@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="upper_message_line_maxLength">43</integer>
+    <integer name="lower_message_maxLength">29</integer>
+</resources>

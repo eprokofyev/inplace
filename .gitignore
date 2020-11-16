@@ -14,4 +14,8 @@
 .cxx
 *.jpg
 local.properties
+<<<<<<< HEAD
 .gitignore
+=======
+*.jpg
+>>>>>>> chat

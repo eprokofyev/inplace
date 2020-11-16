@@ -1,4 +1,4 @@
-package com.inplace
+package com.inplace.chats
 
 
 interface SwitcherInterface {
