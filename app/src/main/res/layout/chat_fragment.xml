@@ -15,37 +15,19 @@
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/chat_bottom_bar"
+        app:layout_constraintBottom_toTopOf="@+id/chat_bottomBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chat_toolbar"
         android:fillViewport="true">
-
-
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chat_messages_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <include
-                android:id="@+id/target_message_test"
-                layout="@layout/chat_target_message_item"/>
-
-            <include layout="@layout/chat_date_item"/>
-
-            <include
-                android:id="@+id/host_message_test"
-                layout="@layout/chat_host_message_item"/>
-
-        </LinearLayout>
-<!--        <androidx.recyclerview.widget.RecyclerView-->
-<!--            android:id="@+id/chat_messages_container"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content" />-->
+            android:layout_height="wrap_content" />
     </ScrollView>
 
     <LinearLayout
-        android:id="@+id/chat_bottom_bar"
+        android:id="@+id/chat_bottomBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/chat_bottombar_shape"
@@ -71,7 +53,7 @@
             android:focusable="true">
 
             <EditText
-                android:id="@+id/chat_message_edittext"
+                android:id="@+id/chat_message_editText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
@@ -79,7 +61,7 @@
                 android:layout_marginEnd="5dp"
                 android:background="@drawable/chat_message_edittext_shape"
                 android:ellipsize="end"
-                android:hint="Message"
+                android:hint="@string/message_edit_text_hint"
                 android:maxHeight="100dp"
                 android:minHeight="40dp"
                 android:paddingStart="10dp"
@@ -151,7 +133,7 @@
                         android:layout_alignEnd="@+id/send_button_icon"
                         android:layout_marginTop="-2dp"
                         android:layout_marginEnd="-5dp"
-                        android:src="@drawable/ic_vk_logo_backgroud"
+                        android:src="@drawable/ic_vk_logo_background"
                         tools:layout_editor_absoluteX="61dp"
                         tools:layout_editor_absoluteY="30dp" />
                 </RelativeLayout>

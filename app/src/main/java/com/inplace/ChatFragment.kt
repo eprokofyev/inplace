@@ -2,8 +2,6 @@ package com.inplace
 
 import android.content.Context
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.*
 import android.widget.EditText
 import android.widget.ImageView
@@ -11,7 +9,6 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 
@@ -39,35 +36,24 @@ class ChatFragment() : Fragment() {
         val toolbar: Toolbar = view.findViewById(R.id.chat_toolbar)
         val username: TextView = toolbar.findViewById(R.id.chat_user_name)
         val userActivity: TextView = toolbar.findViewById(R.id.chat_user_activity)
-        username.text = "Aiden Pierce"
+        username.text = "Username"
         userActivity.text = "last seen 5 minutes ago"
 
+        //setting toolbar
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
 
-
-        //testing message view
-        val targetMessage = "Привет!\n" +
-                "Предлагаю в воскресенье собраться в дисе, обсудить архитектуру и раскидать задачи. К воскресенью давайте закончим с текущими задачами и посмотрим повнимательнее материалы лекций, чтобы понимать о чём пойдёт речь"
-        val hostMessage = "Окей"
-        val targetMessageView: View = view.findViewById(R.id.target_message_test)
-        ChatFragment.setMessageText(context, targetMessageView, targetMessage)
-        val hostMessageView: View = view.findViewById(R.id.host_message_test)
-        ChatFragment.setMessageText(context, hostMessageView, hostMessage)
-
-
-
-        val messageEditText: EditText = view.findViewById(R.id.chat_message_edittext)
+        val messageEditText: EditText = view.findViewById(R.id.chat_message_editText)
         val sendButton: RelativeLayout = view.findViewById(R.id.chat_send_button)
         val voiceButton: ImageView = view.findViewById(R.id.chat_voice_button)
 
         sendButton.setOnClickListener {
-            ChatFragment.setMessageText(context, hostMessageView, messageEditText.text.toString())
+            //TODO: write message send logic
             messageEditText.setText("")
         }
 
         //Adding a watcher to replace the send/voice buttons
         messageEditText.doOnTextChanged { text, _, _, _ ->
-            when(text?.length?:0) {
+            when (text?.length ?: 0) {
                 0 -> {
                     sendButton.visibility = View.GONE
                     voiceButton.visibility = View.VISIBLE
@@ -111,7 +97,7 @@ class ChatFragment() : Fragment() {
                         if (!isSet) {
                             messageLinesCount = upperMessageTextView.layout.lineCount
 
-                            repeat(messageLinesCount){line ->
+                            repeat(messageLinesCount) { line ->
                                 val start = upperMessageTextView.layout.getLineStart(line)
                                 val end = upperMessageTextView.layout.getLineEnd(line)
                                 val substring = upperMessageTextView.text.subSequence(start, end)
