@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:id="@+id/number_container"
-    tools:context=".NumberFragment">
+    tools:context=".chats.NumberFragment">
 
     <TextView
         android:id="@+id/number"

@@ -2,6 +2,8 @@ package com.inplace
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.inplace.chats.ItemFragment
+import com.inplace.chats.NumberFragment
 
 class MainActivity : AppCompatActivity(), SwitcherInterface {
 
@@ -16,7 +18,6 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
             transaction.commitAllowingStateLoss()
         }
     }
-
 
     override fun switch(number: Int, color: Int) {
         supportFragmentManager.beginTransaction().apply {

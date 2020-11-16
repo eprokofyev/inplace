@@ -1,4 +1,4 @@
-package com.inplace
+package com.inplace.chats
 
 import android.graphics.Color.BLUE
 import android.graphics.Color.RED
@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.inplace.R
+import com.inplace.SwitcherInterface
 import de.hdodenhof.circleimageview.CircleImageView
 
 
