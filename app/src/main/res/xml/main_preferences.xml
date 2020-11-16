@@ -1,0 +1,42 @@
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        app:key="dark_theme"
+        app:title="Темная тема"
+        app:icon="@drawable/settings_nightmode"
+        app:summary="Береги глаза и батарейку"
+        />
+
+
+    <DropDownPreference
+        app:key="language"
+        app:title="Язык"
+        app:summary="Изменить язык"
+        app:icon="@drawable/settings_lang"/>
+
+
+    <DropDownPreference
+        app:key="font"
+        app:title="Шрифт"
+        app:summary="Изменить шрифт"
+        app:icon="@drawable/settings_font"/>
+
+    <EditTextPreference
+        app:key="background"
+        app:title="Фон"
+        app:summary="Изменить фон"
+        app:icon="@drawable/settings"/>
+
+    <SwitchPreferenceCompat
+        app:key="notification"
+        app:title="Уведомления"
+        app:icon="@drawable/settings_notif"
+        app:summary="Включить уведомления"
+        />
+
+
+
+
+</PreferenceScreen>
+

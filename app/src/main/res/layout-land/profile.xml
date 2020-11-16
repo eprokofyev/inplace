@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+
+    <LinearLayout
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="top"
+        >
+
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center|right"
+            android:layout_marginStart="2dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/profile_and_settings_back"
+            android:layout_marginEnd="20dp"/>
+
+
+
+        <TextView
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:text="@string/profile_title"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            android:textColor="@color/profile_textColor"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_marginStart="160dp"
+            />
+
+
+    </LinearLayout>
+
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/profile_textColor"/>
+
+
+
+
+
+
+
+
+
+    <LinearLayout
+        android:layout_marginTop="20dp"
+        android:id="@+id/vk_telega"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:gravity="top"
+        android:orientation="horizontal">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_image"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_gravity="left"
+            android:layout_marginTop="34dp"
+            android:layout_marginLeft="34dp"
+
+            android:src="@drawable/avatar_test"
+            android:gravity="top"
+            />
+
+
+
+        <LinearLayout
+            android:layout_marginLeft="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:gravity="top"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:id="@+id/vk"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:gravity="top"
+                >
+
+
+
+                <ImageView
+                    android:id="@+id/iconVk"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/profile_vk"
+                    android:layout_gravity="center|left"
+                    android:layout_marginStart="10dp"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="2dp"
+                    />
+
+
+
+                <FrameLayout
+                    android:id="@+id/VkLogin"
+                    android:layout_width="300dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center|left"
+                    >
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Иван Иванов"
+                        android:textSize="25sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/profile_textColor"
+                        android:gravity="center|left"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        />
+
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/profile_textColor"
+                        android:layout_gravity="bottom"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginStart="10dp"/>
+
+                </FrameLayout>
+
+
+                <ImageView
+                    android:id="@+id/iconDelVk"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center|right"
+                    android:layout_marginStart="25dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/profile_delete" />
+
+
+            </LinearLayout>
+
+
+
+
+
+            <LinearLayout
+                android:layout_marginTop="30dp"
+                android:id="@+id/telega"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:gravity="top"
+                >
+
+
+
+                <ImageView
+                    android:id="@+id/iconTelega"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/profile_telega"
+                    android:layout_gravity="center|left"
+                    android:layout_marginStart="10dp"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="2dp"
+                    />
+
+
+
+                <FrameLayout
+                    android:id="@+id/telegaLogin"
+                    android:layout_width="300dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="center|left"
+                    >
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="\@Ivan_Ivanov"
+                        android:textSize="25sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/profile_textColor"
+                        android:gravity="center|left"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="10dp"
+                        />
+
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/profile_textColor"
+                        android:layout_gravity="bottom"
+                        android:layout_marginBottom="10dp"
+                        android:layout_marginStart="10dp"/>
+
+                </FrameLayout>
+
+
+                <ImageView
+                    android:id="@+id/iconDelTelega"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center|right"
+                    android:layout_marginStart="25dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/profile_delete" />
+
+
+            </LinearLayout>
+
+
+
+
+        </LinearLayout>
+
+
+
+
+
+
+
+
+
+
+    </LinearLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <LinearLayout
+        android:id="@+id/settingsLinkLinear"
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:gravity="top"
+        android:background="@color/profile_background"
+        android:layout_gravity="center"
+        >
+
+        <ImageView
+            android:id="@+id/iconSettings"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/settings"
+            android:layout_gravity="center|left"
+            android:layout_marginStart="32dp"
+            android:orientation="horizontal"
+            android:layout_marginTop="2dp"
+            />
+
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/profile_to_settings_title"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:textColor="@color/profile_textColor"
+            android:gravity="center|left"
+            android:layout_gravity="center"
+            android:layout_marginStart="10dp"
+            />
+
+
+
+    </LinearLayout>
+
+
+
+
+</LinearLayout>
