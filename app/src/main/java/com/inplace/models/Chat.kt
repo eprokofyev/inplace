@@ -6,6 +6,6 @@ data class Chat(val user: User,
                 var isHeard: Boolean,
                 val conversationVkId: String,
                 var conversationTelegramId: String,
-                var defaultMessanger: Messenger,
+                var defaultMessenger: Source,
                 val localId: String
 )
