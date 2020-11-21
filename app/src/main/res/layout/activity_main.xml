@@ -6,13 +6,135 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <LinearLayout
+        android:layout_width="418dp"
+        android:layout_height="735dp"
+        android:orientation="vertical"
+        tools:ignore="MissingConstraints">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:gravity="top"
+            android:orientation="horizontal"
+            tools:ignore="MissingConstraints">
+
+            <Button
+                android:id="@+id/authBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Авторизоваться"
+                tools:ignore="MissingConstraints" />
+
+            <Button
+                android:id="@+id/logoutBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="Выход"
+                tools:ignore="MissingConstraints" />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/myAvatar"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"
+                android:gravity="top"
+                android:layout_marginLeft="15dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="top"
+            android:orientation="horizontal"
+            tools:ignore="MissingConstraints">
+
+            <Button
+                android:id="@+id/getMe"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="обо мне"
+                tools:ignore="MissingConstraints" />
+
+            <Button
+                android:id="@+id/chatBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="Получить чаты (последние 5)"
+                tools:ignore="MissingConstraints" />
+
+        </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/textId"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:text="тут будет статус запроса после нажатия кнопок"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:gravity="top"
+            android:orientation="horizontal"
+            tools:ignore="MissingConstraints">
+
+            <Button
+                android:id="@+id/openLastChat"
+                android:layout_width="130dp"
+                android:layout_height="match_parent"
+                android:text="открыть последний чат"
+                tools:ignore="MissingConstraints" />
+
+            <Button
+                android:id="@+id/getUsersBtn"
+                android:layout_width="130dp"
+                android:layout_height="match_parent"
+                android:text="Инфа о собеседниках"
+                tools:ignore="MissingConstraints" />
+
+            <Button
+                android:id="@+id/sendMsg"
+                android:layout_width="140dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:text="Отправ. в послед чат сообщение"
+                tools:ignore="MissingConstraints" />
+
+        </LinearLayout>
+
+
+        <EditText
+            android:id="@+id/msgToSend"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:ems="100"
+            android:background="@color/purple_200"
+            android:inputType="textPersonName" />
+
+        <Button
+            android:id="@+id/waitMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="Подписаться на получение новых сообщений"
+            tools:ignore="MissingConstraints" />
+
+
+
+
+
+    </LinearLayout>
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
