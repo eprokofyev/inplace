@@ -53,12 +53,19 @@
         app:layout_constraintTop_toBottomOf="@+id/messageContainer">
 
         <ImageView
-            android:id="@+id/source"
+            android:id="@+id/sourceVK"
             android:layout_width="17dp"
             android:layout_height="10dp"
             android:layout_gravity="center"
             android:layout_marginStart="2dp"
             app:srcCompat="@drawable/ic_vk_logo_no_background" />
+        <ImageView
+            android:id="@+id/sourceTG"
+            android:layout_width="17dp"
+            android:layout_height="10dp"
+            android:layout_gravity="center"
+            android:layout_marginStart="2dp"
+            app:srcCompat="@drawable/ic_tg_logo_no_background" />
 
         <TextView
             android:id="@+id/sentTime"
