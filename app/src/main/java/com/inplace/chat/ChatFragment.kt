@@ -11,17 +11,36 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.inplace.R
+import com.inplace.chat.DateParser.convertDateToString
+import com.inplace.chat.DateParser.convertTimeToString
+import com.inplace.chat.DateParser.getDateAsUnix
+import com.inplace.models.Message
+import com.inplace.models.Source
+import de.hdodenhof.circleimageview.CircleImageView
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashSet
+
 
 class ChatFragment() : Fragment() {
+
+    lateinit var chatViewModel: ChatViewModel
+    lateinit var messages: MutableList<Message>
 
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        setHasOptionsMenu(true)
         return inflater.inflate(R.layout.chat_fragment, container, false)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        setHasOptionsMenu(true)
+        super.onCreate(savedInstanceState)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -33,12 +52,46 @@ class ChatFragment() : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val recycler = view.findViewById<RecyclerView>(R.id.chat_messages_container)
+
+//        chatViewModel = ViewModelProvider(this).get(ChatViewModel::class.java)
+
+
         //testing changing info about user in toolbar
         val toolbar: Toolbar = view.findViewById(R.id.chat_toolbar)
         val username: TextView = toolbar.findViewById(R.id.chat_user_name)
         val userActivity: TextView = toolbar.findViewById(R.id.chat_user_activity)
-        username.text = "Username"
-        userActivity.text = "last seen 5 minutes ago"
+
+//        chatViewModel.getMessages()
+
+        var messages: MutableList<Message> = ArrayList()
+        messages.add(Message(1606049697107, "hello", 123, false, Source.VK))
+        messages.add(Message(1606049709137, "Что делаешь?Что делаешь?Что делаешь?Что делаешь?Что делаешь?", 123, true, Source.VK))
+        messages.add(Message(1606049711685, "ничегоЧто делаешь?Что делаешь?Что делаешь?Что делаешь?Что делаешь?Что делаешь?", 123, false, Source.VK))
+        messages.add(Message(1606049714080, "hello", 123, true, Source.VK))
+        messages.add(Message(1606049716352, "3", 123, true, Source.VK))
+        messages.add(Message(1606049718754, "3", 123, true, Source.VK))
+        messages.add(Message(1606049721418, "hello", 123, false, Source.VK))
+        messages.add(Message(1606049724546, "Что делаешь?Что делаешь?Что делаешь?Что делаешь?", 123, true, Source.VK))
+        messages.add(Message(1606049726821, "ничего", 123, false, Source.VK))
+        messages.add(Message(1606049729778, "helloЧто делаешь?Что делаешь?Что делаешь?Что делаешь?", 123, true, Source.VK))
+        messages.add(Message(1606049732357, "3Что делаешь?Что делаешь?Что делаешь?Что делаешь?Что делаешь?Что делаешь?Что делаешь?", 123, true, Source.VK))
+        messages.add(Message(1606049735046, "3", 123, true, Source.VK))
+        messages.add(Message(1606049737544, "hello", 123, false, Source.VK))
+        messages.add(Message(1606049739994, "Что делаешь?", 123, true, Source.VK))
+        messages.add(Message(1606049742804, "ничего", 123, false, Source.VK))
+        messages.add(Message(1606049745759, "hello", 123, true, Source.VK))
+        messages.add(Message(1606049748306, "3", 123, true, Source.VK))
+        messages.add(Message(1606049750679, "3", 123, true, Source.VK))
+
+
+
+        var resList = sortMessagesByDate(messages)
+
+        recycler.layoutManager = LinearLayoutManager(context,LinearLayoutManager.VERTICAL,true)
+        val adapter = MessagesAdapter(resList)
+        recycler.adapter = adapter
+
 
         //setting toolbar
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
@@ -72,77 +125,122 @@ class ChatFragment() : Fragment() {
 
     }
 
-    companion object {
-        /**
-         * Sets the text of the message
-         * to the View consisting of two TextViews
-         */
-        fun setMessageText(context: Context?, messageView: View, message: String) {
-            val upperMessageTextView: TextView = messageView.findViewById(R.id.upper_message_textView)
-            val lowerMessageTextView: TextView = messageView.findViewById(R.id.lower_message_textView)
+    private fun sortMessagesByDate(messagesList: List<Message>):MutableList<ListObject> {
+        val sortedList: List<Message> = messagesList.sortedWith(compareBy { it.date })
+        val groupedHashMap: TreeMap<Long, MutableSet<Message>> = TreeMap()
+        var list: MutableSet<Message>
+        for (message in sortedList) {
+            val hashMapKey = getDateAsUnix(message.date)
 
-            val messageLines: MutableList<CharSequence> = ArrayList()
-            var messageLinesCount: Int
-            var isSet = false
-            var upperTextViewResult = ""
+            if (groupedHashMap.containsKey(hashMapKey)) {
+                // The key is already in the HashMap; add the object
+                // against the existing key.
+                groupedHashMap[hashMapKey]!!.add(message)
+            } else {
+                // The key is not there in the HashMap; create a new key-value pair
+                list = LinkedHashSet()
+                list.add(message)
+                groupedHashMap[hashMapKey] = list
+            }
+        }
 
-            upperMessageTextView.text = ""
-            lowerMessageTextView.text = ""
-            upperMessageTextView.visibility = View.VISIBLE
-            lowerMessageTextView.visibility = View.VISIBLE
+        // We linearly add every item into the consolidatedList.
+        val resultList: MutableList<ListObject> = ArrayList()
+        for (date in groupedHashMap.keys) {
+            val dateItem = DateObject()
+            dateItem.date = convertDateToString(date)
+            resultList.add(dateItem)
+            for (message in groupedHashMap[date]!!) {
+                val generalItem = MessagesObject()
+                generalItem.message=message
+                resultList.add(generalItem)
+            }
+        }
 
-            if (context != null) {
-                val lowerMessageMaxLength = context.resources.getInteger(R.integer.lower_message_maxLength)
+        return resultList.asReversed()
+    }
 
-                upperMessageTextView.text = message
-                upperMessageTextView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-                    override fun onPreDraw(): Boolean {
-                        upperMessageTextView.viewTreeObserver.removeOnPreDrawListener(this)
+}
 
-                        if (!isSet) {
-                            messageLinesCount = upperMessageTextView.layout.lineCount
+private class MessagesAdapter(var messagesList: List<ListObject>): RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
-                            repeat(messageLinesCount) { line ->
-                                val start = upperMessageTextView.layout.getLineStart(line)
-                                val end = upperMessageTextView.layout.getLineEnd(line)
-                                val substring = upperMessageTextView.text.subSequence(start, end)
-                                messageLines.add(substring)
-                            }
+    fun setMessages(messages: MutableList<ListObject>){
+        this.messagesList = messages
+        notifyDataSetChanged()
+    }
 
-                            messageLines.forEachIndexed { i, it ->
-                                if (i == messageLinesCount - 1) {
-                                    when {
-                                        it.length <= lowerMessageMaxLength -> {
-                                            if (messageLinesCount > 1) {
-                                                upperMessageTextView.text = upperTextViewResult
-                                                lowerMessageTextView.text = it
-                                                isSet = true
-                                            } else {
-                                                upperMessageTextView.text = ""
-                                                upperMessageTextView.visibility = View.GONE
-                                                lowerMessageTextView.text = it
-                                                isSet = true
-                                            }
-                                        }
+    override fun getItemViewType(position: Int): Int {
+        return messagesList.get(position).getType()
+    }
 
-                                        else -> {
-                                            upperTextViewResult += it
-                                            upperMessageTextView.text = upperTextViewResult
-                                            lowerMessageTextView.visibility = View.GONE
-                                            isSet = true
-                                        }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        lateinit var viewHolder: RecyclerView.ViewHolder
+        val inflater: LayoutInflater = LayoutInflater.from(parent.context)
+        when(viewType){
+            MessageType.DATE -> {
+                val dateView = inflater.inflate(R.layout.chat_date_item,parent,false)
+                viewHolder = DateViewHolder(dateView)
+            }
+            MessageType.HOST -> {
+                val hostMessageView = inflater.inflate(R.layout.chat_host_message_item,parent,false)
+                viewHolder = HostMessageViewHolder(hostMessageView)
+            }
+            MessageType.TARGET ->{
+                val targetMessageVIew = inflater.inflate(R.layout.chat_target_message_item,parent,false)
+                viewHolder = TargetMessageViewHolder(targetMessageVIew)
+            }
+        }
+        return viewHolder
+    }
 
-                                    }
-                                } else {
-                                    upperTextViewResult += it
-                                }
-                            }
-                        }
-                        return isSet
-                    }
-                })
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when(holder.itemViewType){
+            MessageType.DATE ->{
+                val model = messagesList[position] as DateObject
+                val dateViewHolder = holder as DateViewHolder
+                dateViewHolder.dateTextView.text = model.date
+            }
+            MessageType.HOST ->{
+                val model = messagesList[position] as MessagesObject
+                val hostMessageHolder = holder as HostMessageViewHolder
+                hostMessageHolder.messageText.text = model.message.text
+                hostMessageHolder.sentTime.text = convertTimeToString(model.message.date)
+            }
+            MessageType.TARGET -> {
+                val model = messagesList[position] as MessagesObject
+                val targetMessageHolder = holder as TargetMessageViewHolder
+                targetMessageHolder.messageText.text = model.message.text
+                targetMessageHolder.sentTime.text = convertTimeToString(model.message.date)
+                targetMessageHolder.messageSender.visibility = View.VISIBLE
+                targetMessageHolder.messageSender.text = "Mahmudjon Rahimov"
+                targetMessageHolder.messageSenderAvatar.visibility = View.VISIBLE
             }
         }
     }
+
+    override fun getItemCount(): Int {
+        return messagesList.size
+    }
+
+    inner class HostMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+        val messageText:TextView = itemView.findViewById(R.id.messageText)
+        val sentTime:TextView = itemView.findViewById(R.id.sentTime)
+        val source:ImageView = itemView.findViewById(R.id.source)
+    }
+
+    inner class TargetMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+        val messageText:TextView = itemView.findViewById(R.id.messageText)
+        val sentTime:TextView = itemView.findViewById(R.id.sentTime)
+        val source:ImageView = itemView.findViewById(R.id.source)
+        val messageSender:TextView = itemView.findViewById(R.id.messageSender)
+        var messageSenderAvatar: CircleImageView = itemView.findViewById(R.id.messageSenderAvatar)
+    }
+
+    inner class DateViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
+        val dateTextView:TextView = itemView.findViewById(R.id.date_textView)
+    }
+
+
+
 
 }

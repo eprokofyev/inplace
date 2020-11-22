@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="text_margin">16dp</dimen>
     <dimen name="upper_message_maxWidth">350dp</dimen>
     <dimen name="lower_message_maxWidth">280dp</dimen>
+    <dimen name="message_textView_maxWidth">280dp</dimen>
+    <dimen name="messageTextSize">16sp</dimen>
 </resources>

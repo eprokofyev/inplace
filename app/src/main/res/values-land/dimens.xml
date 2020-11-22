@@ -2,4 +2,5 @@
 <resources>
     <dimen name="upper_message_maxWidth">600dp</dimen>
     <dimen name="lower_message_maxWidth">520dp</dimen>
+    <dimen name="message_textView_maxWidth">600dp</dimen>
 </resources>
