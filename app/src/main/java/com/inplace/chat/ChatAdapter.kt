@@ -10,10 +10,13 @@ import com.inplace.R
 import com.inplace.models.Source
 import de.hdodenhof.circleimageview.CircleImageView
 
-class ChatAdapter(var messagesList: List<ListObject>) :
+class ChatAdapter(var messagesList: MutableList<ListObject>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     fun setMessages(messages: MutableList<ListObject>) {
+        messages.forEach {
+            this.messagesList.add(it)
+        }
         this.messagesList = messages
         notifyDataSetChanged()
     }

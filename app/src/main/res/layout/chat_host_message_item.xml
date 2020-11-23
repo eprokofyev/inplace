@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:paddingStart="5dp"
     android:paddingEnd="5dp"
     android:paddingBottom="8dp">
@@ -49,6 +50,7 @@
 
         <TextView
             android:id="@+id/sentTime"
+            tools:text="12:34"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="2dp"
@@ -65,7 +67,8 @@
         <ImageView
             android:id="@+id/sourceTG"
             android:layout_width="17dp"
-            android:layout_height="10dp"
+            android:paddingTop="1dp"
+            android:layout_height="12dp"
             android:layout_gravity="center"
             android:layout_marginStart="2dp"
             app:srcCompat="@drawable/ic_tg_logo_no_background" />

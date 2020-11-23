@@ -6,6 +6,8 @@ import com.inplace.chat.ChatFragment
 import com.inplace.chats.ItemFragment
 import com.inplace.chats.NumberFragment
 import com.inplace.chats.SwitcherInterface
+import com.inplace.models.Chat
+import com.inplace.models.User
 
 class MainActivity : AppCompatActivity(), SwitcherInterface {
 
