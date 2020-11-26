@@ -2,7 +2,7 @@ package com.inplace.chat
 
 import android.content.Context
 import android.graphics.Bitmap
-import androidx.lifecycle.LiveData
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.inplace.api.ApiImageLoader
 import com.inplace.api.vk.ApiVK
@@ -12,6 +12,8 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class ChatRepo {
+    val LOG_TAG = "vkApi"
+
     private val executor: ExecutorService = Executors.newFixedThreadPool(5)
 
     private var messagesLiveData: MutableLiveData<List<Message>> = MutableLiveData<List<Message>>()
@@ -21,16 +23,17 @@ class ChatRepo {
         messagesLiveData.value = emptyList()
     }
 
+
     fun getMessages(): MutableLiveData<List<Message>> {
         return messagesLiveData
     }
 
     fun fetchMessages(conversationId: Int, start: Int, end: Int) {
-        val future = executor.execute {
+        executor.execute {
             val resultGetMessages = ApiVK.getMessages(conversationId, start, end)
             if (resultGetMessages.error != null) {
                 //todo process error
-            }else{
+            } else {
                 val messagesArray = resultGetMessages.result as ArrayList<com.inplace.api.Message>
                 messagesLiveData.postValue(transform(messagesArray))
             }
@@ -42,17 +45,27 @@ class ChatRepo {
         return avatarLiveData
     }
 
-    fun fetchAvatar(url: String,context:Context?){
+    fun fetchAvatar(url: String, context: Context?) {
         executor.execute {
-            val avatarBitmap = ApiImageLoader.getImageByUrl(url,context)
+            val avatarBitmap = ApiImageLoader.getImageByUrl(url, context)
             avatarLiveData.postValue(avatarBitmap)
         }
     }
 
+    fun sendMessage(conversationId: Int, message: String) {
+        executor.execute {
+            val result = ApiVK.sendMessage(conversationId, message)
+            if (result.error != null) {
+                Log.d(LOG_TAG, "Error while sending message")
+            } else {
+                Log.d(LOG_TAG, "Message successfully sent")
+            }
+        }
+    }
 
 
     private fun transform(plains: List<com.inplace.api.Message>): List<Message> {
-        var result: MutableList<Message> = ArrayList()
+        val result: MutableList<Message> = ArrayList()
         plains.forEach {
             val message = map(it)
             result.add(message)
@@ -68,7 +81,7 @@ class ChatRepo {
             messageSource = Source.TELEGRAM
 
         return Message(
-                (messagePlain.date * 1000).toLong(),
+                messagePlain.date * 1000L,
                 messagePlain.text,
                 messagePlain.fromId,
                 messagePlain.myMsg,

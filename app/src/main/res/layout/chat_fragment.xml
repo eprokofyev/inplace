@@ -12,20 +12,37 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ScrollView
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nested_scrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/chat_bottomBar"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chat_toolbar"
-        android:fillViewport="true">
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/chat_messages_container"
+        app:layout_constraintVertical_bias="1.0">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:stackFromEnd="true"/>
-    </ScrollView>
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/chat_progressBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/chat_messages_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"
+                app:stackFromEnd="true" />
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
         android:id="@+id/chat_bottomBar"
@@ -48,10 +65,10 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="42dp"
             android:layout_marginBottom="20dp"
+            android:focusable="true"
             android:focusableInTouchMode="true"
-            android:focusable="true">
+            android:minHeight="42dp">
 
             <EditText
                 android:id="@+id/chat_message_editText"
@@ -63,13 +80,13 @@
                 android:background="@drawable/chat_message_edittext_shape"
                 android:ellipsize="end"
                 android:hint="@string/message_edit_text_hint"
+                android:inputType="textAutoCorrect|textCapSentences|textMultiLine"
                 android:maxHeight="100dp"
                 android:minHeight="40dp"
                 android:paddingStart="10dp"
                 android:paddingTop="5dp"
                 android:paddingEnd="10dp"
                 android:paddingBottom="5dp"
-                android:inputType="textAutoCorrect|textCapSentences|textMultiLine"
                 android:textCursorDrawable="@drawable/chat_message_edittext_cursor_shape"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/constraintLayout"

@@ -1,47 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
     android:paddingStart="5dp"
+    android:paddingTop="2dp"
     android:paddingEnd="5dp"
-    android:paddingBottom="8dp">
+    android:paddingBottom="4dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <TextView
+        android:id="@+id/messageSender"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textColor="#6D6E6F"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@+id/messageSenderAvatar"
+        app:layout_constraintTop_toTopOf="@+id/messageSenderAvatar" />
+
+    <LinearLayout
         android:id="@+id/messageContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="2dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="2dp"
         android:background="@drawable/target_message_shape"
         android:paddingStart="10dp"
         android:paddingTop="5dp"
         android:paddingEnd="10dp"
         android:paddingBottom="5dp"
         app:layout_constraintStart_toEndOf="@+id/messageSenderAvatar"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/messageSender"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#6D6E6F"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/messageSender">
 
         <TextView
             android:id="@+id/messageText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxWidth="@dimen/message_textView_maxWidth"
-            android:textSize="@dimen/messageTextSize"
             android:textColor="@color/black"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/messageSender" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:textSize="@dimen/messageTextSize"
+            app:layout_constraintStart_toStartOf="parent" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/message_status"
@@ -60,13 +62,14 @@
             android:layout_gravity="center"
             android:layout_marginStart="2dp"
             app:srcCompat="@drawable/ic_vk_logo_no_background" />
+
         <ImageView
             android:id="@+id/sourceTG"
             android:layout_width="17dp"
-            android:paddingTop="1dp"
             android:layout_height="12dp"
             android:layout_gravity="center"
             android:layout_marginStart="2dp"
+            android:paddingTop="1dp"
             app:srcCompat="@drawable/ic_tg_logo_no_background" />
 
         <TextView
@@ -74,17 +77,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="2dp"
-            tools:text="12:34"
             android:textColor="#6D6E6F"
-            android:textSize="12sp" />
-
-        <ImageView
-            android:layout_width="17dp"
-            android:layout_height="10dp"
-            android:layout_gravity="center"
-            android:layout_marginStart="2dp"
-            app:srcCompat="@drawable/ic_double_tick" />
-
+            android:textSize="12sp"
+            tools:text="12:34" />
 
     </LinearLayout>
 
@@ -92,9 +87,38 @@
         android:id="@+id/messageSenderAvatar"
         android:layout_width="35dp"
         android:layout_height="35dp"
+        android:layout_marginTop="2dp"
         android:src="@color/black"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="@+id/messageContainer"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/date_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/rounded_rectangle_shape"
+        android:padding="5dp"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/message_status"
+        tools:text="November 11" />
+
+    <TextView
+        android:id="@+id/newMessage_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/rounded_rectangle_shape"
+        android:padding="5dp"
+        android:text="@string/new_messages_text"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/date_textView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,65 +2,47 @@ package com.inplace.chat
 
 import android.os.Bundle
 import android.view.*
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.widget.NestedScrollView
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.inplace.R
-import com.inplace.chat.DateParser.convertDateToString
-import com.inplace.chat.DateParser.getDateAsUnix
-import com.inplace.models.*
+import com.inplace.chat.DateParser.getNowDate
+import com.inplace.models.Chat
+import com.inplace.models.Message
+import com.inplace.models.Source
 import de.hdodenhof.circleimageview.CircleImageView
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.LinkedHashSet
 
 
-class ChatFragment : Fragment() {
+class ChatFragment(var chat: Chat) : Fragment() {
     private val AVATAR_STATE = "avatarState"
     private val EDIT_TEXT_STATE = "editTextState"
+    private val messagesPerPageCount = 20
+    var messagesStart: Int = 0
+    var messagesEnd: Int = messagesPerPageCount
+
 
     lateinit var messageEditText: EditText
     lateinit var toolbar: Toolbar
     lateinit var avatar: CircleImageView
     lateinit var username: TextView
     lateinit var userActivity: TextView
+    lateinit var recycler: RecyclerView
+    lateinit var nestedScrollView: NestedScrollView
+    lateinit var messageLoadProgressBar: ProgressBar
 
+    lateinit var chatAdapter: ChatAdapter
     lateinit var chatViewModel: ChatViewModel
     var messages: MutableList<Message> = mutableListOf()
-    var chat: Chat
     private var avatarIsLoaded = false
+    private var isLoading = false
 
-    init {
-        val sobesednikList = mutableListOf<Sobesednik>(Sobesednik("Rick Sanchez", "https://avatarfiles.alphacoders.com/131/131749.png", null, null, "123"))
-        val user = User("Me", "1234", null, null, 1233)
-        chat = Chat(user, sobesednikList, messages, true, "1234", "1234", Source.VK, "123")
-        messages.add(Message(1606049697107, "hello", 123, false, Source.VK))
-        messages.add(Message(1606049709137, "Что делаешь?Что делаешь?Что делаешь?Что делаешь?Что делаешь?", 123, true, Source.VK))
-        messages.add(Message(1606049711685, "ничегоЧто делаешь?Что делаешь?Что делаешь?Что делаешь?Что делаешь?Что делаешь?", 123, false, Source.VK))
-        messages.add(Message(1606049714080, "hello", 123, true, Source.TELEGRAM))
-        messages.add(Message(1606049716352, "3", 123, true, Source.VK))
-        messages.add(Message(1606049718754, "3", 123, true, Source.VK))
-        messages.add(Message(1606049721418, "hello", 123, false, Source.VK))
-        messages.add(Message(1606049724546, "Что делаешь?Что делаешь?Что делаешь?Что делаешь?", 123, true, Source.VK))
-        messages.add(Message(1606049726821, "ничего", 123, false, Source.TELEGRAM))
-        messages.add(Message(1606049729778, "helloЧто делаешь?Что делаешь?Что делаешь?Что делаешь?", 123, true, Source.VK))
-        messages.add(Message(1606049732357, "3Что делаешь?Что делаешь?Что делаешь?Что делаешь?Что делаешь?Что делаешь?Что делаешь?", 123, true, Source.VK))
-        messages.add(Message(1606049735046, "3", 123, true, Source.VK))
-        messages.add(Message(1606049737544, "hello", 123, false, Source.VK))
-        messages.add(Message(1606049739994, "Что делаешь?", 123, true, Source.VK))
-        messages.add(Message(1606049742804, "ничего", 123, false, Source.VK))
-        messages.add(Message(1606049745759, "hello", 123, true, Source.VK))
-        messages.add(Message(1606049748306, "3", 123, true, Source.VK))
-        messages.add(Message(1606049750679, "3", 123, true, Source.VK))
-    }
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -94,6 +76,10 @@ class ChatFragment : Fragment() {
         avatar = toolbar.findViewById(R.id.chat_user_avatar)
         username = toolbar.findViewById(R.id.chat_user_name)
         userActivity = toolbar.findViewById(R.id.chat_user_activity)
+        nestedScrollView = view.findViewById(R.id.nested_scrollView)
+        messageLoadProgressBar = view.findViewById(R.id.chat_progressBar)
+
+        chatAdapter = ChatAdapter(LinkedList())
 
         avatarIsLoaded = savedInstanceState?.getBoolean(AVATAR_STATE) ?: false
         messageEditText.append(savedInstanceState?.getString(EDIT_TEXT_STATE) ?: "")
@@ -101,7 +87,6 @@ class ChatFragment : Fragment() {
         chatViewModel = ViewModelProvider(this).get(ChatViewModel::class.java)
 
         val sobesedniks = chat.sobesedniks
-
 
         if (sobesedniks.size == 1) {
             username.text = sobesedniks[0].name
@@ -113,8 +98,12 @@ class ChatFragment : Fragment() {
             }
         }
 
-        val resList = sortMessagesByDate(messages)
-        val adapter = ChatAdapter(resList)
+
+
+
+
+
+        chatViewModel.fetchMessages(chat.conversationVkId.toInt(), messagesStart, messagesEnd)
 
         chatViewModel.getAvatar().observe(viewLifecycleOwner) {
             avatar.setImageBitmap(it)
@@ -122,19 +111,30 @@ class ChatFragment : Fragment() {
 
         chatViewModel.getMessages().observe(viewLifecycleOwner) {
             if (it.isNotEmpty()) {
-                val listObject = sortMessagesByDate(it)
-                adapter.setMessages(listObject)
+                val sortedList: MutableList<Message> = it.sortedWith(compareBy { it.date }).toMutableList().asReversed()
+                chatAdapter.setMessages(sortedList)
+                messageLoadProgressBar.visibility = View.GONE
+                if (messagesStart == 0) {
+                    scrollToBottom()
+                }
+                isLoading = false
+                messagesStart += it.size
+                messagesEnd = messagesStart + messagesPerPageCount
             }
         }
 
 
-        val recycler: RecyclerView = view.findViewById(R.id.chat_messages_container)
-
+        recycler = view.findViewById(R.id.chat_messages_container)
 
         recycler.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, true)
+        recycler.adapter = chatAdapter
 
-        recycler.adapter = adapter
-
+        nestedScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
+            if (scrollY == 0) {
+                messageLoadProgressBar.visibility = View.VISIBLE
+                chatViewModel.fetchMessages(chat.conversationVkId.toInt(), messagesStart, messagesEnd)
+            }
+        })
 
         //setting toolbar
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
@@ -147,7 +147,14 @@ class ChatFragment : Fragment() {
         val voiceButton: ImageView = view.findViewById(R.id.chat_voice_button)
 
         sendButton.setOnClickListener {
-            //TODO: write message send logic
+            val messageText: String = messageEditText.text.toString()
+            val message = Message(getNowDate(), messageText, chat.user.id, true, Source.VK)
+
+            chatAdapter.addMessage(message)
+            scrollToBottom()
+
+            //chatViewModel.sendMessage(chat.conversationVkId.toInt(),messageText)
+
             messageEditText.setText("")
         }
 
@@ -167,40 +174,26 @@ class ChatFragment : Fragment() {
 
     }
 
-    private fun sortMessagesByDate(messagesList: List<Message>): MutableList<ListObject> {
-        val sortedList: List<Message> = messagesList.sortedWith(compareBy { it.date })
-        val groupedTreeMap: TreeMap<Long, MutableSet<Message>> = TreeMap()
-        var list: MutableSet<Message>
-        for (message in sortedList) {
-            val treeMapKey = getDateAsUnix(message.date)
-
-            if (groupedTreeMap.containsKey(treeMapKey)) {
-                // The key is already in the HashMap; add the object
-                // against the existing key.
-                groupedTreeMap[treeMapKey]!!.add(message)
-            } else {
-                // The key is not there in the HashMap; create a new key-value pair
-                list = LinkedHashSet()
-                list.add(message)
-                groupedTreeMap[treeMapKey] = list
+    fun scrollToBottom() {
+        nestedScrollView.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                nestedScrollView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                val nestedScrollViewHeight = nestedScrollView.height
+                if (nestedScrollViewHeight > 0) {
+                    val lastView = nestedScrollView.getChildAt(nestedScrollView.childCount - 1)
+                    val lastViewBottom = lastView.bottom + nestedScrollView.paddingBottom
+                    val deltaScrollY = lastViewBottom - nestedScrollViewHeight - nestedScrollView.scrollY
+                    nestedScrollView.scrollBy(0, deltaScrollY)
+                }
             }
-        }
-
-        // We linearly add every item into the sortedList.
-        val resultList: MutableList<ListObject> = ArrayList()
-        for (date in groupedTreeMap.keys) {
-            val dateItem = DateObject()
-            dateItem.date = convertDateToString(date)
-            resultList.add(dateItem)
-            for (message in groupedTreeMap[date]!!) {
-                val generalItem = MessagesObject()
-                generalItem.message = message
-                resultList.add(generalItem)
-            }
-        }
-
-        return resultList.asReversed()
+        })
     }
+
+//    fun newInstance(bundle: Bundle): ChatFragment{
+//        val fragment = ChatFragment()
+//        fragment.arguments = bundle
+//        return fragment
+//    }
 
 }
 

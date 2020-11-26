@@ -7,40 +7,34 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.inplace.R
+import com.inplace.models.Message
 import com.inplace.models.Source
 import de.hdodenhof.circleimageview.CircleImageView
+import java.util.*
 
-class ChatAdapter(var messagesList: MutableList<ListObject>) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ChatAdapter(var messagesList: LinkedList<Message>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    var beforAddPosition = 0
 
-    fun setMessages(messages: MutableList<ListObject>) {
+    fun setMessages(messages: List<Message>) {
+        beforAddPosition = messagesList.size
         messages.forEach {
-            this.messagesList.add(it)
+            messagesList.add(it)
         }
-        this.messagesList = messages
-        notifyDataSetChanged()
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return messagesList.get(position).getType()
+        notifyItemRangeInserted(beforAddPosition, messages.size)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         lateinit var viewHolder: RecyclerView.ViewHolder
         val inflater: LayoutInflater = LayoutInflater.from(parent.context)
         when (viewType) {
-            MessageType.DATE -> {
-                val dateView = inflater.inflate(R.layout.chat_date_item, parent, false)
-                viewHolder = DateViewHolder(dateView)
-            }
             MessageType.HOST -> {
                 val hostMessageView =
-                    inflater.inflate(R.layout.chat_host_message_item, parent, false)
+                        inflater.inflate(R.layout.chat_host_message_item, parent, false)
                 viewHolder = HostMessageViewHolder(hostMessageView)
             }
             MessageType.TARGET -> {
                 val targetMessageVIew =
-                    inflater.inflate(R.layout.chat_target_message_item, parent, false)
+                        inflater.inflate(R.layout.chat_target_message_item, parent, false)
                 viewHolder = TargetMessageViewHolder(targetMessageVIew)
             }
         }
@@ -49,46 +43,17 @@ class ChatAdapter(var messagesList: MutableList<ListObject>) :
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder.itemViewType) {
-            MessageType.DATE -> {
-                val model = messagesList[position] as DateObject
-                val dateViewHolder = holder as DateViewHolder
-                dateViewHolder.dateTextView.text = model.date
-            }
             MessageType.HOST -> {
-                val model = messagesList[position] as MessagesObject
+                val model = messagesList[position]
                 val hostMessageHolder = holder as HostMessageViewHolder
-                hostMessageHolder.messageText.text = model.message.text
-                hostMessageHolder.sentTime.text = DateParser.convertTimeToString(model.message.date)
-                when (model.message.fromMessenger) {
-                    Source.TELEGRAM -> {
-                        hostMessageHolder.sourceTG.visibility = View.VISIBLE
-                        hostMessageHolder.sourceVK.visibility = View.GONE
-                    }
-                    Source.VK -> {
-                        hostMessageHolder.sourceTG.visibility = View.GONE
-                        hostMessageHolder.sourceVK.visibility = View.VISIBLE
-                    }
-                }
+                val prevItem = if (position == 0) null else messagesList[position - 1]
+                hostMessageHolder.bind(model, prevItem)
             }
             MessageType.TARGET -> {
-                val model = messagesList[position] as MessagesObject
+                val model = messagesList[position]
                 val targetMessageHolder = holder as TargetMessageViewHolder
-                targetMessageHolder.messageText.text = model.message.text
-                targetMessageHolder.sentTime.text =
-                    DateParser.convertTimeToString(model.message.date)
-                targetMessageHolder.messageSender.visibility = View.VISIBLE
-                targetMessageHolder.messageSender.text = "Username"
-                targetMessageHolder.messageSenderAvatar.visibility = View.VISIBLE
-                when (model.message.fromMessenger) {
-                    Source.TELEGRAM -> {
-                        targetMessageHolder.sourceTG.visibility = View.VISIBLE
-                        targetMessageHolder.sourceVK.visibility = View.GONE
-                    }
-                    Source.VK -> {
-                        targetMessageHolder.sourceTG.visibility = View.GONE
-                        targetMessageHolder.sourceVK.visibility = View.VISIBLE
-                    }
-                }
+                val prevItem = if (position == 0) null else messagesList[position - 1]
+                targetMessageHolder.bind(model, prevItem)
             }
         }
     }
@@ -97,11 +62,45 @@ class ChatAdapter(var messagesList: MutableList<ListObject>) :
         return messagesList.size
     }
 
+    override fun getItemViewType(position: Int): Int {
+        return if (messagesList[position].myMsg) MessageType.HOST else MessageType.TARGET
+    }
+
+    fun addMessage(message: Message) {
+        messagesList.addFirst(message)
+        notifyDataSetChanged()
+    }
+
     inner class HostMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val messageText: TextView = itemView.findViewById(R.id.messageText)
-        val sentTime: TextView = itemView.findViewById(R.id.sentTime)
-        val sourceTG: ImageView = itemView.findViewById(R.id.sourceTG)
-        val sourceVK: ImageView = itemView.findViewById(R.id.sourceVK)
+        var messageText: TextView = itemView.findViewById(R.id.messageText)
+        var sentTime: TextView = itemView.findViewById(R.id.sentTime)
+        var sourceTG: ImageView = itemView.findViewById(R.id.sourceTG)
+        var sourceVK: ImageView = itemView.findViewById(R.id.sourceVK)
+        var dateTextView: TextView = itemView.findViewById(R.id.date_textView)
+        var newMessage: TextView = itemView.findViewById(R.id.newMessage_textView)
+
+        fun bind(model: Message, prevItem: Message? = null) {
+            messageText.text = model.text
+            sentTime.text = DateParser.convertTimeToString(model.date)
+            when (model.fromMessenger) {
+                Source.VK -> {
+                    sourceTG.visibility = View.GONE
+                    sourceVK.visibility = View.VISIBLE
+                }
+                Source.TELEGRAM -> {
+                    sourceTG.visibility = View.VISIBLE
+                    sourceVK.visibility = View.GONE
+                }
+            }
+            if (prevItem != null) {
+                val prevDate = DateParser.getDateAsUnix(prevItem.date)
+                val currDate = DateParser.getDateAsUnix(model.date)
+                if (currDate != prevDate) {
+                    dateTextView.visibility = View.VISIBLE
+                    dateTextView.text = DateParser.convertDateToString(prevDate)
+                }
+            }
+        }
     }
 
     inner class TargetMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -111,11 +110,30 @@ class ChatAdapter(var messagesList: MutableList<ListObject>) :
         val sourceVK: ImageView = itemView.findViewById(R.id.sourceVK)
         val messageSender: TextView = itemView.findViewById(R.id.messageSender)
         var messageSenderAvatar: CircleImageView = itemView.findViewById(R.id.messageSenderAvatar)
-    }
-
-    inner class DateViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val dateTextView: TextView = itemView.findViewById(R.id.date_textView)
+        val newMessage: TextView = itemView.findViewById(R.id.newMessage_textView)
+
+        fun bind(model: Message, prevItem: Message? = null) {
+            messageText.text = model.text
+            sentTime.text = DateParser.convertTimeToString(model.date)
+            when (model.fromMessenger) {
+                Source.VK -> {
+                    sourceTG.visibility = View.GONE
+                    sourceVK.visibility = View.VISIBLE
+                }
+                Source.TELEGRAM -> {
+                    sourceTG.visibility = View.VISIBLE
+                    sourceVK.visibility = View.GONE
+                }
+            }
+            if (prevItem != null) {
+                val prevDate = DateParser.getDateAsUnix(prevItem.date)
+                val currDate = DateParser.getDateAsUnix(model.date)
+                if (currDate != prevDate) {
+                    dateTextView.visibility = View.VISIBLE
+                    dateTextView.text = DateParser.convertDateToString(prevDate)
+                }
+            }
+        }
     }
-
-
 }

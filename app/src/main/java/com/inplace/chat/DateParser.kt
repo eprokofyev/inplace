@@ -7,6 +7,7 @@ import java.util.*
 object DateParser {
     private val dateFormat: DateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.US)
     private val timeFormat: DateFormat = SimpleDateFormat("HH:mm", Locale.US)
+    private val dateTimeFormat = SimpleDateFormat("dd MMMM yyyy HH:mm", Locale.US)
 
     fun getDateAsUnix(unix: Long): Long {
         val strDate = dateFormat.format(unix)
@@ -16,5 +17,7 @@ object DateParser {
 
     fun convertDateToString(date: Long): String = dateFormat.format(date)
 
-    fun convertTimeToString(date: Long):String = timeFormat.format(date)
+    fun convertTimeToString(date: Long): String = timeFormat.format(date)
+
+    fun getNowDate(): Long = Calendar.getInstance().timeInMillis
 }
