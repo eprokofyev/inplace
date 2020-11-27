@@ -8,6 +8,8 @@ public class Message {
     public int fromId = -1;
     public boolean myMsg = false;
 
+    public int messageId = -1;
+
     // 1 -> VK
     // 2 -> telegram
     public int fromMessenger = -1;
