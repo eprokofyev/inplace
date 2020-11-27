@@ -55,7 +55,9 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0-rc01'
 
     // Paging
-    implementation "android.arch.paging:runtime:1.0.1"
+    def paging_version = "3.0.0-alpha09"
+
+    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
 
 
 }

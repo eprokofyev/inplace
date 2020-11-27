@@ -5,23 +5,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.inplace.R
 import com.inplace.models.Message
 import com.inplace.models.Source
 import de.hdodenhof.circleimageview.CircleImageView
-import java.util.*
 
-class ChatAdapter(var messagesList: LinkedList<Message>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    var beforAddPosition = 0
-
-    fun setMessages(messages: List<Message>) {
-        beforAddPosition = messagesList.size
-        messages.forEach {
-            messagesList.add(it)
-        }
-        notifyItemRangeInserted(beforAddPosition, messages.size)
-    }
+class ChatAdapter : PagingDataAdapter<Message, RecyclerView.ViewHolder>(MESSAGE_COMPARATOR) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         lateinit var viewHolder: RecyclerView.ViewHolder
@@ -44,32 +36,29 @@ class ChatAdapter(var messagesList: LinkedList<Message>) : RecyclerView.Adapter<
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder.itemViewType) {
             MessageType.HOST -> {
-                val model = messagesList[position]
+                val model = getItem(position)
                 val hostMessageHolder = holder as HostMessageViewHolder
-                val prevItem = if (position == 0) null else messagesList[position - 1]
-                hostMessageHolder.bind(model, prevItem)
+                val prevItem = if (position == 0) null else getItem(position - 1)
+                if (model != null) {
+                    hostMessageHolder.bind(model, prevItem)
+                }
             }
             MessageType.TARGET -> {
-                val model = messagesList[position]
+                val model = getItem(position)
                 val targetMessageHolder = holder as TargetMessageViewHolder
-                val prevItem = if (position == 0) null else messagesList[position - 1]
-                targetMessageHolder.bind(model, prevItem)
+                val prevItem = if (position == 0) null else getItem(position - 1)
+                if (model != null) {
+                    targetMessageHolder.bind(model, prevItem)
+                }
             }
         }
     }
 
-    override fun getItemCount(): Int {
-        return messagesList.size
-    }
 
     override fun getItemViewType(position: Int): Int {
-        return if (messagesList[position].myMsg) MessageType.HOST else MessageType.TARGET
+        return if (getItem(position)!!.myMsg) MessageType.HOST else MessageType.TARGET
     }
 
-    fun addMessage(message: Message) {
-        messagesList.addFirst(message)
-        notifyDataSetChanged()
-    }
 
     inner class HostMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var messageText: TextView = itemView.findViewById(R.id.messageText)
@@ -134,6 +123,18 @@ class ChatAdapter(var messagesList: LinkedList<Message>) : RecyclerView.Adapter<
                     dateTextView.text = DateParser.convertDateToString(prevDate)
                 }
             }
+        }
+    }
+
+    companion object {
+        private val MESSAGE_COMPARATOR = object : DiffUtil.ItemCallback<Message>() {
+            override fun areItemsTheSame(oldItem: Message, newItem: Message) =
+                    oldItem.date == newItem.date
+
+
+            override fun areContentsTheSame(oldItem: Message, newItem: Message) =
+                    oldItem == newItem
+
         }
     }
 }

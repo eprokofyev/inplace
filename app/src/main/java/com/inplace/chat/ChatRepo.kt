@@ -4,6 +4,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.liveData
 import com.inplace.api.ApiImageLoader
 import com.inplace.api.vk.ApiVK
 import com.inplace.models.Message
@@ -24,26 +27,17 @@ class ChatRepo {
     }
 
 
-    fun getMessages(): MutableLiveData<List<Message>> {
-        return messagesLiveData
-    }
+    fun getMessages(conversationId: Int) =
+            Pager(
+                    PagingConfig(
+                            pageSize = 20,
+                            enablePlaceholders = false,
+                            initialLoadSize = 20
+                    ),
+                    pagingSourceFactory = { ChatPagingSource(conversationId) }
+            ).liveData
 
-    fun fetchMessages(conversationId: Int, start: Int, end: Int) {
-        executor.execute {
-            val resultGetMessages = ApiVK.getMessages(conversationId, start, end)
-            if (resultGetMessages.error != null) {
-                //todo process error
-            } else {
-                val messagesArray = resultGetMessages.result as ArrayList<com.inplace.api.Message>
-                messagesLiveData.postValue(transform(messagesArray))
-            }
-        }
-
-    }
-
-    fun getAvatar(): MutableLiveData<Bitmap> {
-        return avatarLiveData
-    }
+    fun getAvatar() = avatarLiveData
 
     fun fetchAvatar(url: String, context: Context?) {
         executor.execute {

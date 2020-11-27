@@ -3,18 +3,25 @@ package com.inplace.chat
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.inplace.models.Message
+import androidx.lifecycle.switchMap
 
 class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     private var chatRepo = ChatRepo()
-    private var mMessages: MutableLiveData<List<Message>> = chatRepo.getMessages()
+//    private var mMessages: MutableLiveData<List<Message>> = chatRepo.getMessages()
+
     private var mAvatar = chatRepo.getAvatar()
 
-    fun getMessages() = mMessages
 
-    fun fetchMessages(conversationId: Int, start: Int, end: Int) {
-        chatRepo.fetchMessages(conversationId, start, end)
+    private var getMessageQuery = MutableLiveData<Int>()
+
+    val messages = getMessageQuery.switchMap { conversationId ->
+        chatRepo.getMessages(conversationId)
+
+    }
+
+    fun getMessages(conversationId: Int) {
+        getMessageQuery.value = conversationId
     }
 
     fun getAvatar() = mAvatar

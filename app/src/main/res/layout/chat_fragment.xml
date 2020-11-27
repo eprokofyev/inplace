@@ -12,37 +12,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/nested_scrollView"
-        android:layout_width="0dp"
+    <ScrollView
+        android:id="@+id/chat_scrollView"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/chat_bottomBar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chat_toolbar"
-        app:layout_constraintVertical_bias="1.0">
-
-        <LinearLayout
+        app:layout_constraintTop_toBottomOf="@+id/chat_toolbar">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/chat_messages_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="0dp"
+            android:overScrollMode="never"
 
-            <ProgressBar
-                android:id="@+id/chat_progressBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+            app:stackFromEnd="true" />
+    </ScrollView>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/chat_messages_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:overScrollMode="never"
-                app:stackFromEnd="true" />
-        </LinearLayout>
 
-    </androidx.core.widget.NestedScrollView>
+
 
     <LinearLayout
         android:id="@+id/chat_bottomBar"
