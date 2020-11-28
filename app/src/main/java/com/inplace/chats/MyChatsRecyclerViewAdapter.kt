@@ -11,10 +11,10 @@ import com.inplace.R
 import de.hdodenhof.circleimageview.CircleImageView
 
 
-class MyItemRecyclerViewAdapter(
+class MyChatsRecyclerViewAdapter(
     private val values: MutableList<Int>,
     private val context: SwitcherInterface
-) : RecyclerView.Adapter<MyItemRecyclerViewAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<MyChatsRecyclerViewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)

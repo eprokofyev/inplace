@@ -443,8 +443,6 @@ public class ApiVK {
         return result;
     }
 
-
-
     // result -> ArrayList<VkUser>
     public static CommandResult getUsers(ArrayList<Integer> idList) {
 

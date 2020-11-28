@@ -3,8 +3,7 @@ package com.inplace
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.inplace.chat.ChatFragment
-import com.inplace.chats.ItemFragment
-import com.inplace.chats.NumberFragment
+import com.inplace.chats.ChatsFragment
 import com.inplace.chats.SwitcherInterface
 
 class MainActivity : AppCompatActivity(), SwitcherInterface {
@@ -16,7 +15,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
 
         val transaction = supportFragmentManager.beginTransaction()
         if (savedInstanceState == null) {
-            transaction.add(R.id.fragment_container, ItemFragment.newInstance(100))
+            transaction.add(R.id.fragment_container, ChatsFragment.newInstance(100))
             transaction.commitAllowingStateLoss()
         }
     }

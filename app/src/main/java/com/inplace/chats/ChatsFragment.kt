@@ -8,9 +8,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.inplace.R
 
 
-class ItemFragment : Fragment() {
+class ChatsFragment : Fragment() {
 
     private lateinit var listener: SwitcherInterface
+
+    private lateinit var chatsViewModel: ChatsViewModel
 
     private var size = 0
 
@@ -19,7 +21,6 @@ class ItemFragment : Fragment() {
         if (context is SwitcherInterface) {
             listener = context as SwitcherInterface
         }
-
     }
 
     override fun onCreateView(
@@ -57,7 +58,7 @@ class ItemFragment : Fragment() {
         with(recycler) {
             layoutManager = LinearLayoutManager(context)
 
-            adapter = MyItemRecyclerViewAdapter(DataSource.get(), listener)
+            adapter = MyChatsRecyclerViewAdapter(DataSource.get(), listener)
         }
 
     }
@@ -77,7 +78,7 @@ class ItemFragment : Fragment() {
     companion object {
         private const val NUMBERS = "numbers"
 
-        fun newInstance(size: Int) = ItemFragment().apply {
+        fun newInstance(size: Int) = ChatsFragment().apply {
             if (arguments == null) {
                 arguments = Bundle(1).apply {
                     putInt(NUMBERS, size)
