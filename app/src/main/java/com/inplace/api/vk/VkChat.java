@@ -1,5 +1,8 @@
 package com.inplace.api.vk;
 
+import java.util.ArrayList;
+import java.util.Map;
+
 public class VkChat {
 
     public static final int CHAT_TYPE_USER = 1;
@@ -15,7 +18,5 @@ public class VkChat {
     public int chatWithId = -1;
     public int lastMsgFromId = -1;
     public int lasMsgId = -1;
-
-
 
 }
