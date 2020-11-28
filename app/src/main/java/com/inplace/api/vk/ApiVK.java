@@ -296,7 +296,7 @@ public class ApiVK {
                 vkChat.text = lastMessageObj.getString("text");
                 vkChat.date = Integer.parseInt(lastMessageObj.getString("date"));
                 vkChat.lastMsgFromId = Integer.parseInt(lastMessageObj.getString("from_id"));
-
+                vkChat.lasMsgId = Integer.parseInt(lastMessageObj.getString("id"));
 
                 if (type.equals("user")) {
                     vkChat.chatType = VkChat.CHAT_TYPE_USER;
@@ -411,6 +411,8 @@ public class ApiVK {
                 if (oneMessage.fromId == VkSingleton.getUserId()){
                     oneMessage.myMsg = true;
                 }
+
+                oneMessage.messageId = Integer.parseInt(OneMsgJsonObj.getString("id"));
 
                 oneMessage.fromMessenger = 1; // todo replace enum
 
@@ -766,6 +768,7 @@ public class ApiVK {
 
                 message.fromId = Integer.parseInt(oneMessageJSON.getString("from_id"));
                 message.date = Integer.parseInt(oneMessageJSON.getString("date"));
+                message.messageId = Integer.parseInt(oneMessageJSON.getString("id"));
 
                 if (message.fromId == VkSingleton.getUserId()){
                     message.myMsg = true;

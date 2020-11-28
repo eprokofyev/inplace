@@ -14,7 +14,7 @@ public class VkChat {
     public String text = "";
     public int chatWithId = -1;
     public int lastMsgFromId = -1;
-
+    public int lasMsgId = -1;
 
 
 
