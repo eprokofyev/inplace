@@ -51,14 +51,14 @@ class VkLoginFragment : Fragment() {
                 loginButton.isEnabled = isDataValid
             })
 
-        loginViewModel.loginResult.observe(this,
-            Observer { loginResult ->
-                loginResult ?: return@Observer
+        loginViewModel.commandResult.observe(this,
+            Observer { commandResult ->
+                commandResult ?: return@Observer
                 loadingProgressBar.visibility = View.GONE
-                loginResult.error?.let {
-                    showLoginFailed(it)
+                commandResult.error?.let {
+                    showLoginFailed(commandResult.errTextMsg)
                 }
-                loginResult.success?.let {
+                commandResult.result?.let {
                     updateUiWithUser()
                 }
             })
@@ -105,7 +105,7 @@ class VkLoginFragment : Fragment() {
         startActivity(intent)
     }
 
-    private fun showLoginFailed(@StringRes errorString: Int) {
+    private fun showLoginFailed(errorString: String) {
         val appContext = context?.applicationContext ?: return
         Toast.makeText(appContext, errorString, Toast.LENGTH_LONG).show()
     }

@@ -2,7 +2,7 @@ package com.inplace.auth.ui.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.inplace.auth.data.LoginDataSource
+import com.inplace.api.vk.ApiVK
 import com.inplace.auth.data.LoginRepository
 
 /**
@@ -16,7 +16,7 @@ class LoginViewModelFactory : ViewModelProvider.Factory {
         if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
             return LoginViewModel(
                 loginRepository = LoginRepository(
-                    dataSource = LoginDataSource()
+                    dataSource = ApiVK()
                 )
             ) as T
         }

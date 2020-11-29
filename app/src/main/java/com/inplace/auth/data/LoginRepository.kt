@@ -1,45 +1,39 @@
 package com.inplace.auth.data
 
-import com.inplace.auth.data.model.User_VK
+import com.inplace.api.CommandResult
+import com.inplace.api.vk.ApiVK
+import com.inplace.api.vk.VkUser
 
 /**
  * Class that requests authentication and user information from the remote data source and
  * maintains an in-memory cache of login status and user credentials information.
  */
 
-class LoginRepository(val dataSource: LoginDataSource) {
+class LoginRepository(val dataSource: ApiVK) {
 
     // in-memory cache of the loggedInUser object
-    var userVK: User_VK? = null
+    var vkUser: VkUser? = null
         private set
 
     val isLoggedIn: Boolean
-        get() = userVK != null
+        get() = vkUser != null
 
     init {
         // If user credentials will be cached in local storage, it is recommended it be encrypted
         // @see https://developer.android.com/training/articles/keystore
-        userVK = null
+        vkUser = null
     }
 
     fun logout() {
-        userVK = null
-        dataSource.logout()
+        // logout
     }
 
-    fun login(username: String, password: String): Result<User_VK> {
-        // handle login
-        val result = dataSource.login(username, password)
-
-        if (result is Result.Success) {
-            setLoggedInUser(result.data)
-        }
-
-        return result
+    fun login(username: String, password: String): CommandResult {
+        return ApiVK.login(username, password)
     }
 
-    private fun setLoggedInUser(userVK: User_VK) {
-        this.userVK = userVK
+    private fun setLoggedInUser(vkUser: VkUser) {
+        this.vkUser = vkUser
         // If user credentials will be cached in local storage, it is recommended it be encrypted
         // @see https://developer.android.com/training/articles/keystore
     }
