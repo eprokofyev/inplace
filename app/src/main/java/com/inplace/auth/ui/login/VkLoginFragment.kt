@@ -1,5 +1,6 @@
 package com.inplace.auth.ui.login
 
+import android.content.Intent
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.annotation.StringRes
@@ -15,8 +16,9 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
+import com.inplace.MainActivity
 import com.inplace.R
-
+import java.io.Serializable
 
 
 class VkLoginFragment : Fragment() {
@@ -57,7 +59,7 @@ class VkLoginFragment : Fragment() {
                     showLoginFailed(it)
                 }
                 loginResult.success?.let {
-                    updateUiWithUser(it)
+                    updateUiWithUser()
                 }
             })
 
@@ -98,11 +100,9 @@ class VkLoginFragment : Fragment() {
         }
     }
 
-    private fun updateUiWithUser(model: LoggedInUserView) {
-        val welcome = getString(R.string.welcome) + model.displayName
-        // TODO : initiate successful logged in experience
-        val appContext = context?.applicationContext ?: return
-        Toast.makeText(appContext, welcome, Toast.LENGTH_LONG).show()
+    private fun updateUiWithUser() {
+        val intent = Intent(activity, MainActivity::class.java)
+        startActivity(intent)
     }
 
     private fun showLoginFailed(@StringRes errorString: Int) {

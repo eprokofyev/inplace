@@ -2,12 +2,16 @@ package com.inplace.auth
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.Toast
 import androidx.core.view.iterator
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.inplace.R
-import com.inplace.auth.ui.login.TgLoginFragment
-import com.inplace.auth.ui.login.VkLoginFragment
+import com.inplace.auth.ui.login.*
 
 class AuthActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
