@@ -12,6 +12,7 @@ public class VkChat {
     // 2 - group chat
     // 3 - public group // todo not work now
     public int chatType = -1;
+    public String groupChatTitle = "";
 
     public int date = -1;
     public String text = "";
