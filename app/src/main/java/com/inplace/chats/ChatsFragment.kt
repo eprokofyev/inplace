@@ -1,11 +1,13 @@
 package com.inplace.chats
 
+import android.app.Application
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
 import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,7 +16,6 @@ import com.inplace.R
 import com.inplace.api.vk.ApiVK
 import com.inplace.api.vk.VkUser
 import com.inplace.models.Chat
-import com.inplace.models.SobesednikVk
 import com.inplace.models.User
 import com.inplace.models.UserVK
 
@@ -38,8 +39,8 @@ class ChatsFragment : Fragment() {
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
 
         savedInstanceState?.let { st = it.getBoolean("st") }
@@ -63,18 +64,21 @@ class ChatsFragment : Fragment() {
             val res = ApiVK.getMe()
             if (res.result is VkUser) {
                 val u = res.result as VkUser
-                val vk = UserVK(u.firstName + u.lastName,
-                        u.photo200Square,
-                        "8132776413",
-                        "token",
-                        u.id.toString(),
-                        "email",
-                        0)
-                user = User(vk.name,
-                        vk.avatar,
-                        vk,
-                        null,
-                        0,
+                val vk = UserVK(
+                    u.firstName + u.lastName,
+                    u.photo200Square,
+                    "8132776413",
+                    "token",
+                    u.id.toString(),
+                    "email",
+                    0
+                )
+                user = User(
+                    vk.name,
+                    vk.avatar,
+                    vk,
+                    null,
+                    0,
                 )
 
             }
@@ -116,7 +120,9 @@ class ChatsFragment : Fragment() {
             }
         }
 
-        chatsViewModel = activity?.let { ViewModelProvider(it) }?.get(ChatsViewModel::class.java)
+        chatsViewModel = activity?.let { ViewModelProvider(it) }?.get(
+            ChatsViewModel::class.java
+        )
 
         chatsViewModel?.refresh()
 

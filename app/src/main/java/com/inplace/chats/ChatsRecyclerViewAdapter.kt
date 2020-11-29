@@ -1,5 +1,6 @@
 package com.inplace.chats
 
+import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,6 +36,10 @@ class ChatsRecyclerViewAdapter(
 
         holder.time.text = chats[position].messages.firstOrNull()?.date.toString() ?: "defaul"
 
+
+        if (chats[position].avatar != null) {
+            holder.avatar.setImageBitmap(chats[position].avatar)
+        }
 
         holder.line.setOnClickListener { v ->
 
