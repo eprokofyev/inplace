@@ -13,7 +13,6 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -895,6 +894,7 @@ public class ApiVK {
                 }
                 if (type.equals("chat")) {
                     vkChat.chatType = VkChat.CHAT_TYPE_GROUP_CHAT;
+                    vkChat.groupChatTitle = jsonConversations.getJSONObject(i).getJSONObject("conversation").getJSONObject("chat_settings").getString("title");
                 }
                 // todo add here public group
 
