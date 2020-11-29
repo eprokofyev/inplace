@@ -951,7 +951,7 @@ public class ApiVK {
 
             result.result = vkChatWithUsers;
 
-            
+
 //            for (HashMap.Entry<Integer,VkUser> entry : vkChatWithUsers.users.entrySet()) {
 //                Integer key = entry.getKey();
 //                VkUser user = entry.getValue();
