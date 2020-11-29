@@ -831,7 +831,7 @@ public class ApiVK {
         final String method = "method/messages.getConversations";
 
         // todo not work =(
-        final String fields = "id,profiles,about,status,online,last_name,first_name,online,photo_200";
+        final String fields = "id,profiles,about,status,online,last_name,first_name,online,photo_200"; //photo_200
 
         int count = end - start;
 
@@ -864,6 +864,10 @@ public class ApiVK {
             String body = response.body().string();
 
 
+//            Log.d("ApiVK get chat U:", "response.body:" + body);
+
+
+
             JSONObject mainObject = new JSONObject(body);
             JSONArray jsonConversations = mainObject.getJSONObject("response").getJSONArray("items");
 
@@ -876,7 +880,7 @@ public class ApiVK {
 
                 String type = jsonConversations.getJSONObject(i).getJSONObject("conversation").getJSONObject("peer").getString("type");
                 vkChat.chatWithId = Integer.parseInt(jsonConversations.getJSONObject(i).getJSONObject("conversation").getJSONObject("peer").getString("id"));
-                Log.d("ApiVK get chats:", "type:" + type);
+//                Log.d("ApiVK get chats:", "type:" + type);
 
 
                 JSONObject lastMessageObj = jsonConversations.getJSONObject(i).getJSONObject("last_message");
@@ -904,6 +908,7 @@ public class ApiVK {
 
             for (int i = 0; i < jsonUsers.length(); i++) {
 
+
                 VkUser vkUser = new VkUser();
 
                 JSONObject oneUserJsonObj = jsonUsers.getJSONObject(i);
@@ -915,8 +920,8 @@ public class ApiVK {
                     continue;
 
                 // skip me
-                if (vkUser.id == VkSingleton.getUserId())
-                    continue;
+//                if (vkUser.id == VkSingleton.getUserId())
+//                    continue;
 
                 vkUser.firstName = oneUserJsonObj.getString("first_name");
                 vkUser.lastName = oneUserJsonObj.getString("last_name");
@@ -934,14 +939,26 @@ public class ApiVK {
                 vkUser.photo200Square = oneUserJsonObj.getString("photo_200");
 
 
+                chatUsers.put(vkUser.id, vkUser);
             }
 
 
-            VkChatWithUsers vkChatWithUsers =  new VkChatWithUsers();
+            VkChatWithUsers vkChatWithUsers = new VkChatWithUsers();
             vkChatWithUsers.chats = chatList;
             vkChatWithUsers.users = chatUsers;
 
             result.result = vkChatWithUsers;
+
+
+//            for (HashMap.Entry<Integer,VkUser> entry : vkChatWithUsers.users.entrySet()) {
+//                Integer key = entry.getKey();
+//                VkUser user = entry.getValue();
+//
+//                String showLog = "key:" + key + "\n" + user.firstName + " "  + user.lastName + "\n"
+//                        + "id:" + user.id + "\tphoto" + user.photo200Square;
+//
+//                Log.d("ApiVK", showLog);
+//            }
 
             return result;
 
