@@ -1,6 +1,7 @@
 package com.inplace.chat
 
 object MessageType {
-    const val HOST = 1
-    const val TARGET = 2
+    const val DATE = 1
+    const val HOST = 2
+    const val TARGET = 3
 }

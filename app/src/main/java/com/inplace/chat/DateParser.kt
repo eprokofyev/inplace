@@ -7,7 +7,6 @@ import java.util.*
 object DateParser {
     private val dateFormat: DateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.US)
     private val timeFormat: DateFormat = SimpleDateFormat("HH:mm", Locale.US)
-    private val dateTimeFormat = SimpleDateFormat("dd MMMM yyyy HH:mm", Locale.US)
 
     fun getDateAsUnix(unix: Long): Long {
         val strDate = dateFormat.format(unix)
