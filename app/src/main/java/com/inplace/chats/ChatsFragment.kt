@@ -51,7 +51,7 @@ class ChatsFragment : Fragment() {
             StrictMode.setThreadPolicy(policy)
         }
 
-        if (!st) {
+        if (user == null) {
             Log.d("ApiVK", "start of auth request")
 
             // todo hardcore name and pass
@@ -145,7 +145,7 @@ class ChatsFragment : Fragment() {
         private const val NUMBERS = "numbers"
         var user: User? = null
 
-        fun newInstance(size: Int) = ChatsFragment().apply {
+        fun newInstance() = ChatsFragment().apply {
             if (arguments == null) {
                 arguments = Bundle(1).apply {
                     putInt(NUMBERS, size)
