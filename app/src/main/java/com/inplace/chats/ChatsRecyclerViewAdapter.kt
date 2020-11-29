@@ -30,7 +30,7 @@ class ChatsRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        holder.name.text = chats[position].sobesedniks.firstOrNull()?.name ?: "default"
+        holder.name.text = chats[position].title
 
         holder.message.text = chats[position].messages.firstOrNull()?.text ?: "defaul"
 

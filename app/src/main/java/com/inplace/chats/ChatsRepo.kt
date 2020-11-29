@@ -60,7 +60,13 @@ class ChatsRepo(val application: Application) {
                     image = sobesednik?.avatar ?: ""
                 }
 
-                val message = Message(chat.date.toLong(),
+                Log.d("tag", profileName)
+
+                if (profileName == null) {
+                    profileName = chat.groupChatTitle
+                }
+
+                val message = Message(0, chat.date.toLong(),
                         chat.text, chat.lastMsgFromId,
                         VkSingleton.getUserId() == chat.lastMsgFromId,
                         Source.VK
@@ -84,7 +90,7 @@ class ChatsRepo(val application: Application) {
                                 VkChat.CHAT_TYPE_GROUP_CHAT -> false
                                 else -> true
                             },
-                            "",
+                        chat.chatWithId.toString(),
                             "",
                             Source.VK,
                             ""
@@ -103,7 +109,7 @@ class ChatsRepo(val application: Application) {
                             VkChat.CHAT_TYPE_GROUP_CHAT -> false
                             else -> true
                         },
-                        "",
+                        chat.chatWithId.toString(),
                         "",
                         Source.VK,
                         ""
