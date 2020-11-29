@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
 
         val transaction = supportFragmentManager.beginTransaction()
         if (savedInstanceState == null) {
-            transaction.add(R.id.fragment_container, ChatsFragment.newInstance(100))
+            transaction.add(R.id.fragment_container, ChatsFragment.newInstance())
             transaction.commitAllowingStateLoss()
         }
     }
