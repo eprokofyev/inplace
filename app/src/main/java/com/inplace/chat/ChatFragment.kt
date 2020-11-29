@@ -1,6 +1,5 @@
 package com.inplace.chat
 
-import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.widget.EditText
@@ -11,48 +10,126 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.inplace.R
+import com.inplace.chat.DateParser.getNowDate
+import com.inplace.models.Chat
+import com.inplace.models.Message
+import com.inplace.models.Source
+import de.hdodenhof.circleimageview.CircleImageView
+import kotlinx.coroutines.launch
 
-class ChatFragment() : Fragment() {
+
+class ChatFragment : Fragment() {
+    private val AVATAR_STATE = "avatarState"
+    private val EDIT_TEXT_STATE = "editTextState"
+    private var avatarIsLoaded = false
+
+    lateinit var chat: Chat
+    lateinit var messageEditText: EditText
+    lateinit var toolbar: Toolbar
+    lateinit var avatar: CircleImageView
+    lateinit var username: TextView
+    lateinit var userActivity: TextView
+    lateinit var recycler: RecyclerView
+    lateinit var chatViewModel: ChatViewModel
+    lateinit var sendButton: RelativeLayout
+    lateinit var voiceButton: ImageView
+
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
-        setHasOptionsMenu(true)
         return inflater.inflate(R.layout.chat_fragment, container, false)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.chat_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.chat_menu, menu)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(AVATAR_STATE, avatarIsLoaded)
+        outState.putString(EDIT_TEXT_STATE, messageEditText.text.toString())
     }
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        chat = arguments?.getParcelable("chat")!!
+        avatarIsLoaded = savedInstanceState?.getBoolean(AVATAR_STATE) ?: false
+        messageEditText = view.findViewById(R.id.chat_message_editText)
+        messageEditText.append(savedInstanceState?.getString(EDIT_TEXT_STATE) ?: "")
+        toolbar = view.findViewById(R.id.chat_toolbar)
+        avatar = toolbar.findViewById(R.id.chat_user_avatar)
+        username = toolbar.findViewById(R.id.chat_user_name)
+        userActivity = toolbar.findViewById(R.id.chat_user_activity)
+        recycler = view.findViewById(R.id.chat_messages_container)
+        sendButton = view.findViewById(R.id.chat_send_button)
+        voiceButton = view.findViewById(R.id.chat_voice_button)
 
-        //testing changing info about user in toolbar
-        val toolbar: Toolbar = view.findViewById(R.id.chat_toolbar)
-        val username: TextView = toolbar.findViewById(R.id.chat_user_name)
-        val userActivity: TextView = toolbar.findViewById(R.id.chat_user_activity)
-        username.text = "Username"
-        userActivity.text = "last seen 5 minutes ago"
+        chatViewModel = ViewModelProvider(this).get(ChatViewModel::class.java)
 
-        //setting toolbar
+        val chatAdapter = ChatAdapter()
+
+        val sobesedniks = chat.sobesedniks
+
+        //setting toolbar info
+        if (sobesedniks.size == 1) {
+            username.text = sobesedniks[0].name
+            userActivity.text = sobesedniks[0].vk?.activeTime
+                ?: sobesedniks[0].telegram?.activeTime ?: ""
+            if (!avatarIsLoaded) {
+                chatViewModel.fetchAvatar(sobesedniks[0].avatar)
+                avatarIsLoaded = true
+            }
+        } else {
+            //TODO group chat
+        }
+
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
-
         toolbar.setNavigationOnClickListener {
             activity?.onBackPressed()
         }
 
-        val messageEditText: EditText = view.findViewById(R.id.chat_message_editText)
-        val sendButton: RelativeLayout = view.findViewById(R.id.chat_send_button)
-        val voiceButton: ImageView = view.findViewById(R.id.chat_voice_button)
+        recycler.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, true)
+            setHasFixedSize(true)
+            adapter = chatAdapter
+//            adapter = chatAdapter.withLoadStateHeader(
+//                    header = ChatLoadStateAdapter { chatAdapter.retry() }
+//            )
+        }
+
+        lifecycleScope.launch {
+            chatViewModel.getMessages(chat.conversationVkId.toInt()).observe(viewLifecycleOwner) {
+                chatAdapter.submitData(viewLifecycleOwner.lifecycle, it)
+            }
+        }
+
+        chatViewModel.getAvatar().observe(viewLifecycleOwner) {
+            avatar.setImageBitmap(it)
+        }
+
 
         sendButton.setOnClickListener {
-            //TODO: write message send logic
+            val messageText: String = messageEditText.text.toString()
+            //TODO send telegram messages
+            val message = Message(-1, getNowDate(), messageText, chat.user.id, true, Source.VK)
+
+            //chatViewModel.sendMessage(chat.conversationVkId.toInt(),messageText)
+
             messageEditText.setText("")
         }
 
@@ -73,76 +150,14 @@ class ChatFragment() : Fragment() {
     }
 
     companion object {
-        /**
-         * Sets the text of the message
-         * to the View consisting of two TextViews
-         */
-        fun setMessageText(context: Context?, messageView: View, message: String) {
-            val upperMessageTextView: TextView = messageView.findViewById(R.id.upper_message_textView)
-            val lowerMessageTextView: TextView = messageView.findViewById(R.id.lower_message_textView)
-
-            val messageLines: MutableList<CharSequence> = ArrayList()
-            var messageLinesCount: Int
-            var isSet = false
-            var upperTextViewResult = ""
-
-            upperMessageTextView.text = ""
-            lowerMessageTextView.text = ""
-            upperMessageTextView.visibility = View.VISIBLE
-            lowerMessageTextView.visibility = View.VISIBLE
-
-            if (context != null) {
-                val lowerMessageMaxLength = context.resources.getInteger(R.integer.lower_message_maxLength)
-
-                upperMessageTextView.text = message
-                upperMessageTextView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-                    override fun onPreDraw(): Boolean {
-                        upperMessageTextView.viewTreeObserver.removeOnPreDrawListener(this)
-
-                        if (!isSet) {
-                            messageLinesCount = upperMessageTextView.layout.lineCount
-
-                            repeat(messageLinesCount) { line ->
-                                val start = upperMessageTextView.layout.getLineStart(line)
-                                val end = upperMessageTextView.layout.getLineEnd(line)
-                                val substring = upperMessageTextView.text.subSequence(start, end)
-                                messageLines.add(substring)
-                            }
-
-                            messageLines.forEachIndexed { i, it ->
-                                if (i == messageLinesCount - 1) {
-                                    when {
-                                        it.length <= lowerMessageMaxLength -> {
-                                            if (messageLinesCount > 1) {
-                                                upperMessageTextView.text = upperTextViewResult
-                                                lowerMessageTextView.text = it
-                                                isSet = true
-                                            } else {
-                                                upperMessageTextView.text = ""
-                                                upperMessageTextView.visibility = View.GONE
-                                                lowerMessageTextView.text = it
-                                                isSet = true
-                                            }
-                                        }
-
-                                        else -> {
-                                            upperTextViewResult += it
-                                            upperMessageTextView.text = upperTextViewResult
-                                            lowerMessageTextView.visibility = View.GONE
-                                            isSet = true
-                                        }
-
-                                    }
-                                } else {
-                                    upperTextViewResult += it
-                                }
-                            }
-                        }
-                        return isSet
-                    }
-                })
-            }
+        fun newInstance(chat: Chat): ChatFragment {
+            val fragment = ChatFragment()
+            val bundle = Bundle()
+            bundle.putParcelable("chat", chat)
+            fragment.arguments = bundle
+            return fragment
         }
     }
 
 }
+

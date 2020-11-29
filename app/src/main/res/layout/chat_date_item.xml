@@ -6,17 +6,6 @@
     android:layout_height="wrap_content"
     android:paddingBottom="8dp">
 
-    <View
-        android:id="@+id/view"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="15dp"
-        android:background="@drawable/rounded_rectangle_shape"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/date_textView"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/date_textView"
@@ -27,17 +16,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.506" />
-
-    <View
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="40dp"
+        android:textColor="@color/white"
         android:background="@drawable/rounded_rectangle_shape"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/date_textView"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:padding="5dp"/>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
