@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -296,10 +297,13 @@ public class ApiVK {
                 vkChat.text = lastMessageObj.getString("text");
                 vkChat.date = Integer.parseInt(lastMessageObj.getString("date"));
                 vkChat.lastMsgFromId = Integer.parseInt(lastMessageObj.getString("from_id"));
-
+                vkChat.lasMsgId = Integer.parseInt(lastMessageObj.getString("id"));
 
                 if (type.equals("user")) {
                     vkChat.chatType = VkChat.CHAT_TYPE_USER;
+
+
+
                 }
                 if (type.equals("chat")) {
                     vkChat.chatType = VkChat.CHAT_TYPE_GROUP_CHAT;
@@ -320,9 +324,9 @@ public class ApiVK {
             result.errTextMsg = "error in getting response get request okhttp";
         }
         catch (JSONException e){
-            Log.e("ApiVK", "error in JSONObject or bad login-pass", e);
-            result.error = new Error("bad login-pass");
-            result.errTextMsg = "bad login-pass";
+            Log.e("ApiVK", "error in JSONObject", e);
+            result.error = new Error("error in JSONObject");
+            result.errTextMsg = "error in JSONObject";
         }
         catch (NumberFormatException e){
             Log.e("ApiVK", "error in Integer.parseInt", e);
@@ -411,6 +415,8 @@ public class ApiVK {
                 if (oneMessage.fromId == VkSingleton.getUserId()){
                     oneMessage.myMsg = true;
                 }
+
+                oneMessage.messageId = Integer.parseInt(OneMsgJsonObj.getString("id"));
 
                 oneMessage.fromMessenger = 1; // todo replace enum
 
@@ -768,6 +774,7 @@ public class ApiVK {
 
                 message.fromId = Integer.parseInt(oneMessageJSON.getString("from_id"));
                 message.date = Integer.parseInt(oneMessageJSON.getString("date"));
+                message.messageId = Integer.parseInt(oneMessageJSON.getString("id"));
 
                 if (message.fromId == VkSingleton.getUserId()){
                     message.myMsg = true;
@@ -806,5 +813,182 @@ public class ApiVK {
 
         return result;
     }
+
+
+
+
+
+    // result -> VkChatWithUsers{ArrayList<VkChat> chats; HashMap<Integer,VkUser> users}
+    public static  CommandResult getChatsWithUsers(int start, int end) {
+
+        CommandResult result = new CommandResult();
+
+        if (VkSingleton.getAccessToken().equals("") || VkSingleton.getUserId() == -1) {
+            result.error = new Error("no session");
+            result.errTextMsg = "you must login before this request";
+            return result;
+        }
+
+        final String method = "method/messages.getConversations";
+
+        // todo not work =(
+        final String fields = "id,profiles,about,status,online,last_name,first_name,online,photo_200"; //photo_200
+
+        int count = end - start;
+
+        if (count < 0 || count > MAX_REQUEST_ITEM_COUNT) {
+            result.error = new Error("bad chat count, must be (0,200]");
+            result.errTextMsg = "bad chat count, must be (0,200], count = count = end - start";
+            return result;
+        }
+
+        HttpUrl.Builder httpBuider = Objects.requireNonNull(HttpUrl.parse(API_HOST + method))
+                .newBuilder();
+
+        httpBuider.addQueryParameter("access_token", VkSingleton.getAccessToken());
+        httpBuider.addQueryParameter("v", API_VERSION);
+        httpBuider.addQueryParameter("offset", String.valueOf(start));
+        httpBuider.addQueryParameter("count", String.valueOf(count));
+        httpBuider.addQueryParameter("extended", "1");
+        httpBuider.addQueryParameter("fields", fields);
+
+        Request request = new Request.Builder().url(httpBuider.build()).build();
+
+        Response response = null;
+        try {
+            response = httpClient.newCall(request).execute();
+            if (response.body() == null) {
+                result.error = new Error("response body is null");
+                result.errTextMsg = "err read response body";
+                return result;
+            }
+            String body = response.body().string();
+
+
+//            Log.d("ApiVK get chat U:", "response.body:" + body);
+
+
+
+            JSONObject mainObject = new JSONObject(body);
+            JSONArray jsonConversations = mainObject.getJSONObject("response").getJSONArray("items");
+
+            // get chats
+            ArrayList<VkChat> chatList =  new ArrayList<VkChat>();
+
+            for (int i = 0; i < jsonConversations.length(); i++) {
+
+                VkChat vkChat = new VkChat();
+
+                String type = jsonConversations.getJSONObject(i).getJSONObject("conversation").getJSONObject("peer").getString("type");
+                vkChat.chatWithId = Integer.parseInt(jsonConversations.getJSONObject(i).getJSONObject("conversation").getJSONObject("peer").getString("id"));
+//                Log.d("ApiVK get chats:", "type:" + type);
+
+
+                JSONObject lastMessageObj = jsonConversations.getJSONObject(i).getJSONObject("last_message");
+                vkChat.text = lastMessageObj.getString("text");
+                vkChat.date = Integer.parseInt(lastMessageObj.getString("date"));
+                vkChat.lastMsgFromId = Integer.parseInt(lastMessageObj.getString("from_id"));
+                vkChat.lasMsgId = Integer.parseInt(lastMessageObj.getString("id"));
+
+                if (type.equals("user")) {
+                    vkChat.chatType = VkChat.CHAT_TYPE_USER;
+
+                }
+                if (type.equals("chat")) {
+                    vkChat.chatType = VkChat.CHAT_TYPE_GROUP_CHAT;
+                    vkChat.groupChatTitle = jsonConversations.getJSONObject(i).getJSONObject("conversation").getJSONObject("chat_settings").getString("title");
+                }
+                // todo add here public group
+
+                chatList.add(vkChat);
+            }
+
+            // get users
+            HashMap<Integer, VkUser> chatUsers  = new HashMap<Integer, VkUser>();
+
+            JSONArray jsonUsers = mainObject.getJSONObject("response").getJSONArray("profiles");
+
+            for (int i = 0; i < jsonUsers.length(); i++) {
+
+
+                VkUser vkUser = new VkUser();
+
+                JSONObject oneUserJsonObj = jsonUsers.getJSONObject(i);
+
+                vkUser.id = Integer.parseInt(oneUserJsonObj.getString("id"));
+
+                // skip group chat
+                if (vkUser.id > START_ID_GROUP_CHAT)
+                    continue;
+
+                // skip me
+//                if (vkUser.id == VkSingleton.getUserId())
+//                    continue;
+
+                vkUser.firstName = oneUserJsonObj.getString("first_name");
+                vkUser.lastName = oneUserJsonObj.getString("last_name");
+                String is_closed = oneUserJsonObj.getString("is_closed");
+
+                vkUser.isClosed = is_closed.equals("true");
+
+
+//                if (!is_closed.equals("true"))
+//                    vkUser.about = oneUserJsonObj.getString("about");
+
+                vkUser.status = oneUserJsonObj.getString("status");
+                String online = oneUserJsonObj.getString("online");
+                vkUser.online = online.equals("1");
+                vkUser.photo200Square = oneUserJsonObj.getString("photo_200");
+
+
+                chatUsers.put(vkUser.id, vkUser);
+            }
+
+
+            VkChatWithUsers vkChatWithUsers = new VkChatWithUsers();
+            vkChatWithUsers.chats = chatList;
+            vkChatWithUsers.users = chatUsers;
+
+            result.result = vkChatWithUsers;
+
+
+//            for (HashMap.Entry<Integer,VkUser> entry : vkChatWithUsers.users.entrySet()) {
+//                Integer key = entry.getKey();
+//                VkUser user = entry.getValue();
+//
+//                String showLog = "key:" + key + "\n" + user.firstName + " "  + user.lastName + "\n"
+//                        + "id:" + user.id + "\tphoto" + user.photo200Square;
+//
+//                Log.d("ApiVK", showLog);
+//            }
+
+            return result;
+
+        }
+        catch (IOException e) {
+            Log.e("ApiVK", "error in getting response get request okhttp");
+            result.error = new Error("error in getting response get request okhttp");
+            result.errTextMsg = "error in getting response get request okhttp";
+        }
+        catch (JSONException e){
+            Log.e("ApiVK", "error in JSONObject", e);
+            result.error = new Error("error in JSONObject");
+            result.errTextMsg = "error in JSONObject";
+        }
+        catch (NumberFormatException e){
+            Log.e("ApiVK", "error in Integer.parseInt", e);
+            result.error = new Error("error in Integer.parseInt");
+            result.errTextMsg = "error in Integer.parseInt";
+        }
+        catch (Exception e){
+            Log.e("ApiVK", "some err", e);
+            result.error = new Error("some err");
+            result.errTextMsg = "some err";
+        }
+        return result;
+    }
+
+
+
 
 }
