@@ -1,20 +1,31 @@
 package com.inplace.chats
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.inplace.R
+import com.inplace.api.vk.ApiVK
+import com.inplace.api.vk.VkUser
+import com.inplace.models.Chat
+import com.inplace.models.User
 
 
 class ChatsFragment : Fragment() {
 
     private lateinit var listener: SwitcherInterface
 
-    private lateinit var chatsViewModel: ChatsViewModel
+    private var chatsViewModel: ChatsViewModel? = null
 
     private var size = 0
+
+    private var user: User? = null
+
+    private var st: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,13 +35,24 @@ class ChatsFragment : Fragment() {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
 
-        size = savedInstanceState?.getInt(NUMBERS) ?: (arguments?.getInt(NUMBERS, 0) ?: 0)
+        savedInstanceState?.let { st = it.getBoolean("st") }
 
-        DataSource.create(size)
+        if (!st) {
+            Log.d("ApiVK", "start of auth request")
+
+            // todo hardcore name and pass
+            val name: String = "8132776413"
+            val pass: String = "1q2w3e4r123456789"
+
+            val loginResult = ApiVK.login(name, pass)
+            Log.d("ApiVK", "end of auth request")
+
+            st = true
+        }
 
         setHasOptionsMenu(true);
 
@@ -40,7 +62,7 @@ class ChatsFragment : Fragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        outState.putInt(NUMBERS, size)
+        outState.putBoolean("st", st)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -55,12 +77,21 @@ class ChatsFragment : Fragment() {
         }
          */
 
-        with(recycler) {
-            layoutManager = LinearLayoutManager(context)
 
-            adapter = MyChatsRecyclerViewAdapter(DataSource.get(), listener)
+        val adapter = ChatsRecyclerViewAdapter(listener)
+
+        recycler.layoutManager = LinearLayoutManager(context)
+        recycler.adapter = adapter
+
+        val observer: Observer<MutableList<Chat>> = Observer<MutableList<Chat>> { chats ->
+            if (chats != null) {
+                adapter.setChats(chats)
+            }
         }
 
+        chatsViewModel = activity?.let { ViewModelProvider(it) }?.get(ChatsViewModel::class.java)
+
+        chatsViewModel?.getChats()?.observe(viewLifecycleOwner, observer)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

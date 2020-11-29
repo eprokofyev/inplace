@@ -1,7 +1,9 @@
 package com.inplace
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.inplace.api.vk.ApiVK
 import com.inplace.chat.ChatFragment
 import com.inplace.chats.ChatsFragment
 import com.inplace.chats.SwitcherInterface
