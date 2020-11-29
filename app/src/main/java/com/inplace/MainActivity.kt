@@ -46,5 +46,4 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
     override fun onDestroy() {
         super.onDestroy()
     }
-
 }

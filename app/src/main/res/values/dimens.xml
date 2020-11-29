@@ -4,4 +4,6 @@
     <dimen name="lower_message_maxWidth">280dp</dimen>
     <dimen name="message_textView_maxWidth">280dp</dimen>
     <dimen name="messageTextSize">16sp</dimen>
+    <dimen name="fragment_horizontal_margin">16dp</dimen>
+    <dimen name="fragment_vertical_margin">16dp</dimen>
 </resources>
