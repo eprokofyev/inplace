@@ -1,20 +1,21 @@
 package com.inplace.chats
 
-import android.graphics.Color.BLUE
-import android.graphics.Color.RED
-import androidx.recyclerview.widget.RecyclerView
+import android.graphics.Bitmap
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import com.inplace.R
+import com.inplace.models.Chat
 import de.hdodenhof.circleimageview.CircleImageView
 
 
-class MyItemRecyclerViewAdapter(
-    private val values: MutableList<Int>,
-    private val context: SwitcherInterface
-) : RecyclerView.Adapter<MyItemRecyclerViewAdapter.ViewHolder>() {
+class ChatsRecyclerViewAdapter(
+        private val context: SwitcherInterface
+) : RecyclerView.Adapter<ChatsRecyclerViewAdapter.ViewHolder>() {
+
+    private var chats: MutableList<Chat> = mutableListOf<Chat>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -22,26 +23,32 @@ class MyItemRecyclerViewAdapter(
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.name.text = "name" + values[position].toString()
-        holder.name.setTextColor(
-            if (values[position].rem(2)  == 0) {
-                RED
-            } else {
-                BLUE
-            })
-        holder.message.text = "message" + values[position].toString()
+    fun setChats(ch: MutableList<Chat>) {
+        chats = ch
+        notifyDataSetChanged()
+    }
 
-        holder.time.text = "17:00"
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
+        holder.name.text = chats[position].sobesedniks.firstOrNull()?.name ?: "default"
+
+        holder.message.text = chats[position].messages.firstOrNull()?.text ?: "defaul"
+
+        holder.time.text = chats[position].messages.firstOrNull()?.date.toString() ?: "defaul"
+
+
+        if (chats[position].avatar != null) {
+            holder.avatar.setImageBitmap(chats[position].avatar)
+        }
 
         holder.line.setOnClickListener { v ->
 
-            context.switch(10, holder.name.currentTextColor)
+            context.switch(chats[position])
 
         }
     }
 
-    override fun getItemCount(): Int = values.size
+    override fun getItemCount(): Int = chats.size
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val line = view
