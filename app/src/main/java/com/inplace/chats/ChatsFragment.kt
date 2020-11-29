@@ -1,6 +1,8 @@
 package com.inplace.chats
 
+import android.os.Build
 import android.os.Bundle
+import android.os.StrictMode
 import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
@@ -12,7 +14,9 @@ import com.inplace.R
 import com.inplace.api.vk.ApiVK
 import com.inplace.api.vk.VkUser
 import com.inplace.models.Chat
+import com.inplace.models.SobesednikVk
 import com.inplace.models.User
+import com.inplace.models.UserVK
 
 
 class ChatsFragment : Fragment() {
@@ -23,7 +27,6 @@ class ChatsFragment : Fragment() {
 
     private var size = 0
 
-    private var user: User? = null
 
     private var st: Boolean = false
 
@@ -41,16 +44,40 @@ class ChatsFragment : Fragment() {
 
         savedInstanceState?.let { st = it.getBoolean("st") }
 
+        if (Build.VERSION.SDK_INT > 9) {
+            val policy =
+                    StrictMode.ThreadPolicy.Builder().permitAll().build()
+            StrictMode.setThreadPolicy(policy)
+        }
+
         if (!st) {
             Log.d("ApiVK", "start of auth request")
 
             // todo hardcore name and pass
-            val name: String = "8132776413"
+            val name: String = "89132776413"
             val pass: String = "1q2w3e4r123456789"
 
             val loginResult = ApiVK.login(name, pass)
             Log.d("ApiVK", "end of auth request")
 
+            val res = ApiVK.getMe()
+            if (res.result is VkUser) {
+                val u = res.result as VkUser
+                val vk = UserVK(u.firstName + u.lastName,
+                        u.photo200Square,
+                        "8132776413",
+                        "token",
+                        u.id.toString(),
+                        "email",
+                        0)
+                user = User(vk.name,
+                        vk.avatar,
+                        vk,
+                        null,
+                        0,
+                )
+
+            }
             st = true
         }
 
@@ -91,6 +118,8 @@ class ChatsFragment : Fragment() {
 
         chatsViewModel = activity?.let { ViewModelProvider(it) }?.get(ChatsViewModel::class.java)
 
+        chatsViewModel?.refresh()
+
         chatsViewModel?.getChats()?.observe(viewLifecycleOwner, observer)
     }
 
@@ -108,6 +137,7 @@ class ChatsFragment : Fragment() {
 
     companion object {
         private const val NUMBERS = "numbers"
+        var user: User? = null
 
         fun newInstance(size: Int) = ChatsFragment().apply {
             if (arguments == null) {

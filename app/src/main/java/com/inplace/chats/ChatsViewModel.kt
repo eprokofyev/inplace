@@ -7,9 +7,13 @@ import androidx.lifecycle.ViewModel
 import com.inplace.models.Chat
 import com.inplace.models.User
 
-class ChatsViewModel(repo: IRepo, user: User) : ViewModel() {
-    private val repo: IRepo = repo
+class ChatsViewModel() : ViewModel() {
+    private val repo: ChatsRepo = ChatsRepo()
     private var mChats: MutableLiveData<MutableList<Chat>> = repo.getChats()
 
     fun getChats() = mChats
+
+    fun refresh() {
+        repo.refresh()
+    }
 }
