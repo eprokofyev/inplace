@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.inplace.R
@@ -18,9 +19,12 @@ import com.inplace.api.vk.VkUser
 import com.inplace.models.Chat
 import com.inplace.models.User
 import com.inplace.models.UserVK
+import kotlinx.coroutines.launch
 
 
 class ChatsFragment : Fragment() {
+
+    lateinit var recycler: RecyclerView
 
     private lateinit var listener: SwitcherInterface
 
@@ -55,12 +59,6 @@ class ChatsFragment : Fragment() {
             Log.d("ApiVK", "start of auth request")
 
             // todo hardcore name and pass
-            val name: String = "89132776413"
-            val pass: String = "1q2w3e4r123456789"
-
-            val loginResult = ApiVK.login(name, pass)
-            Log.d("ApiVK", "end of auth request")
-
             val res = ApiVK.getMe()
             if (res.result is VkUser) {
                 val u = res.result as VkUser
@@ -99,7 +97,7 @@ class ChatsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val recycler = view.findViewById<RecyclerView>(R.id.list)
+        recycler = view.findViewById<RecyclerView>(R.id.list)
         /*val b = view.findViewById<View>(R.id.btn_do_it)
         b.setOnClickListener {
             DataSource.add()
@@ -109,24 +107,26 @@ class ChatsFragment : Fragment() {
          */
 
 
-        val adapter = ChatsRecyclerViewAdapter(listener)
+        val chatsAdapter = ChatsRecyclerViewAdapter(listener)
 
-        recycler.layoutManager = LinearLayoutManager(context)
-        recycler.adapter = adapter
-
-        val observer: Observer<MutableList<Chat>> = Observer<MutableList<Chat>> { chats ->
-            if (chats != null) {
-                adapter.setChats(chats)
-            }
+        recycler.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = chatsAdapter
         }
+
 
         chatsViewModel = activity?.let { ViewModelProvider(it) }?.get(
             ChatsViewModel::class.java
         )
 
-        chatsViewModel?.refresh()
+        lifecycleScope.launch {
+            chatsViewModel?.apply {
+                getChats().observe(viewLifecycleOwner) {
+                chatsAdapter.submitData(viewLifecycleOwner.lifecycle, it)
+            }
+            }
+        }
 
-        chatsViewModel?.getChats()?.observe(viewLifecycleOwner, observer)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
