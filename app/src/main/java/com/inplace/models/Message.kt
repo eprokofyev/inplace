@@ -1,5 +1,7 @@
 package com.inplace.models
 
+import java.util.*
+
 data class Message(
         var messageId: Int,
         var date: Long,
@@ -7,4 +9,5 @@ data class Message(
         var fromId: Int,
         var myMsg: Boolean,
         var fromMessenger: Source,
+        var photos: ArrayList<String?>? = null,
 )

@@ -10,12 +10,11 @@ import com.nostra13.universalimageloader.core.assist.ImageSize;
 
 public class ApiImageLoader {
 
-    private static int defaultWidth = 150;
-    private static int defaultHeight = 150;
+    private static final int defaultWidth = 200;
+    private static final int defaultHeight = 200;
 
     // todo using lazy singleton in ApiImageLoader class
     private static ImageLoader imageLoader = ImageLoader.getInstance();
-
 
     public static Bitmap getImageByUrl(String imageUri, Context context) {
         Log.d("Image Loader", "download image by url:" + imageUri);
@@ -23,4 +22,5 @@ public class ApiImageLoader {
         imageLoader.init(ImageLoaderConfiguration.createDefault(context));
         return imageLoader.loadImageSync(imageUri, new ImageSize(defaultWidth, defaultHeight));
     }
+
 }

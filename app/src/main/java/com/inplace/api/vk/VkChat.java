@@ -1,8 +1,5 @@
 package com.inplace.api.vk;
 
-import java.util.ArrayList;
-import java.util.Map;
-
 public class VkChat {
 
     public static final int CHAT_TYPE_USER = 1;

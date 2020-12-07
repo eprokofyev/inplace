@@ -73,4 +73,7 @@ dependencies {
     // Paging
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
+
+    // vk SKD
+    implementation "com.vk:androidsdk:2.4.0"
 }

@@ -2,4 +2,5 @@
 <resources>
     <integer name="upper_message_line_maxLength">43</integer>
     <integer name="lower_message_maxLength">29</integer>
+    <integer name="com_vk_sdk_AppId">2685278</integer>
 </resources>
