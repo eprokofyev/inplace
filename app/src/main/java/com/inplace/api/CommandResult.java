@@ -1,9 +1,8 @@
 package com.inplace.api;
 
-public class CommandResult {
+public class CommandResult<T>  {
 
-    public Object result = null;
-
+    public T result = null;
     public String errTextMsg = "no message";
     public Error error = null;
 

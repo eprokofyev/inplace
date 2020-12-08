@@ -1,34 +1,42 @@
 package com.inplace.api.vk;
 
-public class VkSingleton {
+import java.util.concurrent.ThreadLocalRandom;
 
-    private static String accessToken= "";
-    private static int userId = -1;
+public class VkSingleton {
 
     private VkSingleton() {}
 
-    private static final VkSingleton instance = new VkSingleton();
+    private static final int START_RANDOM_ID = 100000;
+    private static final int RANDOM_ID_DELTA = 10000;
 
-    // todo make lazy
-    public static VkSingleton getInstance() {
-        return instance;
+    private static int randomIdStart = ThreadLocalRandom.current().
+            nextInt(START_RANDOM_ID + RANDOM_ID_DELTA, Integer.MAX_VALUE - START_RANDOM_ID);
+
+
+    public static synchronized int getNextNumber() {
+        return ++randomIdStart;
     }
 
 
-    public static String getAccessToken() {
-        return accessToken;
+    public static class LongPollServer {
+
+        public static boolean isInit = false;
+        public static String server = "";
+        public static String key = "";
+        public static int ts = -1;
+        public static int pts = -1;
+
+        public static synchronized void setInit(String serverValue, String keyValue, int tsValue) {
+            server = serverValue;
+            key = keyValue;
+            ts = tsValue;
+            isInit = true;
+        }
+
+        public static boolean getIsInit(){
+            return  isInit;
+        }
+
     }
 
-    public static void setAccessToken(String accessToken) {
-        VkSingleton.accessToken = accessToken;
-    }
-
-
-    public static int getUserId() {
-        return userId;
-    }
-
-    public static void setUserId(int userId) {
-        VkSingleton.userId = userId;
-    }
 }
