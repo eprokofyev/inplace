@@ -46,7 +46,7 @@ class ChatViewModel(
                 prefetchDistance = 2,
             )
         ) {
-            ChatPagingSource(conversationId)
+            ChatPagingSource(chatRepo,conversationId)
         }.liveData
 
 

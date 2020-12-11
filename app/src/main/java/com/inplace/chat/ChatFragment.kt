@@ -108,8 +108,8 @@ class ChatFragment : Fragment() {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, true)
             setHasFixedSize(true)
             adapter = chatAdapter
-//            adapter = chatAdapter.withLoadStateHeader(
-//                    header = ChatLoadStateAdapter { chatAdapter.retry() }
+//            adapter = chatAdapter.withLoadStateFooter(
+//                    footer = ChatLoadStateAdapter { chatAdapter.retry() }
 //            )
         }
 
