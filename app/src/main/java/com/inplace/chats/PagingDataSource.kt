@@ -24,7 +24,7 @@ class ChatsPagingDataSource(
         return suspendCoroutine { continuation ->
             var resumed = false
 
-            repo.refresh(context, position, position + 15, object : ChatsRepo.OnRequestCompleteListener {
+            repo.refresh(context, position, position + 12, object : ChatsRepo.OnRequestCompleteListener {
                 override fun onRequestComplete(result: RepoResult) {
                     if (!resumed) {
                         continuation.resume(
@@ -32,7 +32,7 @@ class ChatsPagingDataSource(
                                 LoadResult.Page(
                                     data = result.data,
                                     prevKey = null,
-                                    nextKey = position + 15
+                                    nextKey = position + 12
                                 )
                             } else {
                                 LoadResult.Error(Exception("bad result"))

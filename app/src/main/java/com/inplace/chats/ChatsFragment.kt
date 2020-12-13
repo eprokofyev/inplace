@@ -16,9 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.inplace.R
 import com.inplace.api.vk.ApiVK
 import com.inplace.api.vk.VkUser
-import com.inplace.models.Chat
-import com.inplace.models.User
-import com.inplace.models.UserVK
+import com.inplace.models.*
 import kotlinx.coroutines.launch
 
 
@@ -29,11 +27,6 @@ class ChatsFragment : Fragment() {
     private lateinit var listener: SwitcherInterface
 
     private var chatsViewModel: ChatsViewModel? = null
-
-    private var size = 0
-
-
-    private var st: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +40,7 @@ class ChatsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
 
-        savedInstanceState?.let { st = it.getBoolean("st") }
+        superUser = savedInstanceState?.getParcelable(key) ?: arguments?.getParcelable(key)
 
         if (Build.VERSION.SDK_INT > 9) {
             val policy =
@@ -55,32 +48,19 @@ class ChatsFragment : Fragment() {
             StrictMode.setThreadPolicy(policy)
         }
 
-        if (user == null) {
+        if (superUser == null) {
             Log.d("ApiVK", "start of auth request")
 
             // todo hardcore name and pass
-            val res = ApiVK.getMe()
-            if (res.result is VkUser) {
-                val u = res.result as VkUser
-                val vk = UserVK(
-                    u.firstName + u.lastName,
-                    u.photo200Square,
-                    "8132776413",
-                    "token",
-                    u.id.toString(),
-                    "email",
-                    0
-                )
-                user = User(
-                    vk.name,
-                    vk.avatar,
-                    vk,
-                    null,
-                    0,
-                )
-
+            val res = ApiVK.getMeSKD()
+            Log.d("user", res.toString())
+            val vk = res.result?.firstOrNull()
+            vk?.let {
+                Log.d("user", "not null")
+                val user = VKUser(it.id, it.firstName, it.lastName, it.photo200Square)
+                superUser = SuperUser(user.name, user.lastName, user.avatarURL, user, null)
             }
-            st = true
+
         }
 
         setHasOptionsMenu(true);
@@ -91,7 +71,7 @@ class ChatsFragment : Fragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        outState.putBoolean("st", st)
+        outState.putParcelable(key, superUser)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -142,13 +122,13 @@ class ChatsFragment : Fragment() {
 
 
     companion object {
-        private const val NUMBERS = "numbers"
-        var user: User? = null
+        private const val key = "user"
+        var superUser: SuperUser? = null
 
         fun newInstance() = ChatsFragment().apply {
             if (arguments == null) {
                 arguments = Bundle(1).apply {
-                    putInt(NUMBERS, size)
+                    putParcelable(key, superUser)
                 }
             }
         }

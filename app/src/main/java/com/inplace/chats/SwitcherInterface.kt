@@ -1,7 +1,7 @@
 package com.inplace.chats
 
-import com.inplace.models.Chat
+import com.inplace.models.SuperChat
 
 interface SwitcherInterface {
-    fun switch(chat: Chat)
+    fun switch(chat: SuperChat)
 }

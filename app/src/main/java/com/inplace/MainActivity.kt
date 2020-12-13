@@ -15,8 +15,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-
+        Log.d("start", "start")
         val transaction = supportFragmentManager.beginTransaction()
         if (savedInstanceState == null) {
             transaction.add(R.id.fragment_container, ChatsFragment.newInstance())
@@ -24,7 +23,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
         }
     }
 
-    override fun switch(chat: Chat) {
+    override fun switch(chat: SuperChat) {
 
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.fragment_container, ChatFragment.newInstance(chat))
@@ -41,9 +40,5 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
             }
             else -> supportFragmentManager.popBackStack()
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
     }
 }

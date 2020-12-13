@@ -43,7 +43,7 @@ class GetMessagesHistoryCommand(private val start: Int, private val end: Int, pr
                 val messages = ArrayList<Message>()
 
                 for (i in 0 until jsonMessages.length()) {
-                    val message = Message(0,0,"",0,false,Source.VK,null)
+                    val message = Message(0,0,"",0,0,false, Source.VK, false, arrayListOf<String>())
                     val oneMessageJsonObj = jsonMessages.getJSONObject(i)
                     message.text = oneMessageJsonObj.getString("text")
 
@@ -52,12 +52,12 @@ class GetMessagesHistoryCommand(private val start: Int, private val end: Int, pr
                     if (message.text == "") {
                         isText = false
                     }
-                    message.fromId = oneMessageJsonObj.getString("from_id").toInt()
+                    message.userID = oneMessageJsonObj.getString("from_id").toLong()
                     message.date = oneMessageJsonObj.getString("date").toLong()
-                    if (message.fromId == VK.getUserId()) {
+                    if (message.userID == VK.getUserId().toLong()) {
                         message.myMsg = true
                     }
-                    message.messageId = oneMessageJsonObj.getString("id").toInt()
+                    message.messageID = oneMessageJsonObj.getString("id").toInt()
                     message.fromMessenger = Source.VK
 
                     var attachmentsArray :JSONArray
@@ -72,7 +72,7 @@ class GetMessagesHistoryCommand(private val start: Int, private val end: Int, pr
 
                     for (j in 0 until attachmentsArray.length()) {
 
-                        var oneAttachment = attachmentsArray.getJSONObject(j)
+                        val oneAttachment = attachmentsArray.getJSONObject(j)
 
                         val type = oneAttachment.getString("type")
 
@@ -84,15 +84,10 @@ class GetMessagesHistoryCommand(private val start: Int, private val end: Int, pr
                             .getJSONObject(2)
                             .getString("url")
 
-                        if (message.photos == null) {
-                            message.photos = ArrayList<String?>()
-                        }
-
-                        message.photos!!.add(url)
+                        message.photos.add(url)
                     }
 
-                    if (isText || message.photos != null)
-                        messages.add(message)
+                    if (isText) messages.add(message)
                 }
                 return messages
             } catch (ex: JSONException) {

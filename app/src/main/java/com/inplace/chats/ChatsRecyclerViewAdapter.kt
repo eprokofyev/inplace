@@ -11,17 +11,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.inplace.R
-import com.inplace.chat.ChatModel
 import com.inplace.chat.DateParser
-import com.inplace.models.Chat
+import com.inplace.models.SuperChat
 import de.hdodenhof.circleimageview.CircleImageView
 
 
 class ChatsRecyclerViewAdapter(
         private val context: SwitcherInterface
-) : PagingDataAdapter<Chat, ViewHolder>(CHATS_COMPARATOR) {
+) : PagingDataAdapter<SuperChat, ViewHolder>(CHATS_COMPARATOR) {
 
-    private var chats: MutableList<Chat> = mutableListOf<Chat>()
+    private var chats: MutableList<SuperChat> = mutableListOf<SuperChat>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
@@ -32,7 +31,7 @@ class ChatsRecyclerViewAdapter(
         return MyHolder(view)
     }
 
-    fun setChats(ch: MutableList<Chat>) {
+    fun setChats(ch: MutableList<SuperChat>) {
         chats = ch
         notifyDataSetChanged()
     }
@@ -43,17 +42,13 @@ class ChatsRecyclerViewAdapter(
 
         if (holder is MyHolder) {
 
-            val chat = getItem(position) as Chat
+            val chat = getItem(position) as SuperChat
 
             holder.name.text = chat.title
 
-            holder.message.text = chat.messages.firstOrNull()?.text ?: "defaul"
+            holder.message.text = chat.lastMessage.text
 
-            holder.time.text = DateParser.convertTimeToString(chat.messages.firstOrNull()?.date ?: 0)
-
-            if (chat.avatar != null) {
-                holder.avatar.setImageBitmap(chat.avatar)
-            }
+            holder.time.text = DateParser.convertTimeToString(chat.lastMessage.date)
 
             holder.line.setOnClickListener { v ->
 
@@ -75,10 +70,11 @@ class ChatsRecyclerViewAdapter(
     }
 
     companion object {
-        private val CHATS_COMPARATOR = object : DiffUtil.ItemCallback<Chat>() {
-            override fun areItemsTheSame(oldItem: Chat, newItem: Chat) = oldItem.title == newItem.title
+        private val CHATS_COMPARATOR = object : DiffUtil.ItemCallback<SuperChat>() {
+            override fun areItemsTheSame(oldItem: SuperChat, newItem: SuperChat) =
+                oldItem.lastMessage.chatID == newItem.lastMessage.chatID && oldItem.lastMessage.fromMessenger == newItem.lastMessage.fromMessenger
 
-            override fun areContentsTheSame(oldItem: Chat, newItem: Chat): Boolean =
+            override fun areContentsTheSame(oldItem: SuperChat, newItem: SuperChat): Boolean =
                 oldItem == newItem
         }
     }

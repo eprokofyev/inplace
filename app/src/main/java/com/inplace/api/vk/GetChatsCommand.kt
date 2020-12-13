@@ -48,14 +48,14 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
 
                     vkChat.chatWithId =
                         jsonConversations.getJSONObject(i).getJSONObject("conversation")
-                            .getJSONObject("peer").getString("id").toInt()
+                            .getJSONObject("peer").getString("id").toLong()
 
                     val lastMessageObj: JSONObject =
                         jsonConversations.getJSONObject(i).getJSONObject("last_message")
 
                     vkChat.text = lastMessageObj.getString("text")
                     vkChat.date = lastMessageObj.getString("date").toInt()
-                    vkChat.lastMsgFromId = lastMessageObj.getString("from_id").toInt()
+                    vkChat.lastMsgFromId = lastMessageObj.getString("from_id").toLong()
                     vkChat.lasMsgId = lastMessageObj.getString("id").toInt()
 
                     if (type == "user") {
@@ -79,14 +79,14 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
                 val START_ID_GROUP_CHAT = 2000000000
 
                 // get users
-                val chatUsers = HashMap<Int, VkUser>()
+                val chatUsers = HashMap<Long, VkUser>()
 
                 val jsonUsers: JSONArray = rootJson.getJSONArray("profiles")
 
                 for (i in 0 until jsonUsers.length()) {
                     val vkUser = VkUser()
                     val oneUserJsonObj = jsonUsers.getJSONObject(i)
-                    vkUser.id = oneUserJsonObj.getString("id").toInt()
+                    vkUser.id = oneUserJsonObj.getString("id").toLong()
 
                     // skip group chat
                     if (vkUser.id > START_ID_GROUP_CHAT) continue

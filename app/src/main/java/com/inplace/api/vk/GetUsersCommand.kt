@@ -1,5 +1,6 @@
 package com.inplace.api.vk
 
+import android.util.Log
 import com.vk.api.sdk.VKApiManager
 import com.vk.api.sdk.VKApiResponseParser
 import com.vk.api.sdk.VKMethodCall
@@ -43,6 +44,10 @@ class GetUsersCommand(private val userIds: IntArray = intArrayOf()): ApiCommand<
         override fun parse(response: String): ArrayList<VkUser> {
             try {
                 val ja = JSONObject(response).getJSONArray("response")
+
+                val body = JSONObject(response).getString("response")
+                Log.d("body:", body)
+
                 val r = ArrayList<VkUser>(ja.length())
                 for (i in 0 until ja.length()) {
                     val user = VkUser.parse(ja.getJSONObject(i))

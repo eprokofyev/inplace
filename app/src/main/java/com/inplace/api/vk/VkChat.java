@@ -13,8 +13,8 @@ public class VkChat {
 
     public int date = -1;
     public String text = "";
-    public int chatWithId = -1;
-    public int lastMsgFromId = -1;
+    public long chatWithId = -1;
+    public long lastMsgFromId = -1;
     public int lasMsgId = -1;
 
 }
