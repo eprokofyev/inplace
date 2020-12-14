@@ -188,6 +188,11 @@ public class ApiVk {
         return result;
     }
 
+    /*
+        Допустимые форматы: JPG, PNG, GIF.
+        Ограничения: сумма высоты и ширины не более 14000px,
+        файл объемом не более 50 МБ, соотношение сторон не менее 1:20.
+     */
 
     // result -> Integer, new message id
     public static CommandResult<Integer> sendMessage(int userId, String msg, ArrayList<Uri> photosBitMaps) {
