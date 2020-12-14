@@ -1,10 +1,13 @@
 package com.inplace
 
 import android.annotation.SuppressLint
+import android.content.ClipData
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
+import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -12,7 +15,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.inplace.api.ApiImageLoader.getImageByUrl
+import com.inplace.api.ApiImageLoader
 import com.inplace.api.vk.*
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
@@ -23,8 +26,14 @@ import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
+    var myAtaches: ArrayList<Uri> = ArrayList<Uri>()
+    var idLastChatWithId = -1; // в эту переменную запишем последний чат пользователя (его id)
+    val RESULT_LOAD_IMAGE = 55 // some code for pick images action
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+        // part for vk login
         val callback = object: VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
                 val textID = resources.getIdentifier("textId", "id", packageName)
@@ -38,8 +47,76 @@ class MainActivity : AppCompatActivity() {
                 myText.setText("bad login")
             }
         }
-        if (data == null || !VK.onActivityResult(requestCode, resultCode, data, callback)) {
+        if (requestCode !== RESULT_LOAD_IMAGE && (data == null || !VK.onActivityResult(
+                requestCode,
+                resultCode,
+                data,
+                callback
+            ))) {
             super.onActivityResult(requestCode, resultCode, data)
+        }
+
+
+        // part for load image
+        if (requestCode === RESULT_LOAD_IMAGE && resultCode === RESULT_OK) {
+
+            myAtaches.clear() // clear previous images
+            Log.e("URI", "result ok get images")
+
+            try {
+                if(data!=null)
+                {
+                    Log.e("URI", "data != null")
+                    val clipData: ClipData? = data.getClipData()
+
+                    //if many images selected
+                    if (clipData != null) {
+                        Log.d("onActivityResult", "отправка себе нескольких фоток")
+                        for (i in 0 until clipData.itemCount) {
+                            val imageUri = clipData.getItemAt(i).uri
+                            Log.e("URI", imageUri.toString())
+                            myAtaches.add(imageUri)
+                        }
+                        val result = ApiVk.sendMessage(VK.getUserId(), "", myAtaches)
+                        if (result.error != null) {
+                            Log.e("err", "err load images:" + result.error)
+                        } else {
+                            Log.e("new msg", "id:" + result.result.toString())
+                        }
+
+                        return
+                    }
+
+
+                    // if only ONE image
+                    val filePath = data.getData();
+                    if (filePath != null) {
+                        val bitmap = MediaStore.Images.Media.getBitmap(
+                            this.getContentResolver(),
+                            data.getData()
+                        );
+                        val myAvatarId = resources.getIdentifier("myAvatar", "id", packageName)
+                        val myAvatarView: ImageView = findViewById(myAvatarId)
+                        myAvatarView.setImageBitmap(bitmap)
+
+                        // set attach in
+                        myAtaches.add(filePath)
+                        Log.d("onActivityResult", "отправка себе одной фотки")
+                        val result = ApiVk.sendMessage(VK.getUserId(), "", myAtaches)
+                        if (result.error != null) {
+                            Log.e("err", "err load one image:" + result.error)
+                        } else {
+                            Log.e("new msg", "id:" + result.result.toString())
+                        }
+                    }
+                }
+                else
+                {
+                // user simply backpressed from gallery
+                }
+            } catch (e: Exception) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -54,9 +131,19 @@ class MainActivity : AppCompatActivity() {
             StrictMode.setThreadPolicy(policy)
         }
 
+
+
         val textID = resources.getIdentifier("textId", "id", packageName)
 
-
+//        VK.initialize(getApplicationContext());
+//
+//        val returnKeys = VKUtils.getCertificateFingerprint(this, this.getPackageName())
+//
+//        if (returnKeys != null) {
+//            if (returnKeys.isNotEmpty()) {
+//                Log.e("key:", returnKeys[0].toString())
+//            }
+//        }
 
         // авторизация
         val buttonIDauth = resources.getIdentifier("authBtn", "id", packageName)
@@ -65,17 +152,20 @@ class MainActivity : AppCompatActivity() {
 
             override fun onClick(v: View?) {
 
-                VK.login(this@MainActivity, arrayListOf(
-                    VKScope.FRIENDS,
-                    VKScope.EMAIL,
-                    VKScope.WALL,
-                    VKScope.PHOTOS,
-                    VKScope.MESSAGES,
-                    VKScope.DOCS,
-                    VKScope.GROUPS,
-                    VKScope.PAGES,
-                    VKScope.MESSAGES,
-                    VKScope.OFFLINE))
+                VK.login(
+                    this@MainActivity, arrayListOf(
+                        VKScope.FRIENDS,
+                        VKScope.EMAIL,
+                        VKScope.WALL,
+                        VKScope.PHOTOS,
+                        VKScope.MESSAGES,
+                        VKScope.DOCS,
+                        VKScope.GROUPS,
+                        VKScope.PAGES,
+                        VKScope.MESSAGES,
+                        VKScope.OFFLINE
+                    )
+                )
             }
         }
         authBtn.setOnClickListener(authBtnListen)
@@ -108,17 +198,15 @@ class MainActivity : AppCompatActivity() {
         val myBtnGetMe: Button = findViewById(buttonIDGetMe)
         val GetMeButtonClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
-                val userRestul = ApiVk.getMeSKD()
+                val userRestul = ApiVk.getMe()
                 Log.d("ApiVK", "end of logout request")
                 val myText: TextView = findViewById(textID)
                 if (userRestul.error != null) {
-                    myText.setText("Ошибка в запросе о себе")
+                    myText.setText("Ошибка в запросе о себе: " + userRestul.errTextMsg)
                     return
                 }
 
-                val users = userRestul.result
-
-                val user = users[0]
+                val user = userRestul.result
 
                 val showText = "Имя:" + user.firstName + "\nФамилия:" + user.lastName +
                         "\nid:" + user.id + "\t isClosed:" + user.isClosed.toString() +
@@ -127,7 +215,11 @@ class MainActivity : AppCompatActivity() {
                         "\n Аватарка 200px:" + user.photo200Square;
 
                 myText.setText(showText)
-                myAvatarView.setImageBitmap( getImageByUrl(user.photo200Square, this@MainActivity) );
+                myAvatarView.setImageBitmap(
+                    ApiImageLoader.getInstance(this@MainActivity).getImageByUrl(
+                        user.photo200Square
+                    )
+                );
 
             }
         }
@@ -137,7 +229,6 @@ class MainActivity : AppCompatActivity() {
 
 
         // получение чатов
-        var idLastChatWithId = -1; // в эту переменную запишем последний чат пользователя (его id)
         val idChatArray = java.util.ArrayList<Int>()
 
         val buttonIDGetChats = resources.getIdentifier("chatBtn", "id", packageName)
@@ -232,7 +323,13 @@ class MainActivity : AppCompatActivity() {
                 myText.setText(showText)
 
                 if (messagesArray.size > 0 && messagesArray[0].photos != null) {
-                    myAvatarView.setImageBitmap( getImageByUrl(messagesArray[0].photos?.get(0), this@MainActivity) );
+                    myAvatarView.setImageBitmap(
+                        ApiImageLoader.getInstance(this@MainActivity).getImageByUrl(
+                            messagesArray[0].photos?.get(
+                                0
+                            )
+                        )
+                    );
                 }
 
 
@@ -254,7 +351,7 @@ class MainActivity : AppCompatActivity() {
 
                 val msg = inputForMsg.text.toString()
 
-                val sendMsgResult = ApiVk.sendMessage(idLastChatWithId, msg)
+                val sendMsgResult = ApiVk.sendMessage(idLastChatWithId, msg, ArrayList<Uri>())
 
                 Log.d("ApiVK", "end of send message request")
 
@@ -266,8 +363,10 @@ class MainActivity : AppCompatActivity() {
 
                 val messageId = sendMsgResult.result
 
-                myText.setText("Сообщение отправлено, проверить - получите чаты, а затем сообщения в последнем чате" +
-                        "\t id отправленного сообщения:" + messageId)
+                myText.setText(
+                    "Сообщение отправлено, проверить - получите чаты, а затем сообщения в последнем чате" +
+                            "\t id отправленного сообщения:" + messageId
+                )
             }
         }
         myBtnSendMsg.setOnClickListener(SendMsgsButtonClickListener)
@@ -308,7 +407,11 @@ class MainActivity : AppCompatActivity() {
                     showText += "\n-----------------------\n"
                 }
                 myText.setText(showText)
-                myAvatarView.setImageBitmap( getImageByUrl(usersArray[0].photo200Square, this@MainActivity) );
+                myAvatarView.setImageBitmap(
+                    ApiImageLoader.getInstance(this@MainActivity).getImageByUrl(
+                        usersArray[0].photo200Square
+                    )
+                );
             }
         }
         myBtnGetUsers.setOnClickListener(GetUsersButtonClickListener)
@@ -370,6 +473,62 @@ class MainActivity : AppCompatActivity() {
             }
         }
         GetNewMsgSendMsg.setOnClickListener(GetNewMsgButtonClickListener)
+
+
+
+
+
+
+        val buttonShowImg = resources.getIdentifier("showAva", "id", packageName)
+        val showImgBtn: Button = findViewById(buttonShowImg)
+
+
+        val showImageClickListener: View.OnClickListener = object : View.OnClickListener {
+            override fun onClick(v: View?) {
+
+                val url = inputForMsg.text.toString()
+
+                myAvatarView.setImageBitmap(
+                    ApiImageLoader.getInstance(this@MainActivity).getImageByUrl(
+                        url
+                    )
+                );
+
+            }
+        }
+        showImgBtn.setOnClickListener(showImageClickListener)
+
+
+
+        val buttonLoadImg = resources.getIdentifier("loadPhoto", "id", packageName)
+        val loadImgBtn: Button = findViewById(buttonLoadImg)
+        val loadImageClickListener: View.OnClickListener = object : View.OnClickListener {
+            override fun onClick(v: View?) {
+
+                Log.d("onClick", "pick image click()")
+                val intent = Intent(Intent.ACTION_GET_CONTENT)
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                intent.type = "image/*"
+                startActivityForResult(intent, RESULT_LOAD_IMAGE)
+
+
+            }
+        }
+        loadImgBtn.setOnClickListener(loadImageClickListener)
+
+
+
+
+
+
+
+
     }
+
+
+
+
+
+
 
 }

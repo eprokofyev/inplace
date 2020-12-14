@@ -32,9 +32,7 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
         override fun parse(response: String): VkChatWithUsers {
             try {
                 val rootJson = JSONObject(response).getJSONObject("response")
-
                 val vkChatWithUsers = VkChatWithUsers()
-
                 val jsonConversations = rootJson.getJSONArray("items")
 
                 // get chats
@@ -74,7 +72,6 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
                     }
                 }
 
-                vkChatWithUsers.chats = chatList
 
                 val START_ID_GROUP_CHAT = 2000000000
 
@@ -83,10 +80,23 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
 
                 val jsonUsers: JSONArray = rootJson.getJSONArray("profiles")
 
+                var bannedUsers = ArrayList<Int>()
+
                 for (i in 0 until jsonUsers.length()) {
                     val vkUser = VkUser()
                     val oneUserJsonObj = jsonUsers.getJSONObject(i)
                     vkUser.id = oneUserJsonObj.getString("id").toInt()
+
+                    try {
+                        var banValue = oneUserJsonObj.getString("deactivated")
+                        if (banValue == "banned") {
+                            bannedUsers.add(vkUser.id)
+                            continue
+                        }
+                    } catch (e: JSONException) {
+                        // nothing, user have no ban
+                    }
+
 
                     // skip group chat
                     if (vkUser.id > START_ID_GROUP_CHAT) continue
@@ -103,6 +113,11 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
                     chatUsers[vkUser.id] = vkUser
                 }
 
+                if (bannedUsers.size != 0) {
+                    clearBannedUsers(chatList, chatUsers, bannedUsers)
+                }
+
+                vkChatWithUsers.chats = chatList
                 vkChatWithUsers.users = chatUsers
 
                 return vkChatWithUsers
@@ -110,5 +125,21 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
                 throw VKApiIllegalResponseException(ex)
             }
         }
+
+
+
+        private fun clearBannedUsers(chats: ArrayList<VkChat>, users: HashMap<Int, VkUser>, banned :ArrayList<Int>){
+            for (idBanned in banned) {
+                users.remove(idBanned)
+            }
+            for (chat in chats) {
+                for (idBanned in banned) {
+                    if (chat.chatWithId == idBanned) {
+                        chats.remove(chat)
+                    }
+                }
+            }
+        }
+
     }
 }

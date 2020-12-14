@@ -63,8 +63,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-                android:text="Получить чаты (последние 5)"
+                android:text="Пол 5 чат"
                 tools:ignore="MissingConstraints" />
+
+            <Button
+                android:id="@+id/showAva"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="show ava"
+                tools:ignore="MissingConstraints" />
+
+
+
 
         </LinearLayout>
 
@@ -120,15 +131,32 @@
             android:background="@color/purple_200"
             android:inputType="textPersonName" />
 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:gravity="top"
+        android:orientation="horizontal"
+        tools:ignore="MissingConstraints">
+
         <Button
             android:id="@+id/waitMsg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:text="Подписаться на получение новых сообщений"
+            android:text="Подпись на нов сообщ"
+            tools:ignore="MissingConstraints" />
+
+        <Button
+            android:id="@+id/loadPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="load img"
             tools:ignore="MissingConstraints" />
 
 
+    </LinearLayout>
 
 
 

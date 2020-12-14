@@ -1,5 +1,6 @@
 package com.inplace.api.vk;
 
+import android.net.Uri;
 import android.util.Log;
 import com.inplace.api.CommandResult;
 import com.inplace.models.Message;
@@ -16,11 +17,23 @@ public class ApiVk {
 
 
     // result -> VkUser
-    public static CommandResult<ArrayList<? extends VkUser>> getMeSKD() {
+    public static CommandResult<? extends VkUser> getMe() {
+        CommandResult<VkUser> result = new CommandResult<VkUser>();
+        if (!VK.isLoggedIn()) {
+            result.error = new Error("getMe():: no login before request");
+            result.errTextMsg = "you need login";
+            return result;
+        }
         ArrayList<Integer> ids = new ArrayList<Integer>();
         ids.add(VK.getUserId());
-        return getUsers(ids);
+        CommandResult<ArrayList<? extends VkUser>> resultUsers = getUsers(ids);
+        result.result = resultUsers.result.get(0);
+        result.error = resultUsers.error;
+        result.errTextMsg = resultUsers.errTextMsg;
+        return result;
     }
+
+
 
 
     // result -> null
@@ -177,7 +190,7 @@ public class ApiVk {
 
 
     // result -> Integer, new message id
-    public static CommandResult<Integer> sendMessage(int userId, String msg) {
+    public static CommandResult<Integer> sendMessage(int userId, String msg, ArrayList<Uri> photosBitMaps) {
 
         CommandResult<Integer> result = new CommandResult<>();
 
@@ -187,9 +200,40 @@ public class ApiVk {
             return result;
         }
 
+        if ( msg.equals("") && photosBitMaps.size() == 0){
+            result.error = new Error("no msg and no photos");
+            result.errTextMsg = "no msg and no photos";
+            return result;
+        }
+
+
         Integer sendMsgId = -1;
         try {
-            sendMsgId = VK.executeSync(new SendMessageCommand(userId, msg));
+
+        // load photos and get photos urls
+            ArrayList<ImageStruct> imageStructs = new ArrayList<ImageStruct>();
+            if (photosBitMaps.size() > 0) {
+
+                // check UploadServer
+                if ( !VkSingleton.UploadServer.getIsInit() ) {
+                    if ( !getUploadServer() ) {
+                        result.error = new Error("no init UploadServer");
+                        result.errTextMsg = "no init UploadServer";
+                        return  result;
+                    }
+                }
+
+                // load photos
+                for (Uri photoUri : photosBitMaps) {
+                    FileUploadInfo fileUploadInfo = VK.executeSync(new LoadPhotoCommand(photoUri));
+                    ImageStruct imageStruct = VK.executeSync(new SaveImageCommand(fileUploadInfo));
+                    imageStructs.add( imageStruct );
+                }
+            }
+
+            // send message
+            sendMsgId = VK.executeSync(new SendMessageCommand(userId, msg, imageStructs));
+
         } catch (InterruptedException e) {
             Log.e("vk SDK", "sendMessage() InterruptedException:" + e);
             result.error = new Error("InterruptedException");
@@ -232,15 +276,39 @@ public class ApiVk {
         if (VkSingleton.LongPollServer.getIsInit())
             return false;
 
-        boolean isIgnited;
+        boolean isInited;
         try {
-            isIgnited = VK.executeSync(new GetLongPullCommand());
+            isInited = VK.executeSync(new GetLongPullCommand());
         } catch (Exception e) {
             Log.e("vk SDK", "getLongPollServer() Exception" + e);
             return false;
         }
-        return isIgnited;
+        return isInited;
     }
+
+
+    // true -> is ok
+    // false -> err or already init
+    public static synchronized boolean getUploadServer() {
+
+        if (!VK.isLoggedIn()){
+            return false;
+        }
+
+        if (VkSingleton.UploadServer.getIsInit())
+            return false;
+
+        boolean isInited;
+        try {
+            isInited = VK.executeSync(new GetUploadServerCommand());
+        } catch (Exception e) {
+            Log.e("vk SDK", "getUploadServer() Exception" + e);
+            return false;
+        }
+        return isInited;
+    }
+
+
 
 
     // result -> ArrayList<Message>
@@ -296,4 +364,5 @@ public class ApiVk {
     }
 
 
-}
+
+    }
