@@ -192,12 +192,20 @@ public class ApiVk {
         Допустимые форматы: JPG, PNG, GIF.
         Ограничения: сумма высоты и ширины не более 14000px,
         файл объемом не более 50 МБ, соотношение сторон не менее 1:20.
+        ДО 10 шт
      */
 
     // result -> Integer, new message id
-    public static CommandResult<Integer> sendMessage(int userId, String msg, ArrayList<Uri> photosBitMaps) {
+    public static CommandResult<Integer> sendMessage(int userId, String msg, ArrayList<Uri> photosUri) {
 
         CommandResult<Integer> result = new CommandResult<>();
+
+        if ( photosUri.size() > 10){
+            result.error = new Error("photosUri max = 10");
+            result.errTextMsg = "photosUri max = 10";
+            return result;
+        }
+
 
         if (!VK.isLoggedIn()){
             result.error = new Error("no session");
@@ -205,7 +213,7 @@ public class ApiVk {
             return result;
         }
 
-        if ( msg.equals("") && photosBitMaps.size() == 0){
+        if ( msg.equals("") && photosUri.size() == 0){
             result.error = new Error("no msg and no photos");
             result.errTextMsg = "no msg and no photos";
             return result;
@@ -217,7 +225,7 @@ public class ApiVk {
 
         // load photos and get photos urls
             ArrayList<ImageStruct> imageStructs = new ArrayList<ImageStruct>();
-            if (photosBitMaps.size() > 0) {
+            if (photosUri.size() > 0) {
 
                 // check UploadServer
                 if ( !VkSingleton.UploadServer.getIsInit() ) {
@@ -229,7 +237,7 @@ public class ApiVk {
                 }
 
                 // load photos
-                for (Uri photoUri : photosBitMaps) {
+                for (Uri photoUri : photosUri) {
                     FileUploadInfo fileUploadInfo = VK.executeSync(new LoadPhotoCommand(photoUri));
                     ImageStruct imageStruct = VK.executeSync(new SaveImageCommand(fileUploadInfo));
                     imageStructs.add( imageStruct );
