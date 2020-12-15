@@ -1,9 +1,22 @@
 package com.inplace.auth.ui.login
 
 import android.content.Intent
+import android.os.Build
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.annotation.StringRes
+import android.os.StrictMode
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
+import com.inplace.api.ApiImageLoader.getImageByUrl
+import com.inplace.api.vk.*
+import com.vk.api.sdk.VK
+import com.vk.api.sdk.auth.VKAccessToken
+import com.vk.api.sdk.auth.VKAuthCallback
+import com.vk.api.sdk.auth.VKScope
+import kotlin.concurrent.thread
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.os.Bundle
 import android.text.Editable
@@ -12,8 +25,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
-import android.widget.Button
-import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
 import com.inplace.MainActivity
@@ -23,8 +34,6 @@ import java.io.Serializable
 
 class VkLoginFragment : Fragment() {
 
-    private lateinit var loginViewModel: LoginViewModel
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -33,71 +42,62 @@ class VkLoginFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_vk_login, container, false)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        Log.d("odred", "result")
+        val callback = object: VKAuthCallback {
+            override fun onLogin(token: VKAccessToken) {
+                Log.d("tokenn", token.toString())
+                updateUiWithUser()
+            }
+
+            override fun onLoginFailed(errorCode: Int) {
+                Log.d("tokenn", "error")
+            }
+        }
+        if (data == null || !VK.onActivityResult(requestCode, resultCode, data, callback)) {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory())
-            .get(LoginViewModel::class.java)
+        Log.d("odred", "create")
 
-        val usernameEditText = view.findViewById<EditText>(R.id.username)
-        val passwordEditText = view.findViewById<EditText>(R.id.password)
+        if (Build.VERSION.SDK_INT > 9) {
+            val policy =
+                StrictMode.ThreadPolicy.Builder().permitAll().build()
+            StrictMode.setThreadPolicy(policy)
+        }
+
+
         val loginButton = view.findViewById<Button>(R.id.login)
-        val loadingProgressBar = view.findViewById<ProgressBar>(R.id.loading)
 
-        loginViewModel.isDataValid.observe(this,
-            Observer { isDataValid ->
-                if (isDataValid == null) {
-                    return@Observer
-                }
-                loginButton.isEnabled = isDataValid
-            })
 
-        loginViewModel.commandResult.observe(this,
-            Observer { commandResult ->
-                commandResult ?: return@Observer
-                loadingProgressBar.visibility = View.GONE
-                commandResult.error?.let {
-                    showLoginFailed(commandResult.errTextMsg)
-                }
-                commandResult.result?.let {
-                    updateUiWithUser()
-                }
-            })
-
-        val afterTextChangedListener = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-                // ignore
-            }
-
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                // ignore
-            }
-
-            override fun afterTextChanged(s: Editable) {
-                loginViewModel.loginDataChanged(
-                    usernameEditText.text.toString(),
-                    passwordEditText.text.toString()
-                )
-            }
-        }
-        usernameEditText.addTextChangedListener(afterTextChangedListener)
-        passwordEditText.addTextChangedListener(afterTextChangedListener)
-        passwordEditText.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                loginViewModel.login(
-                    usernameEditText.text.toString(),
-                    passwordEditText.text.toString()
-                )
-            }
-            false
-        }
-
+        loginButton.isEnabled = true
+        loginButton.visibility = View.VISIBLE
         loginButton.setOnClickListener {
-            loadingProgressBar.visibility = View.VISIBLE
-            loginViewModel.login(
-                usernameEditText.text.toString(),
-                passwordEditText.text.toString()
-            )
+            it.isClickable = true
+            activity?.let {
+                VK.login(
+                    it, arrayListOf(
+                        VKScope.FRIENDS,
+                        VKScope.EMAIL,
+                        VKScope.WALL,
+                        VKScope.PHOTOS,
+                        VKScope.MESSAGES,
+                        VKScope.DOCS,
+                        VKScope.GROUPS,
+                        VKScope.PAGES,
+                        VKScope.MESSAGES,
+                        VKScope.OFFLINE
+                    )
+                )
+            }
         }
+
+        Log.d("tokenn", "hello")
+
+
     }
 
     private fun updateUiWithUser() {

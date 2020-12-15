@@ -11,7 +11,7 @@ public class VkChat {
     public int chatType = -1;
     public String groupChatTitle = "";
 
-    public int date = -1;
+    public long date = -1;
     public String text = "";
     public long chatWithId = -1;
     public long lastMsgFromId = -1;

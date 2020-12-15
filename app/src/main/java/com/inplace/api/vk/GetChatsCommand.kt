@@ -54,7 +54,7 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
                         jsonConversations.getJSONObject(i).getJSONObject("last_message")
 
                     vkChat.text = lastMessageObj.getString("text")
-                    vkChat.date = lastMessageObj.getString("date").toInt()
+                    vkChat.date = lastMessageObj.getString("date").toLong()
                     vkChat.lastMsgFromId = lastMessageObj.getString("from_id").toLong()
                     vkChat.lasMsgId = lastMessageObj.getString("id").toInt()
 

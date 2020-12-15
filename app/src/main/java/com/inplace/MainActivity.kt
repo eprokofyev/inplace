@@ -5,7 +5,7 @@ import android.os.StrictMode
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.inplace.api.vk.ApiVK
-import com.inplace.chat.ChatFragment
+
 import com.inplace.chats.ChatsFragment
 import com.inplace.chats.SwitcherInterface
 import com.inplace.models.*
@@ -24,12 +24,13 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
     }
 
     override fun switch(chat: SuperChat) {
-
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.fragment_container, ChatFragment.newInstance(chat))
             addToBackStack(null)
             commitAllowingStateLoss()
         }
+
+
     }
 
     override fun onBackPressed() {

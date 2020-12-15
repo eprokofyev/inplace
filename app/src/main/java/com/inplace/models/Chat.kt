@@ -61,8 +61,8 @@ data class SuperChat(
 data class SimpleChat(
     var title: String,
     var avatarURL: String,
-    var vkChats:@RawValue HashMap<Long, Long>,
-    var telegramChats:@RawValue HashMap<Long, Long>,
+    var vkChats:@RawValue List<Long>,
+    var telegramChats:@RawValue List<Long>,
     var defaultChatID: Long,
     var isHeard: Boolean,
 ) : Parcelable

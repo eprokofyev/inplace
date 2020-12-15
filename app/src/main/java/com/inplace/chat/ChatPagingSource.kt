@@ -1,5 +1,6 @@
 package com.inplace.chat
 
+
 import android.util.Log
 import androidx.paging.PagingSource
 import com.inplace.api.vk.ApiVK
@@ -20,7 +21,7 @@ class ChatPagingSource(
         return if (response.error != null) {
             LoadResult.Error(response.error)
         } else {
-            val messages = response.result as List<com.inplace.api.Message>
+            val messages = response?.result ?: listOf<Message>()
             LoadResult.Page(
                 data = transform(messages),
                 prevKey = null,
@@ -29,7 +30,7 @@ class ChatPagingSource(
         }
     }
 
-    private fun transform(plains: List<com.inplace.api.Message>): List<Message> {
+    private fun transform(plains: List<Message>): List<Message> {
         val result: MutableList<Message> = ArrayList()
         plains.forEach {
             val message = map(it)
@@ -38,13 +39,13 @@ class ChatPagingSource(
         return result
     }
 
-    private fun map(messagePlain: com.inplace.api.Message): Message {
+    private fun map(messagePlain: Message): Message {
 
         //TODO change to com.inplace.models.Source after api fix
         lateinit var messageSource: Source
-        if (messagePlain.fromMessenger == 1)
+        if (messagePlain.fromMessenger == Source.VK)
             messageSource = Source.VK
-        else if (messagePlain.fromMessenger == 2)
+        else if (messagePlain.fromMessenger == Source.TELEGRAM)
             messageSource = Source.TELEGRAM
 
         return Message(
@@ -53,7 +54,9 @@ class ChatPagingSource(
             messagePlain.text,
             messagePlain.fromId,
             messagePlain.myMsg,
-            messageSource
+            messageSource,
+            false,
+            arrayListOf()
         )
     }
 }

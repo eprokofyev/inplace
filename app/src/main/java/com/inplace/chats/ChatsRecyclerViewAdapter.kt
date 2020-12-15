@@ -11,9 +11,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.inplace.R
-import com.inplace.chat.DateParser
 import com.inplace.models.SuperChat
 import de.hdodenhof.circleimageview.CircleImageView
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class ChatsRecyclerViewAdapter(
@@ -48,7 +49,8 @@ class ChatsRecyclerViewAdapter(
 
             holder.message.text = chat.lastMessage.text
 
-            holder.time.text = DateParser.convertTimeToString(chat.lastMessage.date)
+            holder.time.text = SimpleDateFormat("HH:mm", Locale.US).format(chat.lastMessage.date)
+
 
             holder.line.setOnClickListener { v ->
 

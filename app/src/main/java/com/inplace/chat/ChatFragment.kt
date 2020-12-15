@@ -19,6 +19,7 @@ import com.inplace.chat.DateParser.getNowDate
 import com.inplace.models.Chat
 import com.inplace.models.Message
 import com.inplace.models.Source
+import com.inplace.models.SuperChat
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.launch
 
@@ -126,7 +127,7 @@ class ChatFragment : Fragment() {
         sendButton.setOnClickListener {
             val messageText: String = messageEditText.text.toString()
             //TODO send telegram messages
-            val message = Message(-1, getNowDate(), messageText, chat.user.id, true, Source.VK)
+            val message = Message(-1, getNowDate(), messageText, chat.user.id, true, Source.VK, false, arrayListOf())
 
             //chatViewModel.sendMessage(chat.conversationVkId.toInt(),messageText)
 
@@ -150,7 +151,7 @@ class ChatFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(chat: Chat): ChatFragment {
+        fun newInstance(chat: SuperChat): ChatFragment {
             val fragment = ChatFragment()
             val bundle = Bundle()
             bundle.putParcelable("chat", chat)

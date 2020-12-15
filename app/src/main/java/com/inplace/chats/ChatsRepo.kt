@@ -1,30 +1,30 @@
 package com.inplace.chats
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.inplace.api.ApiImageLoader
-import com.inplace.api.CommandResult
 import com.inplace.api.vk.*
+import com.inplace.api.vk.VkChat.CHAT_TYPE_USER
 import com.inplace.models.*
+import com.inplace.services.ExecutorServices
+import com.vk.api.sdk.VK
 import java.lang.Exception
 import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 
-class ChatsRepo {
+class ChatsRepo(
+    private val vkChats: MutableLiveData<MutableList<VKChat>>,
+    private val telegramChats: MutableLiveData<MutableList<TelegramChat>>,
+    private val avatars: MutableLiveData<MutableList<Bitmap>>,
+    ) {
 
-    private val executor: Executor = Executors.newSingleThreadExecutor()
-
-    private var vkChats: MutableLiveData<MutableList<SuperChat>> = MutableLiveData<MutableList<SuperChat>>()
-
-    fun getChats() = vkChats
-
+    private val executor: Executor = ExecutorServices.getInstanceAPI()
 
     fun refresh(context: Context, start: Int, end: Int, callback: OnRequestCompleteListener) {
         executor.execute {
-            val result = getChatsFromVK(context, start, end)
-            if (result is RepoResult.Success) {
+            val result = getVKChats(start, end)
+            if (result is ResultVKChat.Success) {
                 vkChats.postValue(result.data)
                 Log.d("tag", result.data.size.toString())
             }
@@ -33,123 +33,106 @@ class ChatsRepo {
         }
     }
 
-    private fun getChatsFromVK(context: Context, start: Int, end: Int): RepoResult {
-        val chats = mutableListOf<SuperChat>()
+    fun getVKChats(start: Int, end: Int): ResultVKChat {
+        return getChatsFromVK(start, end)
+    }
+
+    private fun getChatsFromVK(start: Int, end: Int): ResultVKChat {
+        val chats = mutableListOf<VKChat>()
         val result = ApiVK.getChats(start, end)
 
         if (result.error != null) {
-            return RepoResult.Error(Exception(result.errTextMsg))
+            return ResultVKChat.Error(Exception(result.errTextMsg))
         }
 
-        val vkChat = result.result?.chats ?: arrayListOf<VkChat>()
+        val vkChats = result.result?.chats ?: arrayListOf<VkChat>()
         val vkUsers = result.result?.users ?: hashMapOf<Int, VkUser>()
 
 
-        for (chat in vkChat) {
+        for (vkChat in vkChats) {
 
-            var sobesednik: SuperSobesednik? = null
-
-            var image = ""
-            var profileName = chat.groupChatTitle
-            if (chat.chatType == VkChat.CHAT_TYPE_USER) {
-                Log.d("gg", "hh")
-                Log.d("gg", Thread.currentThread().name)
-                sobesednik = vkUsers[chat.chatWithId]?.let {
-                    VKSobesednik(
-                        it.firstName + " "
-                                + it.lastName,
-                        it.photo200Square,
-                        it.id.toString(),
-                        "today",
-                        it.about,
-                        0
-                    )
-                }?.let {
-                    Sobesednik(it.name, it.avatar, it, null, "0")
-                }
-                profileName = vkUsers[chat.chatWithId]?.firstName ?: "" + " " + vkUsers[chat.chatWithId]?.lastName ?: ""
-                image = sobesednik?.avatar ?: ""
-            }
-
-            Log.d("tag", profileName)
-
-            if (profileName == null) {
-                profileName = chat.groupChatTitle
-            }
-
-            val message = Message(
-                0, chat.date.toLong(),
-                chat.text, chat.lastMsgFromId,
-                ChatsFragment.user?.id ?: 0 == chat.lastMsgFromId,
+            val msg = Message(
+                vkChat.lasMsgId,
+                vkChat.date,
+                vkChat.text,
+                vkChat.lastMsgFromId,
+                vkChat.chatWithId,
+                vkChat.lastMsgFromId == VK.getUserId().toLong(),
                 Source.VK,
                 false,
                 arrayListOf(),
             )
 
-            if (sobesednik != null) {
-                Log.d("sob", "sob")
+            var vkUser = vkUsers[vkChat.lastMsgFromId]
+            if (vkUser == null) {
+                return ResultVKChat.Error(Exception("собеседник не найден"))
             }
 
-            chats.add(
-                if (sobesednik != null && ChatsFragment.user != null) {
-                    Chat(
-                        ChatsFragment.user!!,
-                        profileName,
-                        when (image) {
-                            "" -> null
-                            else -> ApiImageLoader.getImageByUrl(image, context)
-                        },
-                        mutableListOf<Sobesednik>(sobesednik),
-                        mutableListOf(message),
-                        true,
-                        when (chat.chatType) {
-                            VkChat.CHAT_TYPE_GROUP_CHAT -> false
-                            else -> true
-                        },
-                        chat.chatWithId.toString(),
-                        "",
-                        Source.VK,
-                        ""
-                    )
-                } else {
-                    Chat(
-                        ChatsFragment.user!!,
-                        profileName,
-                        when (image) {
-                            "" -> null
-                            else -> ApiImageLoader.getImageByUrl(image, context)
-                        },
-                        mutableListOf<Sobesednik>(),
-                        mutableListOf(message),
-                        true,
-                        when (chat.chatType) {
-                            VkChat.CHAT_TYPE_GROUP_CHAT -> false
-                            else -> true
-                        },
-                        chat.chatWithId.toString(),
-                        "",
-                        Source.VK,
-                        ""
-                    )
-                }
+            var sobesednik = VKSobesednik(
+                vkUser.id,
+                vkUser.firstName,
+                vkUser.lastName,
+                null,
+                vkUser.photo200Square,
+                if (vkUser.online) "online" else "",
+                "about",
+                0,
             )
 
+            val usersMap = hashMapOf<Long, IVKSobesednik>()
+            var title = vkChat.groupChatTitle
+            var avatarUrl = ""
+            var chatType = ChatType.GROUP
+            if (vkChat.chatType == CHAT_TYPE_USER) {
+                if (sobesednik.userID != vkChat.chatWithId) {
+                    vkUser = vkUsers[vkChat.chatWithId]
+                    if (vkUser == null) {
+                        return ResultVKChat.Error(Exception("собеседник не найден"))
+                    }
+
+                    sobesednik = VKSobesednik(
+                        vkUser.id,
+                        vkUser.firstName,
+                        vkUser.lastName,
+                        null,
+                        vkUser.photo200Square,
+                        if (vkUser.online) "online" else "",
+                        "about",
+                        0,
+                    )
+                }
+
+                title = sobesednik.name + " " + sobesednik.lastName
+                avatarUrl = sobesednik.avatarUrl
+                chatType = ChatType.PRIVATE
+            }
+
+            val chat = VKChat(
+                vkChat.chatWithId,
+                Source.VK,
+                title,
+                null,
+                avatarUrl,
+                arrayListOf(msg),
+                true,
+                chatType,
+                msg,
+                hashMapOf<Long, IVKSobesednik>(sobesednik.userID to SuperSobesednik(sobesednik, null, Source.VK)),
+            )
+
+            chats.add(chat)
         }
 
-        return RepoResult.Success(chats)
+        return ResultVKChat.Success(chats)
     }
 
     interface OnRequestCompleteListener {
-        fun onRequestComplete(result: RepoResult)
+        fun onRequestComplete(result: ResultVKChat)
     }
 
 }
 
-data class RepoChat(
-    var sobesedniks: MutableList<Sobesednik>,
-    var messages: MutableList<Message>,
-    var isHeard: Boolean,
-    val conversationVkId: String,
-    var conversationTelegramId: String,
-    val localId: String
-)
+sealed class ResultVKChat {
+    data class Success(val data: MutableList<VKChat>) : ResultVKChat()
+    data class Error(val error: Exception) : ResultVKChat()
+}
