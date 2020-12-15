@@ -39,4 +39,23 @@ public class VkSingleton {
 
     }
 
+
+
+    public static class UploadServer {
+
+        public static boolean isInit = false;
+        public static String uploadUrl = "";
+
+        public static synchronized void setInit(String serverValue) {
+            uploadUrl = serverValue;
+            isInit = true;
+        }
+
+        public static boolean getIsInit(){
+            return  isInit;
+        }
+
+    }
+
+
 }

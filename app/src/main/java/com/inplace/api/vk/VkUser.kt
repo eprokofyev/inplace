@@ -5,7 +5,7 @@ import android.os.Parcelable
 import org.json.JSONObject
 
 data class VkUser(
-    var id: Long = 0,
+    var id: Int = 0,
     var firstName: String = "",
     var lastName: String = "",
     var about: String = "",
@@ -16,7 +16,7 @@ data class VkUser(
     var deactivated: Boolean = false) : Parcelable {
 
     constructor(parcel: Parcel) : this(
-        parcel.readLong(),
+        parcel.readInt(),
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.readString()!!,
@@ -26,7 +26,7 @@ data class VkUser(
         parcel.readByte() != 0.toByte())
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeLong(id)
+        parcel.writeInt(id)
         parcel.writeString(firstName)
         parcel.writeString(lastName)
         parcel.writeString(about)
@@ -50,7 +50,7 @@ data class VkUser(
         }
 
         fun parse(json: JSONObject)
-                = VkUser(id = json.optLong("id", 0),
+                = VkUser(id = json.optInt("id", 0),
             firstName = json.optString("first_name", ""),
             lastName = json.optString("last_name", ""),
             about = json.optString("about", ""),

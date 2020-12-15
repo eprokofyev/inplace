@@ -7,7 +7,7 @@ class VkChatWithUsers {
     var chats: ArrayList<VkChat>? = null
 
     // map [userId] = vkUser
-    var users: HashMap<Long, VkUser>? = null
+    var users: HashMap<Int, VkUser>? = null
 
 }
 

@@ -11,10 +11,10 @@ public class VkChat {
     public int chatType = -1;
     public String groupChatTitle = "";
 
-    public long date = -1;
+    public int date = -1;
     public String text = "";
-    public long chatWithId = -1;
-    public long lastMsgFromId = -1;
+    public int chatWithId = -1;
+    public int lastMsgFromId = -1;
     public int lasMsgId = -1;
 
 }

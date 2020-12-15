@@ -11,6 +11,7 @@ import com.vk.api.sdk.internal.ApiCommand
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import kotlin.collections.ArrayList
 
 
 class GetMessagesHistoryCommand(private val start: Int, private val end: Int, private val conversationId: Int): ApiCommand<ArrayList<Message>>() {
@@ -43,7 +44,7 @@ class GetMessagesHistoryCommand(private val start: Int, private val end: Int, pr
                 val messages = ArrayList<Message>()
 
                 for (i in 0 until jsonMessages.length()) {
-                    val message = Message(0,0,"",0,0,false, Source.VK, false, arrayListOf<String>())
+                    val message = Message(0,0,"",0,false,Source.VK,null)
                     val oneMessageJsonObj = jsonMessages.getJSONObject(i)
                     message.text = oneMessageJsonObj.getString("text")
 
@@ -52,12 +53,12 @@ class GetMessagesHistoryCommand(private val start: Int, private val end: Int, pr
                     if (message.text == "") {
                         isText = false
                     }
-                    message.userID = oneMessageJsonObj.getString("from_id").toLong()
+                    message.fromId = oneMessageJsonObj.getString("from_id").toInt()
                     message.date = oneMessageJsonObj.getString("date").toLong()
-                    if (message.userID == VK.getUserId().toLong()) {
+                    if (message.fromId == VK.getUserId()) {
                         message.myMsg = true
                     }
-                    message.messageID = oneMessageJsonObj.getString("id").toInt()
+                    message.messageId = oneMessageJsonObj.getString("id").toInt()
                     message.fromMessenger = Source.VK
 
                     var attachmentsArray :JSONArray
@@ -72,7 +73,7 @@ class GetMessagesHistoryCommand(private val start: Int, private val end: Int, pr
 
                     for (j in 0 until attachmentsArray.length()) {
 
-                        val oneAttachment = attachmentsArray.getJSONObject(j)
+                        var oneAttachment = attachmentsArray.getJSONObject(j)
 
                         val type = oneAttachment.getString("type")
 
@@ -84,10 +85,15 @@ class GetMessagesHistoryCommand(private val start: Int, private val end: Int, pr
                             .getJSONObject(2)
                             .getString("url")
 
-                        message.photos.add(url)
+                        if (message.photos == null) {
+                            message.photos = ArrayList<String?>()
+                        }
+
+                        message.photos!!.add(url)
                     }
 
-                    if (isText) messages.add(message)
+                    if (isText || message.photos != null)
+                        messages.add(message)
                 }
                 return messages
             } catch (ex: JSONException) {

@@ -11,6 +11,7 @@ import com.vk.api.sdk.internal.ApiCommand
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.lang.Exception
 
 
 class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
@@ -47,7 +48,7 @@ class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
 
                 for (i in 0 until messagesArray.length()) {
                     val oneMessageJSON = messagesArray.getJSONObject(i)
-                    val message = Message(0,0,"",0,0,false, Source.VK, false, arrayListOf<String>())
+                    val message = Message(0,0,"",0,false,Source.VK,null)
                     message.text = oneMessageJSON.getString("text")
 
                     // add only text msg and photos
@@ -61,10 +62,10 @@ class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
                         continue
                     }
 
-                    message.userID = oneMessageJSON.getString("from_id").toLong()
+                    message.fromId = oneMessageJSON.getString("from_id").toInt()
                     message.date = oneMessageJSON.getString("date").toLong()
-                    message.messageID = oneMessageJSON.getString("id").toInt()
-                    if (message.userID == VK.getUserId().toLong()) {
+                    message.messageId = oneMessageJSON.getString("id").toInt()
+                    if (message.fromId == VK.getUserId()) {
                         message.myMsg = true
                     }
                     message.fromMessenger = Source.VK
@@ -93,9 +94,12 @@ class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
                             .getJSONObject(2)
                             .getString("url")
 
-                        message.photos.add(url)
+                        if (message.photos == null) {
+                            message.photos = ArrayList<String?>()
+                        }
+                        message.photos!!.add(url)
                     }
-                    if (isText)
+                    if (isText || message.photos != null)
                         newMessages.add(message)
                 }
 
