@@ -117,7 +117,7 @@
                 android:layout_width="140dp"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
-                android:text="Отправ. в послед чат сообщение"
+                android:text="end input"
                 tools:ignore="MissingConstraints" />
 
         </LinearLayout>

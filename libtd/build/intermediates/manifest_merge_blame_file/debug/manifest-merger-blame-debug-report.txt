@@ -1,0 +1,34 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<!--
+3  ~ Copyright Aliaksei Levin (levlam@telegram.org), Arseny Smirnov (arseny30@gmail.com) 2014-2020
+4  ~
+5  ~ Distributed under the Boost Software License, Version 1.0. (See accompanying
+6  ~ file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+7-->
+8<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+9    package="org.drinkless.td.libcore"
+10    android:versionCode="1"
+11    android:versionName="1.0" >
+12
+13    <uses-sdk
+14        android:minSdkVersion="10"
+14-->/home/alex/AndroidStudioProjects/inplace/libtd/src/main/AndroidManifest.xml
+15        android:targetSdkVersion="28" />
+15-->/home/alex/AndroidStudioProjects/inplace/libtd/src/main/AndroidManifest.xml
+16
+17    <uses-permission android:name="android.permission.INTERNET" />
+17-->/home/alex/AndroidStudioProjects/inplace/libtd/src/main/AndroidManifest.xml:11:5-66
+17-->/home/alex/AndroidStudioProjects/inplace/libtd/src/main/AndroidManifest.xml:11:22-64
+18    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+18-->/home/alex/AndroidStudioProjects/inplace/libtd/src/main/AndroidManifest.xml:12:5-80
+18-->/home/alex/AndroidStudioProjects/inplace/libtd/src/main/AndroidManifest.xml:12:22-78
+19
+20    <application
+20-->/home/alex/AndroidStudioProjects/inplace/libtd/src/main/AndroidManifest.xml:13:5-17:19
+21        android:allowBackup="true"
+21-->/home/alex/AndroidStudioProjects/inplace/libtd/src/main/AndroidManifest.xml:13:18-44
+22        android:label="@string/app_name" >
+22-->/home/alex/AndroidStudioProjects/inplace/libtd/src/main/AndroidManifest.xml:14:9-41
+23    </application>
+24
+25</manifest>

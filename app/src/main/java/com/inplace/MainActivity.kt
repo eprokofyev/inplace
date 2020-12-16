@@ -2,6 +2,7 @@ package com.inplace
 
 import android.annotation.SuppressLint
 import android.content.ClipData
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -15,8 +16,9 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.inplace.api.ApiImageLoader
-import com.inplace.api.vk.*
+import com.inplace.api.telegram.ApiTelegram
+import com.inplace.api.telegram.ApiTelegramGetMe
+import com.inplace.api.telegram.LoginTelegramInterface
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
@@ -24,102 +26,14 @@ import com.vk.api.sdk.auth.VKScope
 import kotlin.concurrent.thread
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity  : AppCompatActivity(), LoginTelegramInterface  {
 
-    var myAtaches: ArrayList<Uri> = ArrayList<Uri>()
-    var idLastChatWithId = -1; // в эту переменную запишем последний чат пользователя (его id)
+    var isSendBtnPressed = false
+
+
     val RESULT_LOAD_IMAGE = 55 // some code for pick images action
 
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
-        // part for vk login
-        val callback = object: VKAuthCallback {
-            override fun onLogin(token: VKAccessToken) {
-                val textID = resources.getIdentifier("textId", "id", packageName)
-                val myText: TextView = findViewById(textID)
-                myText.setText("good login")
-            }
-
-            override fun onLoginFailed(errorCode: Int) {
-                val textID = resources.getIdentifier("textId", "id", packageName)
-                val myText: TextView = findViewById(textID)
-                myText.setText("bad login")
-            }
-        }
-        if (requestCode !== RESULT_LOAD_IMAGE && (data == null || !VK.onActivityResult(
-                requestCode,
-                resultCode,
-                data,
-                callback
-            ))) {
-            super.onActivityResult(requestCode, resultCode, data)
-        }
-
-
-        // part for load image
-        if (requestCode === RESULT_LOAD_IMAGE && resultCode === RESULT_OK) {
-
-            myAtaches.clear() // clear previous images
-            Log.e("URI", "result ok get images")
-
-            try {
-                if(data!=null)
-                {
-                    Log.e("URI", "data != null")
-                    val clipData: ClipData? = data.getClipData()
-
-                    //if many images selected
-                    if (clipData != null) {
-                        Log.d("onActivityResult", "отправка себе нескольких фоток")
-                        for (i in 0 until clipData.itemCount) {
-                            val imageUri = clipData.getItemAt(i).uri
-                            Log.e("URI", imageUri.toString())
-                            myAtaches.add(imageUri)
-                        }
-                        val result = ApiVk.sendMessage(VK.getUserId(), "", myAtaches)
-                        if (result.error != null) {
-                            Log.e("err", "err load images:" + result.error)
-                        } else {
-                            Log.e("new msg", "id:" + result.result.toString())
-                        }
-
-                        return
-                    }
-
-
-                    // if only ONE image
-                    val filePath = data.getData();
-                    if (filePath != null) {
-                        val bitmap = MediaStore.Images.Media.getBitmap(
-                            this.getContentResolver(),
-                            data.getData()
-                        );
-                        val myAvatarId = resources.getIdentifier("myAvatar", "id", packageName)
-                        val myAvatarView: ImageView = findViewById(myAvatarId)
-                        myAvatarView.setImageBitmap(bitmap)
-
-                        // set attach in
-                        myAtaches.add(filePath)
-                        Log.d("onActivityResult", "отправка себе одной фотки")
-                        val result = ApiVk.sendMessage(VK.getUserId(), "", myAtaches)
-                        if (result.error != null) {
-                            Log.e("err", "err load one image:" + result.error)
-                        } else {
-                            Log.e("new msg", "id:" + result.result.toString())
-                        }
-                    }
-                }
-                else
-                {
-                // user simply backpressed from gallery
-                }
-            } catch (e: Exception) {
-                e.printStackTrace();
-            }
-        }
-    }
-
+    var textID : Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -133,17 +47,9 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        val textID = resources.getIdentifier("textId", "id", packageName)
 
-//        VK.initialize(getApplicationContext());
-//
-//        val returnKeys = VKUtils.getCertificateFingerprint(this, this.getPackageName())
-//
-//        if (returnKeys != null) {
-//            if (returnKeys.isNotEmpty()) {
-//                Log.e("key:", returnKeys[0].toString())
-//            }
-//        }
+        textID = resources.getIdentifier("textId", "id", packageName)
+
 
         // авторизация
         val buttonIDauth = resources.getIdentifier("authBtn", "id", packageName)
@@ -152,20 +58,9 @@ class MainActivity : AppCompatActivity() {
 
             override fun onClick(v: View?) {
 
-                VK.login(
-                    this@MainActivity, arrayListOf(
-                        VKScope.FRIENDS,
-                        VKScope.EMAIL,
-                        VKScope.WALL,
-                        VKScope.PHOTOS,
-                        VKScope.MESSAGES,
-                        VKScope.DOCS,
-                        VKScope.GROUPS,
-                        VKScope.PAGES,
-                        VKScope.MESSAGES,
-                        VKScope.OFFLINE
-                    )
-                )
+
+                ApiTelegram.initTelegram(this@MainActivity);
+
             }
         }
         authBtn.setOnClickListener(authBtnListen)
@@ -178,13 +73,10 @@ class MainActivity : AppCompatActivity() {
         val myBtnLogout: Button = findViewById(buttonIDLogout)
         val logOutButtonClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
-                val returnValue = ApiVk.logout()
-                val myText: TextView = findViewById(textID)
-                if (returnValue.error == null) {
-                    myText.setText("Успешный выход")
-                } else {
-                    myText.setText("Ошибка при выходе")
-                }
+
+
+
+
             }
         }
         myBtnLogout.setOnClickListener(logOutButtonClickListener)
@@ -198,28 +90,8 @@ class MainActivity : AppCompatActivity() {
         val myBtnGetMe: Button = findViewById(buttonIDGetMe)
         val GetMeButtonClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
-                val userRestul = ApiVk.getMe()
-                Log.d("ApiVK", "end of logout request")
-                val myText: TextView = findViewById(textID)
-                if (userRestul.error != null) {
-                    myText.setText("Ошибка в запросе о себе: " + userRestul.errTextMsg)
-                    return
-                }
 
-                val user = userRestul.result
-
-                val showText = "Имя:" + user.firstName + "\nФамилия:" + user.lastName +
-                        "\nid:" + user.id + "\t isClosed:" + user.isClosed.toString() +
-                        "\nСтатус:" + user.status + "\nОбо мне:" + user.about +
-                        "\nOnline:" + user.online.toString() +
-                        "\n Аватарка 200px:" + user.photo200Square;
-
-                myText.setText(showText)
-                myAvatarView.setImageBitmap(
-                    ApiImageLoader.getInstance(this@MainActivity).getImageByUrl(
-                        user.photo200Square
-                    )
-                );
+                ApiTelegramGetMe.getMe();
 
             }
         }
@@ -236,59 +108,6 @@ class MainActivity : AppCompatActivity() {
         val GetChatsButtonClickListener: View.OnClickListener = object : View.OnClickListener {
             @SuppressLint("UseValueOf")
             override fun onClick(v: View?) {
-                idChatArray.clear()
-                val myChatsResult = ApiVk.getChats(0, 5)
-                Log.d("ApiVK", "end of chats request")
-                val myText: TextView = findViewById(textID)
-                if (myChatsResult.error != null) {
-                    myText.setText("Ошибка получечния чатов или у вас их нет =)")
-                    return
-                }
-
-                val chatsWithUsers = myChatsResult.result
-
-                val myChats = chatsWithUsers.chats
-                val usersMap = chatsWithUsers.users
-
-
-                var showText = ""
-                if (myChats != null) {
-                    for (el in myChats) {
-
-                        var type = ""
-                        if (el.chatType == VkChat.CHAT_TYPE_USER) {
-                            type = "user"
-                        }
-                        if (el.chatType == VkChat.CHAT_TYPE_GROUP_CHAT) {
-                            type = "group chat title:" + el.groupChatTitle
-
-                        }
-
-                        showText += "type:" + type + "\t date:" + el.date + "\t last msg from id user:" + el.lastMsgFromId +
-                                "\n chat with id:" + el.chatWithId + "\t text:" + el.text + "\nlast msg id:" + el.lasMsgId
-
-                        val vkUser = usersMap?.get(el.chatWithId)
-
-                        if (vkUser != null) {
-                            showText += " user info:: name:" + vkUser.firstName + " " + vkUser.lastName +
-                                    " "
-                        }
-
-
-                        showText += "\n-----------------------\n"
-
-                        idChatArray.add(el.chatWithId)
-                    }
-                }
-
-
-
-
-                if (myChats != null) {
-                    idLastChatWithId = myChats.get(0).chatWithId
-                }
-                myText.setText(showText)
-                Log.d("ApiVK", "idChatArray size():" + idChatArray.size)
 
             }
         }
@@ -301,36 +120,6 @@ class MainActivity : AppCompatActivity() {
         val myBtnGetMsg: Button = findViewById(buttonIDGetMsg)
         val GetMsgsButtonClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
-                val resultGetMessages = ApiVk.getMessages(idLastChatWithId, 0, 10)
-                Log.d("ApiVK", "end of get last chat messages request")
-                val myText: TextView = findViewById(textID)
-                if (resultGetMessages.error != null) {
-                    myText.setText("Ошибка получечния сообщений:" + resultGetMessages.error)
-                    return
-                }
-                var showText = "";
-
-                val messagesArray = resultGetMessages.result
-
-                for (el in messagesArray) {
-
-                    showText += "message fromId:" + el.fromId + "\tdata:" + el.date +
-                            "\t isMymsg:" + el.myMsg + "\ntext:" + el.text + "\nmsg id:" + el.messageId
-
-                    showText += "\n-----------------------\n"
-
-                }
-                myText.setText(showText)
-
-                if (messagesArray.size > 0 && messagesArray[0].photos != null) {
-                    myAvatarView.setImageBitmap(
-                        ApiImageLoader.getInstance(this@MainActivity).getImageByUrl(
-                            messagesArray[0].photos?.get(
-                                0
-                            )
-                        )
-                    );
-                }
 
 
             }
@@ -348,25 +137,7 @@ class MainActivity : AppCompatActivity() {
 
         val SendMsgsButtonClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
-
-                val msg = inputForMsg.text.toString()
-
-                val sendMsgResult = ApiVk.sendMessage(idLastChatWithId, msg, ArrayList<Uri>())
-
-                Log.d("ApiVK", "end of send message request")
-
-                val myText: TextView = findViewById(textID)
-                if (sendMsgResult.error != null) {
-                    myText.setText("Ошибка отправки сообщения")
-                    return
-                }
-
-                val messageId = sendMsgResult.result
-
-                myText.setText(
-                    "Сообщение отправлено, проверить - получите чаты, а затем сообщения в последнем чате" +
-                            "\t id отправленного сообщения:" + messageId
-                )
+            isSendBtnPressed = true
             }
         }
         myBtnSendMsg.setOnClickListener(SendMsgsButtonClickListener)
@@ -381,37 +152,7 @@ class MainActivity : AppCompatActivity() {
         val myBtnGetUsers: Button = findViewById(buttonIDGetUsers)
         val GetUsersButtonClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
-                val myText: TextView = findViewById(textID)
-                if (idChatArray.size == 0) {
-                    myText.setText("Ошибка получечния чатов или у вас их нет =)")
-                    return
-                }
-                Log.d("ApiVK", "send idChatArray size():" + idChatArray.size)
-                val getUsersResult = ApiVk.getUsers(idChatArray)
-                Log.d("ApiVK", "end of get last chat messages request")
 
-                if (getUsersResult.error != null) {
-                    myText.setText("Ошибка получечния инфы о собеседниках")
-                    return
-                }
-                var showText = "Порядок как в списке чатов, фотку ставим первого собеседника\n";
-
-                val usersArray = getUsersResult.result
-
-                for (el in usersArray) {
-
-                    showText += "Имя:" + el.firstName + "\t фамилия:" + el.lastName + "\tid:" + el.id +
-                            "\nstatus:" + el.status + "\t о пользователе" + el.about + "\tisClosed:"+ el.isClosed+
-                            "\n online:" + el.online
-
-                    showText += "\n-----------------------\n"
-                }
-                myText.setText(showText)
-                myAvatarView.setImageBitmap(
-                    ApiImageLoader.getInstance(this@MainActivity).getImageByUrl(
-                        usersArray[0].photo200Square
-                    )
-                );
             }
         }
         myBtnGetUsers.setOnClickListener(GetUsersButtonClickListener)
@@ -431,44 +172,7 @@ class MainActivity : AppCompatActivity() {
         val GetNewMsgButtonClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
 
-                if (isStartedThread)
-                    return
 
-                isStartedThread = true
-                var numberOfRequest = 0
-
-                val myText: TextView = findViewById(textID)
-
-                thread {
-                    while (true) {
-
-                        val newMesgsResult = ApiVk.getNewMessages()
-                        numberOfRequest++
-                        Log.d("ApiVK", "end of get new message request")
-
-                        if (newMesgsResult.error != null) {
-                            myText.setText("errr get new msgs:" + newMesgsResult.error)
-                            return@thread
-                        }
-
-                        val newMessagesArray = newMesgsResult.result
-
-                        var messagesText = ""
-
-                        for (el in newMessagesArray) {
-                            messagesText += "message fromId:" + el.fromId + "\tdata:" + el.date +
-                                    "\t isMymsg:" + el.myMsg + "\ntext:" + el.text + "\n msgId:" + el.messageId
-                            messagesText += "\n-----------------------\n"
-                        }
-
-
-                        val showText = "Номер запроса:" + numberOfRequest + "\tВаши новые сообещния:\n" +
-                                messagesText
-
-                        myText.setText(showText)
-                        Thread.sleep(3000)
-                    }
-                }
 
             }
         }
@@ -485,14 +189,6 @@ class MainActivity : AppCompatActivity() {
 
         val showImageClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
-
-                val url = inputForMsg.text.toString()
-
-                myAvatarView.setImageBitmap(
-                    ApiImageLoader.getInstance(this@MainActivity).getImageByUrl(
-                        url
-                    )
-                );
 
             }
         }
@@ -525,10 +221,29 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    override fun getString(msg: String?): String {
 
+        this.writeMsg(msg)
 
+        while(true) {
+            if (isSendBtnPressed)
+                break
+            Thread.sleep(300)
+        }
 
+        val iDInput = resources.getIdentifier("msgToSend", "id", packageName)
+        val inputForMsg: EditText = findViewById(iDInput)
+        return inputForMsg.text.toString()
+    }
 
+    override fun writeMsg(msg: String?) {
+        val myText: TextView = findViewById(textID)
+        myText.setText(msg)
+    }
+
+    override fun getDataDirPath(): String {
+       return getApplicationContext().getFilesDir().getAbsolutePath();
+    }
 
 
 }
