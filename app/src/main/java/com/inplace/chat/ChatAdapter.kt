@@ -133,7 +133,7 @@ class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAG
         private val MESSAGE_COMPARATOR = object : DiffUtil.ItemCallback<ChatModel>() {
             override fun areItemsTheSame(oldItem: ChatModel, newItem: ChatModel): Boolean {
                 return (oldItem is ChatModel.MessageItem && newItem is ChatModel.MessageItem &&
-                        oldItem.message.messageId == newItem.message.messageId) ||
+                        oldItem.message.messageID == newItem.message.messageID) ||
                         (oldItem is ChatModel.DateItem && newItem is ChatModel.DateItem &&
                                 oldItem.date == newItem.date)
             }

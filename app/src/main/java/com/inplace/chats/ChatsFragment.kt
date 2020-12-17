@@ -26,8 +26,6 @@ class ChatsFragment : Fragment() {
 
     private lateinit var listener: SwitcherInterface
 
-    private var chatsViewModel: ChatsViewModel? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (context is SwitcherInterface) {
@@ -86,26 +84,6 @@ class ChatsFragment : Fragment() {
         }
          */
 
-
-        val chatsAdapter = ChatsRecyclerViewAdapter(listener)
-
-        recycler.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = chatsAdapter
-        }
-
-
-        chatsViewModel = activity?.let { ViewModelProvider(it) }?.get(
-            ChatsViewModel::class.java
-        )
-
-        lifecycleScope.launch {
-            chatsViewModel?.apply {
-                getChats().observe(viewLifecycleOwner) {
-                chatsAdapter.submitData(viewLifecycleOwner.lifecycle, it)
-            }
-            }
-        }
 
     }
 

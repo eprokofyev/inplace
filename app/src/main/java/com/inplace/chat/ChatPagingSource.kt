@@ -10,7 +10,7 @@ private const val CHAT_STARTING_PAGE_INDEX = 0
 
 class ChatPagingSource(
     private val chatRepo: ChatRepo,
-    private val conversationId: Int
+    private val conversationId: Long
 ) : PagingSource<Int, Message>() {
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Message> {
@@ -19,7 +19,7 @@ class ChatPagingSource(
         return suspendCoroutine { continuation ->
             var resumed = false
             chatRepo.getMessages(
-                conversationId = conversationId,
+                conversationId = conversationId.toInt(),
                 start = position,
                 end = position + params.loadSize,
                 callback = {

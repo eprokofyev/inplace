@@ -49,7 +49,7 @@ class ChatRepo {
                 if (response.error != null) {
                     ChatRepoResult.Error(Exception(response.errTextMsg))
                 } else {
-                    val messages = response.result as List<com.inplace.api.Message>
+                    val messages = response.result as List<Message>
                     ChatRepoResult.Success(transform(messages))
                 }
             )
@@ -58,7 +58,7 @@ class ChatRepo {
         }
     }
 
-    private fun transform(plains: List<com.inplace.api.Message>): List<Message> {
+    private fun transform(plains: List<Message>): List<Message> {
         val result: MutableList<Message> = ArrayList()
         plains.forEach {
             val message = map(it)
@@ -67,22 +67,17 @@ class ChatRepo {
         return result
     }
 
-    private fun map(messagePlain: com.inplace.api.Message): Message {
-
-        //TODO change to com.inplace.models.Source after api fix
-        lateinit var messageSource: Source
-        if (messagePlain.fromMessenger == 1)
-            messageSource = Source.VK
-        else if (messagePlain.fromMessenger == 2)
-            messageSource = Source.TELEGRAM
-
+    private fun map(messagePlain: Message): Message {
         return Message(
-            messagePlain.messageId,
-            messagePlain.date * 1000L,
-            messagePlain.text,
-            messagePlain.fromId,
-            messagePlain.myMsg,
-            messageSource
+            messageID = messagePlain.messageID,
+            date = messagePlain.date * 1000L,
+            text = messagePlain.text,
+            userID = messagePlain.userID,
+            chatID = messagePlain.chatID,
+            myMsg = messagePlain.myMsg,
+            fromMessenger = messagePlain.fromMessenger,
+            isRead = messagePlain.isRead,
+            photos = messagePlain.photos
         )
     }
 

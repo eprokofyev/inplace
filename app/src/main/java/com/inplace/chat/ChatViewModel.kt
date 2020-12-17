@@ -13,12 +13,10 @@ class ChatViewModel(
     private var chatRepo = ChatRepo()
     private var mAvatar = chatRepo.getAvatar()
 
-    fun getMessages(id: Int) = getMessagesListStream(id)
+    fun getMessages(id: Long) = getMessagesListStream(id)
         .map { value: PagingData<Message> ->
             value.map { message: Message ->
-                ChatModel.MessageItem(
-                    message
-                )
+                ChatModel.MessageItem(message)
             }
         }.map {
             it.insertSeparators { before, after ->
@@ -38,7 +36,7 @@ class ChatViewModel(
             }
         }
 
-    private fun getMessagesListStream(conversationId: Int) =
+    private fun getMessagesListStream(conversationId: Long) =
         Pager(
             PagingConfig(
                 pageSize = 20,
@@ -46,9 +44,8 @@ class ChatViewModel(
                 prefetchDistance = 2,
             )
         ) {
-            ChatPagingSource(chatRepo,conversationId)
+            ChatPagingSource(chatRepo, conversationId)
         }.liveData
-
 
     fun getAvatar() = mAvatar
 

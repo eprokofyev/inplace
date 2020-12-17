@@ -16,132 +16,145 @@
         android:id="@+id/chat_messages_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:scrollbars="vertical"
         android:overScrollMode="never"
         android:scrollbarSize="10dp"
         android:scrollbarThumbVertical="@android:color/darker_gray"
+        android:scrollbars="vertical"
 
-        app:layout_constraintBottom_toTopOf="@+id/chat_bottomBar"
+        app:layout_constraintBottom_toTopOf="@+id/view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chat_toolbar"
         app:stackFromEnd="true" />
 
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#8F8F8F"
+        app:layout_constraintBottom_toTopOf="@+id/pickedImages_recycler" />
 
-    <LinearLayout
-        android:id="@+id/chat_bottomBar"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/pickedImages_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:background="#E4E4E4"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
+        android:padding="4dp"
+        android:visibility="gone"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout2" />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/chat_bottombar_shape"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="5dp"
+        android:minHeight="42dp"
+        android:paddingTop="5dp"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <View
-            android:layout_width="80dp"
-            android:layout_height="3dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/rounded_rectangle_shape" />
+        <ImageView
+            android:id="@+id/send_image_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="bottom"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:srcCompat="@drawable/ic_media" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
+        <EditText
+            android:id="@+id/chat_message_editText"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:minHeight="42dp">
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:background="@drawable/chat_message_edittext_shape"
+            android:ellipsize="end"
+            android:hint="@string/message_edit_text_hint"
+            android:inputType="textAutoCorrect|textCapSentences|textMultiLine"
+            android:maxHeight="100dp"
+            android:minHeight="40dp"
+            android:paddingStart="10dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="5dp"
+            android:textCursorDrawable="@drawable/chat_message_edittext_cursor_shape"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/constraintLayout"
+            app:layout_constraintStart_toEndOf="@+id/send_image_button"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <EditText
-                android:id="@+id/chat_message_editText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="5dp"
-                android:background="@drawable/chat_message_edittext_shape"
-                android:ellipsize="end"
-                android:hint="@string/message_edit_text_hint"
-                android:inputType="textAutoCorrect|textCapSentences|textMultiLine"
-                android:maxHeight="100dp"
-                android:minHeight="40dp"
-                android:paddingStart="10dp"
-                android:paddingTop="5dp"
-                android:paddingEnd="10dp"
-                android:paddingBottom="5dp"
-                android:textCursorDrawable="@drawable/chat_message_edittext_cursor_shape"
+
+        <LinearLayout
+            android:id="@+id/constraintLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageView
+                android:id="@+id/chat_voice_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/chat_bottombar_buttons_shape"
+                android:padding="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/constraintLayout"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_solid_microphone" />
 
 
-            <LinearLayout
-                android:id="@+id/constraintLayout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
+            <RelativeLayout
+                android:id="@+id/chat_send_button"
+                android:layout_width="65dp"
+                android:layout_height="42dp"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
-                    android:id="@+id/chat_voice_button"
-                    android:layout_width="40dp"
+                    android:id="@+id/send_button_icon"
+                    android:layout_width="60dp"
                     android:layout_height="40dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginBottom="0dp"
                     android:background="@drawable/chat_bottombar_buttons_shape"
-                    android:padding="10dp"
+                    android:padding="7dp"
+                    android:paddingStart="5dp"
+                    android:paddingEnd="0dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_solid_microphone" />
+                    app:srcCompat="@drawable/ic_send" />
 
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/chat_send_button_messenger_logo"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignTop="@+id/send_button_icon"
+                    android:layout_alignEnd="@+id/send_button_icon"
+                    android:layout_marginTop="-2dp"
+                    android:layout_marginEnd="-5dp"
+                    android:src="@drawable/ic_vk_logo_background"
+                    tools:layout_editor_absoluteX="61dp"
+                    tools:layout_editor_absoluteY="30dp" />
+            </RelativeLayout>
 
-                <RelativeLayout
-                    android:id="@+id/chat_send_button"
-                    android:layout_width="65dp"
-                    android:layout_height="42dp"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <ImageView
-                        android:id="@+id/send_button_icon"
-                        android:layout_width="60dp"
-                        android:layout_height="40dp"
-                        android:layout_alignParentStart="true"
-                        android:layout_alignParentBottom="true"
-                        android:layout_marginStart="0dp"
-                        android:layout_marginBottom="0dp"
-                        android:background="@drawable/chat_bottombar_buttons_shape"
-                        android:padding="7dp"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="0dp"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/ic_send" />
-
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/chat_send_button_messenger_logo"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_alignTop="@+id/send_button_icon"
-                        android:layout_alignEnd="@+id/send_button_icon"
-                        android:layout_marginTop="-2dp"
-                        android:layout_marginEnd="-5dp"
-                        android:src="@drawable/ic_vk_logo_background"
-                        tools:layout_editor_absoluteX="61dp"
-                        tools:layout_editor_absoluteY="30dp" />
-                </RelativeLayout>
-
-            </LinearLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
