@@ -19,14 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.inplace.R
-<<<<<<< HEAD
-import com.inplace.chat.DateParser.getNowDate
-import com.inplace.models.Chat
-import com.inplace.models.Message
-import com.inplace.models.Source
-=======
 import com.inplace.models.ChatType
->>>>>>> a9fc92b (made an image pick for message)
 import com.inplace.models.SuperChat
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.launch
@@ -150,7 +143,7 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
 
         recycler.apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, true)
-            setHasFixedSize(true)
+            isNestedScrollingEnabled = false
             adapter = chatAdapter
 //            adapter = chatAdapter.withLoadStateFooter(
 //                    footer = ChatLoadStateAdapter { chatAdapter.retry() }
@@ -172,10 +165,6 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
         sendButton.setOnClickListener {
             val messageText: String = messageEditText.text.toString()
             //TODO send telegram messages
-<<<<<<< HEAD
-            val message = Message(-1, getNowDate(), messageText, chat.user.id, true, Source.VK, false, arrayListOf())
-=======
->>>>>>> a9fc92b (made an image pick for message)
 
             //chatViewModel.sendMessage(chat.conversationVkId.toInt(),messageText)
 
@@ -233,10 +222,6 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
 
 
     companion object {
-<<<<<<< HEAD
-=======
-
->>>>>>> a9fc92b (made an image pick for message)
         fun newInstance(chat: SuperChat): ChatFragment {
             val fragment = ChatFragment()
             val bundle = Bundle()

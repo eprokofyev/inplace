@@ -42,7 +42,8 @@ class PickedImagesAdapter(
         private val removeButton: CircleImageView = itemView.findViewById(R.id.removeImage_button)
 
         fun bind(model: Uri) {
-            image.setImageBitmap(ApiImageLoader.getImageByUrl(model.toString(), context))
+
+            image.setImageBitmap(ApiImageLoader.getInstance(context).getImageByUrl(model.toString()))
             removeButton.setOnClickListener {
                 val removedItemIndex = imageUris.indexOf(model)
                 imageUris.remove(model)

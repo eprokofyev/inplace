@@ -53,7 +53,7 @@ class ChatViewModel(
         chatRepo.fetchAvatar(url, getApplication())
     }
 
-    fun sendMessage(conversationId: Int, message: String) {
-        chatRepo.sendMessage(conversationId, message)
-    }
+//    fun sendMessage(conversationId: Int, message: String) {
+//        chatRepo.sendMessage(conversationId, message)
+//    }
 }

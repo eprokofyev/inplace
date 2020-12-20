@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 
 import com.inplace.chat.ChatFragment
-import com.inplace.chats.ChatsFragment
 import com.inplace.chats.SwitcherInterface
 import com.inplace.models.*
 import com.vk.api.sdk.VK
@@ -42,7 +41,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
         setContentView(R.layout.activity_main)
         Log.d("start", "start")
         val vkChat = VKChat(
-            390170403,
+            443110568,
             Source.VK,
             "Zarrukh Zoirzoda",
             null,

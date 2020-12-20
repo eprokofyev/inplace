@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="2dp"
         android:background="@drawable/host_message_item_shape"
+        android:orientation="vertical"
         android:paddingStart="10dp"
         android:paddingTop="5dp"
         android:paddingEnd="10dp"
@@ -30,7 +31,14 @@
             android:textColor="@color/black"
             android:textSize="@dimen/messageTextSize"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="fdsghsujdfhlgdfsjkglhfdighldfkghdfgkdlfkgjhddsfgjdf" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/messagePhotos"
+            android:layout_width="@dimen/message_textView_maxWidth"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
     </LinearLayout>
 
     <LinearLayout

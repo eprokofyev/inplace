@@ -1,19 +1,26 @@
 package com.inplace.chat
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
+import androidx.paging.AsyncPagingDataDiffer
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.inplace.R
 import com.inplace.models.Source
 import de.hdodenhof.circleimageview.CircleImageView
 
 class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAGE_COMPARATOR) {
+
+    private val viewPool = RecyclerView.RecycledViewPool()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         lateinit var viewHolder: RecyclerView.ViewHolder
@@ -85,10 +92,35 @@ class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAG
         private val sentTime: TextView = itemView.findViewById(R.id.sentTime)
         private val sourceTG: ImageView = itemView.findViewById(R.id.sourceTG)
         private val sourceVK: ImageView = itemView.findViewById(R.id.sourceVK)
+        private val photosRecyclerView: RecyclerView = itemView.findViewById(R.id.messagePhotos)
 
         fun bind(model: ChatModel.MessageItem) {
             messageText.text = model.message.text
             sentTime.text = DateParser.convertTimeToString(model.message.date)
+
+            val photos = model.message.photos
+
+            if (photos.isNotEmpty()) {
+                val spanCount = when (photos.size) {
+                    1 -> 1
+                    in 2..4 -> 2
+                    else -> 3
+                }
+                val photosLayoutManager =
+                    GridLayoutManager(photosRecyclerView.context,spanCount)
+                photosRecyclerView.apply {
+                    layoutManager = photosLayoutManager
+                    adapter = MessagePhotosAdapter(context,photos)
+                    setRecycledViewPool(viewPool)
+                    isVisible = true
+                }
+            }else{
+                if(photosRecyclerView.isVisible){
+                    photosRecyclerView.adapter = null
+                    photosRecyclerView.isVisible = false
+                }
+            }
+
             when (model.message.fromMessenger) {
                 Source.VK -> {
                     sourceTG.isVisible = false
@@ -110,12 +142,38 @@ class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAG
         private val sourceTG: ImageView = itemView.findViewById(R.id.sourceTG)
         private val sourceVK: ImageView = itemView.findViewById(R.id.sourceVK)
         private val messageSender: TextView = itemView.findViewById(R.id.messageSender)
-        private var messageSenderAvatar: CircleImageView =
+        private val messageSenderAvatar: CircleImageView =
             itemView.findViewById(R.id.messageSenderAvatar)
+        private val photosRecyclerView:RecyclerView = itemView.findViewById(R.id.messagePhotos)
 
         fun bind(model: ChatModel.MessageItem) {
             messageText.text = model.message.text
             sentTime.text = DateParser.convertTimeToString(model.message.date)
+
+            val photos = model.message.photos
+
+            if (photos.size != 0) {
+                val spanCount = when (photos.size) {
+                    1 -> 1
+                    in 2..4 -> 2
+                    else -> 3
+                }
+                val photosLayoutManager =
+                    GridLayoutManager(photosRecyclerView.context,spanCount)
+
+                photosRecyclerView.apply {
+                    layoutManager = photosLayoutManager
+                    adapter = MessagePhotosAdapter(context,photos)
+                    setRecycledViewPool(viewPool)
+                    isVisible = true
+                }
+            }else{
+                if(photosRecyclerView.isVisible){
+                    photosRecyclerView.adapter = null
+                    photosRecyclerView.isVisible = false
+                }
+            }
+
             when (model.message.fromMessenger) {
                 Source.VK -> {
                     sourceTG.visibility = View.GONE

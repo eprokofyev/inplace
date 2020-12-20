@@ -5,7 +5,9 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.inplace.api.ApiImageLoader
-import com.inplace.api.vk.ApiVK
+import com.inplace.api.vk.ApiVk
+
+
 import com.inplace.models.Message
 import com.inplace.models.Source
 import java.util.concurrent.ExecutorService
@@ -21,21 +23,22 @@ class ChatRepo {
 
     fun fetchAvatar(url: String, context: Context?) {
         executor.execute {
-            val avatarBitmap = ApiImageLoader.getImageByUrl(url, context)
+            val imageLoader  = ApiImageLoader.getInstance(context)
+            val avatarBitmap = imageLoader.getImageByUrl(url)
             avatarLiveData.postValue(avatarBitmap)
         }
     }
 
-    fun sendMessage(conversationId: Int, message: String) {
-        executor.execute {
-            val result = ApiVK.sendMessage(conversationId, message)
-            if (result.error != null) {
-                Log.d(LOG_TAG, "Error while sending message")
-            } else {
-                Log.d(LOG_TAG, "Message successfully sent")
-            }
-        }
-    }
+//    fun sendMessage(conversationId: Int, message: String) {
+//        executor.execute {
+//            val result = ApiVK.sendMessage(conversationId, message)
+//            if (result.error != null) {
+//                Log.d(LOG_TAG, "Error while sending message")
+//            } else {
+//                Log.d(LOG_TAG, "Message successfully sent")
+//            }
+//        }
+//    }
 
     fun getMessages(
         conversationId: Int,
@@ -44,7 +47,7 @@ class ChatRepo {
         callback: OnChatRequestCompleteListener
     ) {
         executor.execute {
-            val response = ApiVK.getMessages(conversationId, start, end)
+            val response = ApiVk.getMessages(conversationId, start, end)
             callback.onChatRequestComplete(
                 if (response.error != null) {
                     ChatRepoResult.Error(Exception(response.errTextMsg))
