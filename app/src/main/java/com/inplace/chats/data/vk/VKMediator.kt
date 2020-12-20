@@ -28,8 +28,12 @@ class VKMediator(
         // parameter. For every page after the first, pass the last user
         // ID to let it continue from where it left off. For REFRESH,
         // pass null to load the first page.
+        Log.d("status", "anch " + state.anchorPosition.toString())
         val loadKey = when (loadType) {
             LoadType.REFRESH -> {
+                database.withTransaction {
+                    chatsDao.deleteChats()
+                }
                 Log.d("status", "Refresh")
                 null
             }
@@ -60,7 +64,7 @@ class VKMediator(
             }
         }
 
-        Log.d("load", loadKey.toString())
+        Log.d("status", loadKey.toString())
 
         val result: ResultVKChat = suspendCoroutine { continuation ->
             var resumed = false
@@ -92,6 +96,6 @@ class VKMediator(
             return MediatorResult.Error(Exception("bad result"))
         }
 
-        return MediatorResult.Success(endOfPaginationReached = true)
+        return MediatorResult.Success(endOfPaginationReached = false)
     }
 }

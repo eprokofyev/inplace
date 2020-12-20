@@ -36,7 +36,7 @@ class ChatsRepo() {
         val chats = mutableListOf<VKChat>()
         val result = ApiVk.getChats(start, end)
 
-        Log.d("network","do")
+        Log.d("status","do")
 
         if (result.error != null) {
             return ResultVKChat.Error(Exception(result.errTextMsg))
