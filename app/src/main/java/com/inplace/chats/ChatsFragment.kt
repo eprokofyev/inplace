@@ -11,15 +11,16 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.ExperimentalPagingApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.inplace.R
-import com.inplace.api.vk.ApiVK
+import com.inplace.api.vk.ApiVk
 import com.inplace.api.vk.VkUser
 import com.inplace.models.*
 import kotlinx.coroutines.launch
 
-
+@ExperimentalPagingApi
 class ChatsFragment : Fragment() {
 
     lateinit var recycler: RecyclerView
@@ -52,15 +53,14 @@ class ChatsFragment : Fragment() {
             Log.d("ApiVK", "start of auth request")
 
             // todo hardcore name and pass
-            val res = ApiVK.getMeSKD()
+            val res = ApiVk.getMe()
             Log.d("user", res.toString())
-            val vk = res.result?.firstOrNull()
+            val vk = res.result
             vk?.let {
                 Log.d("user", "not null")
-                val user = VKUser(it.id, it.firstName, it.lastName, it.photo200Square)
+                val user = VKUser(it.id.toLong(), it.firstName, it.lastName, it.photo200Square)
                 superUser = SuperUser(user.name, user.lastName, user.avatarURL, user, null)
             }
-
         }
 
         setHasOptionsMenu(true);

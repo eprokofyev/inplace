@@ -12,4 +12,3 @@ local.properties
 .gitignore
 .app/src/main/java/com/inplace/auth/
 .app/src/main/java/com/inplace/chat/
-/app/src/main/java/com/inplace/chat/

@@ -13,19 +13,14 @@ import com.vk.api.sdk.VK
 import java.lang.Exception
 import java.util.concurrent.Executor
 
-class ChatsRepo(
-    private val vkChats: MutableLiveData<MutableList<VKChat>>,
-    private val telegramChats: MutableLiveData<MutableList<TelegramChat>>,
-    private val avatars: MutableLiveData<MutableList<Bitmap>>,
-    ) {
+class ChatsRepo() {
 
     private val executor: Executor = ExecutorServices.getInstanceAPI()
 
-    fun refresh(context: Context, start: Int, end: Int, callback: OnRequestCompleteListener) {
+    fun refresh(start: Int, end: Int, callback: OnRequestCompleteListener) {
         executor.execute {
             val result = getVKChats(start, end)
             if (result is ResultVKChat.Success) {
-                vkChats.postValue(result.data)
                 Log.d("tag", result.data.size.toString())
             }
 
@@ -39,7 +34,9 @@ class ChatsRepo(
 
     private fun getChatsFromVK(start: Int, end: Int): ResultVKChat {
         val chats = mutableListOf<VKChat>()
-        val result = ApiVK.getChats(start, end)
+        val result = ApiVk.getChats(start, end)
+
+        Log.d("network","do")
 
         if (result.error != null) {
             return ResultVKChat.Error(Exception(result.errTextMsg))
@@ -53,11 +50,11 @@ class ChatsRepo(
 
             val msg = Message(
                 vkChat.lasMsgId,
-                vkChat.date,
+                vkChat.date.toLong(),
                 vkChat.text,
-                vkChat.lastMsgFromId,
-                vkChat.chatWithId,
-                vkChat.lastMsgFromId == VK.getUserId().toLong(),
+                vkChat.lastMsgFromId.toLong(),
+                vkChat.chatWithId.toLong(),
+                vkChat.lastMsgFromId == VK.getUserId(),
                 Source.VK,
                 false,
                 arrayListOf(),
@@ -69,7 +66,7 @@ class ChatsRepo(
             }
 
             var sobesednik = VKSobesednik(
-                vkUser.id,
+                vkUser.id.toLong(),
                 vkUser.firstName,
                 vkUser.lastName,
                 null,
@@ -84,14 +81,14 @@ class ChatsRepo(
             var avatarUrl = ""
             var chatType = ChatType.GROUP
             if (vkChat.chatType == CHAT_TYPE_USER) {
-                if (sobesednik.userID != vkChat.chatWithId) {
+                if (sobesednik.userID != vkChat.chatWithId.toLong()) {
                     vkUser = vkUsers[vkChat.chatWithId]
                     if (vkUser == null) {
                         return ResultVKChat.Error(Exception("собеседник не найден"))
                     }
 
                     sobesednik = VKSobesednik(
-                        vkUser.id,
+                        vkUser.id.toLong(),
                         vkUser.firstName,
                         vkUser.lastName,
                         null,
@@ -108,7 +105,7 @@ class ChatsRepo(
             }
 
             val chat = VKChat(
-                vkChat.chatWithId,
+                vkChat.chatWithId.toLong(),
                 Source.VK,
                 title,
                 null,

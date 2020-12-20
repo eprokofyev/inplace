@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.os.StrictMode
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.inplace.api.vk.ApiVK
+import androidx.paging.ExperimentalPagingApi
+
 
 import com.inplace.chats.ChatsFragment
 import com.inplace.chats.SwitcherInterface
 import com.inplace.models.*
 
+@ExperimentalPagingApi
 class MainActivity : AppCompatActivity(), SwitcherInterface {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,11 +26,14 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
     }
 
     override fun switch(chat: SuperChat) {
+        /*
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.fragment_container, ChatFragment.newInstance(chat))
             addToBackStack(null)
             commitAllowingStateLoss()
         }
+
+         */
 
 
     }

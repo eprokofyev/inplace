@@ -48,7 +48,7 @@ class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
 
                 for (i in 0 until messagesArray.length()) {
                     val oneMessageJSON = messagesArray.getJSONObject(i)
-                    val message = Message(0,0,"",0,false,Source.VK,null)
+                    val message = Message(0,0,"",0,0,false, Source.VK,false, arrayListOf())
                     message.text = oneMessageJSON.getString("text")
 
                     // add only text msg and photos
@@ -62,10 +62,10 @@ class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
                         continue
                     }
 
-                    message.fromId = oneMessageJSON.getString("from_id").toInt()
+                    message.userID = oneMessageJSON.getString("from_id").toLong()
                     message.date = oneMessageJSON.getString("date").toLong()
-                    message.messageId = oneMessageJSON.getString("id").toInt()
-                    if (message.fromId == VK.getUserId()) {
+                    message.messageID = oneMessageJSON.getString("id").toInt()
+                    if (message.userID == VK.getUserId().toLong()) {
                         message.myMsg = true
                     }
                     message.fromMessenger = Source.VK
@@ -94,13 +94,10 @@ class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
                             .getJSONObject(2)
                             .getString("url")
 
-                        if (message.photos == null) {
-                            message.photos = ArrayList<String?>()
-                        }
-                        message.photos!!.add(url)
+                        message.photos.add(url)
                     }
-                    if (isText || message.photos != null)
-                        newMessages.add(message)
+
+                    newMessages.add(message)
                 }
 
                 VkSingleton.LongPollServer.pts = rootJson.getString("new_pts").toInt()

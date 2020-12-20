@@ -10,7 +10,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import com.inplace.api.ApiImageLoader.getImageByUrl
 import com.inplace.api.vk.*
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
@@ -25,10 +24,12 @@ import android.widget.Toast
 import androidx.core.view.iterator
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.paging.ExperimentalPagingApi
 import com.inplace.MainActivity
 import com.inplace.R
 import com.inplace.auth.ui.login.*
 
+@ExperimentalPagingApi
 class AuthActivity : AppCompatActivity() {
 
 

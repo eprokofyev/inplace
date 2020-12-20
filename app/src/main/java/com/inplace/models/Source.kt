@@ -1,20 +1,26 @@
 package com.inplace.models
 
+import android.os.Parcelable
 import androidx.room.TypeConverter
+import kotlinx.android.parcel.Parcelize
 
-enum class Source {
+@Parcelize
+enum class Source : Parcelable {
     VK,
     TELEGRAM,
 }
 
-class SourceConverter {
+object SourceConverter {
+
     @TypeConverter
-    fun fromSource(source: Source): String {
+    @JvmStatic
+    fun fromSource(source: Source?): String? {
         return source.toString()
     }
 
     @TypeConverter
-    fun toSource(data: String): Source {
+    @JvmStatic
+    fun toSource(data: String?): Source {
         return when (data) {
             "TELEGRAM" -> Source.TELEGRAM
             else -> Source.VK

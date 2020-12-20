@@ -9,7 +9,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import com.inplace.api.ApiImageLoader.getImageByUrl
 import com.inplace.api.vk.*
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
@@ -27,11 +26,12 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.paging.ExperimentalPagingApi
 import com.inplace.MainActivity
 import com.inplace.R
 import java.io.Serializable
 
-
+@ExperimentalPagingApi
 class VkLoginFragment : Fragment() {
 
     override fun onCreateView(

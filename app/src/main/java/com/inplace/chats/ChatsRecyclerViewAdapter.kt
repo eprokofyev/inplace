@@ -73,11 +73,11 @@ class ChatsRecyclerViewAdapter(
 
     companion object {
         private val CHATS_COMPARATOR = object : DiffUtil.ItemCallback<SuperChat>() {
-            override fun areItemsTheSame(oldItem: SuperChat, newItem: SuperChat) =
-                oldItem.lastMessage.chatID == newItem.lastMessage.chatID && oldItem.lastMessage.fromMessenger == newItem.lastMessage.fromMessenger
+            override fun areItemsTheSame(oldItem: SuperChat, newItem: SuperChat) = oldItem == newItem
 
             override fun areContentsTheSame(oldItem: SuperChat, newItem: SuperChat): Boolean =
-                oldItem == newItem
+                oldItem.lastMessage.chatID == newItem.lastMessage.chatID && oldItem.lastMessage.fromMessenger == newItem.lastMessage.fromMessenger
+
         }
     }
 
