@@ -54,8 +54,8 @@ class NotificationService : Service() {
         //       val database = AppDatabase.getInstance(this)
         //Уведомления
         // Подписка на новые сообщения
-        //ExecutorServices.getInstanceAPI().execute()
-        CoroutineScope(Dispatchers.IO).launch {
+        ExecutorServices.getInstanceAPI().execute() {
+    //    CoroutineScope(Dispatchers.IO).launch {
             while (true) {
                 val newMesgsResult = ApiVk.getNewMessages()
                 Log.d("ApiVK", "end of get new message request")
@@ -113,7 +113,8 @@ class NotificationService : Service() {
         val style = NotificationCompat.BigTextStyle()
         style.bigText(messageToShow)
         builder.setStyle(style)
-        mManager.notify(NOTIFICATION_ID_MESSAGE, builder.build())
+        startForeground(NOTIFICATION_ID_MESSAGE, builder.build())
+            //   mManager.notify(NOTIFICATION_ID_MESSAGE, builder.build())
     }
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
