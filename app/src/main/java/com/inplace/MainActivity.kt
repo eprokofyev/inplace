@@ -46,35 +46,14 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         Log.d("start", "start")
-        val vkChat = VKChat(
-            443110568,
-            Source.VK,
-            "Zarrukh Zoirzoda",
-            null,
-            "https://sun9-60.userapi.com/impf/mqqDx5yzyNAQRDgtOENjuoGMmr5aZWdmEYjY7Q/e6loTWETEOc.jpg?size=871x1080&quality=96&sign=22e5c81571b3cc8d6260d8ffa7fd0b34&type=album",
-            mutableListOf(),
-            true,
-            ChatType.PRIVATE,
-            Message(1234, 12425, "sdghg", 124, 32534, true, Source.TELEGRAM, true, arrayListOf()),
-            HashMap(),
-            1234
-        )
-        val map = HashMap<Long, VKChat>()
-        map[1234] = vkChat
 
-        chat = SuperChat(
-            "Zarrukh Zoirzoda",
-            "https://sun9-60.userapi.com/impf/mqqDx5yzyNAQRDgtOENjuoGMmr5aZWdmEYjY7Q/e6loTWETEOc.jpg?size=871x1080&quality=96&sign=22e5c81571b3cc8d6260d8ffa7fd0b34&type=album",
-            Message(1234, 12425, "sdghg", 124, 32534, true, Source.TELEGRAM, true, arrayListOf()),
-            true,
-            arrayListOf(),
-            arrayListOf(),
-            12345,
-            12324
-        )
-        switch(chat)
-}
-val intentToNotification = Intent(this, NotificationService::class.java)
+        val transaction = supportFragmentManager.beginTransaction()
+        if (savedInstanceState == null) {
+            transaction.add(R.id.fragment_container, ChatsFragment.newInstance())
+            transaction.commitAllowingStateLoss()
+        }
+    }
+//val intentToNotification = Intent(this, NotificationService::class.java)
     override fun onStop() {
         super.onStop()
         NotificationService.startService(this)

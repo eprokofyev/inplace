@@ -5,8 +5,11 @@ import androidx.room.*
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.RawValue
 import java.util.*
+import kotlin.collections.ArrayList
 
-@Entity(primaryKeys = arrayOf("message_id", "user_id", "chat_id", "from_messenger")
+
+@Entity(tableName = "messages",
+        primaryKeys = arrayOf("message_id", "user_id", "chat_id", "from_messenger")
 )
 @TypeConverters(SourceConverter::class, PhotosConverter::class)
 @Parcelize
@@ -25,11 +28,14 @@ data class Message(
 class PhotosConverter {
         @TypeConverter
         fun fromPhotos(photos: ArrayList<String?>?): String? {
-                return photos?.filterNotNull()?.joinToString(separator = " ") ?: ""
+                return photos?.filterNotNull()?.joinToString(separator = " ")
         }
 
         @TypeConverter
         fun toPhotos(data: String?): ArrayList<String> {
-                return ArrayList(data?.split(" ") ?: listOf())
+                val list = data?.split(" ")?: listOf()
+                if (list.isNotEmpty() && list[0]!="")
+                        return ArrayList(list)
+                return arrayListOf()
         }
 }

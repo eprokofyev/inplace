@@ -1,9 +1,12 @@
 package com.inplace.chat
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import androidx.paging.*
+import com.inplace.AppDatabase
 import com.inplace.models.Message
 
 class ChatViewModel(
@@ -13,6 +16,7 @@ class ChatViewModel(
     private var chatRepo = ChatRepo()
     private var mAvatar = chatRepo.getAvatar()
 
+    @ExperimentalPagingApi
     fun getMessages(id: Long) = getMessagesListStream(id)
         .map { value: PagingData<Message> ->
             value.map { message: Message ->
@@ -35,17 +39,33 @@ class ChatViewModel(
                 }
             }
         }
+    private val database = AppDatabase.getInstance(getApplication())
+    private val messageDao = database.getMessageDao()
 
-    private fun getMessagesListStream(conversationId: Long) =
+    @ExperimentalPagingApi
+    private fun getMessagesListStream(chatID:Long) =
         Pager(
             PagingConfig(
                 pageSize = 20,
+                initialLoadSize = 20,
                 enablePlaceholders = false,
                 prefetchDistance = 2,
-            )
-        ) {
-            ChatPagingSource(chatRepo, conversationId)
-        }.liveData
+            ),
+            remoteMediator = ChatMediator(chatID, chatRepo, database),
+            pagingSourceFactory = {messageDao.pagingSource(chatID)}
+        ).liveData.cachedIn(viewModelScope)
+
+
+//    private fun getMessagesListStream(conversationId: Long) =
+//        Pager(
+//            PagingConfig(
+//                pageSize = 20,
+//                enablePlaceholders = false,
+//                prefetchDistance = 2,
+//            )
+//        ) {
+//            ChatPagingSource(chatRepo, conversationId)
+//        }.liveData.cachedIn(viewModelScope)
 
     fun getAvatar() = mAvatar
 
@@ -53,7 +73,7 @@ class ChatViewModel(
         chatRepo.fetchAvatar(url, getApplication())
     }
 
-//    fun sendMessage(conversationId: Int, message: String) {
-//        chatRepo.sendMessage(conversationId, message)
-//    }
+    fun sendMessage(conversationId: Int, message: String,photos: ArrayList<Uri>) {
+        chatRepo.sendMessage(conversationId,message,photos)
+    }
 }

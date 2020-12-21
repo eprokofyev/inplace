@@ -1,19 +1,17 @@
 package com.inplace.chat
 
-import android.content.Context
+import android.graphics.Color
+import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.net.toUri
 import androidx.core.view.isVisible
-import androidx.paging.AsyncPagingDataDiffer
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.inplace.R
 import com.inplace.models.Source
 import de.hdodenhof.circleimageview.CircleImageView
@@ -95,7 +93,26 @@ class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAG
         private val photosRecyclerView: RecyclerView = itemView.findViewById(R.id.messagePhotos)
 
         fun bind(model: ChatModel.MessageItem) {
-            messageText.text = model.message.text
+            if (model.message.text == "" && messageText.isVisible) {
+                if (model.message.photos.isEmpty()) {
+                    messageText.text =
+                        messageText.context.getString(R.string.unsupported_message_label)
+                    messageText.typeface = Typeface.DEFAULT_BOLD
+                    messageText.setTextColor(Color.parseColor("#FF4E7B7E"))
+                } else {
+                    messageText.isVisible = false
+                }
+            } else if (model.message.text != "" && !messageText.isVisible) {
+                messageText.isVisible = true
+                messageText.typeface = Typeface.DEFAULT
+                messageText.text = model.message.text
+                messageText.setTextColor(Color.parseColor("black"))
+            } else {
+                messageText.setTextColor(Color.parseColor("black"))
+                messageText.typeface = Typeface.DEFAULT
+                messageText.text = model.message.text
+            }
+
             sentTime.text = DateParser.convertTimeToString(model.message.date)
 
             val photos = model.message.photos
@@ -107,15 +124,15 @@ class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAG
                     else -> 3
                 }
                 val photosLayoutManager =
-                    GridLayoutManager(photosRecyclerView.context,spanCount)
+                    GridLayoutManager(photosRecyclerView.context, spanCount)
                 photosRecyclerView.apply {
                     layoutManager = photosLayoutManager
-                    adapter = MessagePhotosAdapter(context,photos)
+                    adapter = MessagePhotosAdapter(context, photos)
                     setRecycledViewPool(viewPool)
                     isVisible = true
                 }
-            }else{
-                if(photosRecyclerView.isVisible){
+            } else {
+                if (photosRecyclerView.isVisible) {
                     photosRecyclerView.adapter = null
                     photosRecyclerView.isVisible = false
                 }
@@ -132,8 +149,6 @@ class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAG
                 }
             }
         }
-
-
     }
 
     inner class TargetMessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -144,10 +159,28 @@ class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAG
         private val messageSender: TextView = itemView.findViewById(R.id.messageSender)
         private val messageSenderAvatar: CircleImageView =
             itemView.findViewById(R.id.messageSenderAvatar)
-        private val photosRecyclerView:RecyclerView = itemView.findViewById(R.id.messagePhotos)
+        private val photosRecyclerView: RecyclerView = itemView.findViewById(R.id.messagePhotos)
 
         fun bind(model: ChatModel.MessageItem) {
-            messageText.text = model.message.text
+            if (model.message.text == "" && messageText.isVisible) {
+                if (model.message.photos.isEmpty()) {
+                    messageText.text =
+                        messageText.context.getString(R.string.unsupported_message_label)
+                    messageText.typeface = Typeface.DEFAULT_BOLD
+                    messageText.setTextColor(Color.parseColor("#FF7D7D7D"))
+                } else {
+                    messageText.isVisible = false
+                }
+            } else if (model.message.text != "" && !messageText.isVisible) {
+                messageText.isVisible = true
+                messageText.typeface = Typeface.DEFAULT
+                messageText.text = model.message.text
+                messageText.setTextColor(Color.parseColor("black"))
+            } else {
+                messageText.setTextColor(Color.parseColor("black"))
+                messageText.typeface = Typeface.DEFAULT
+                messageText.text = model.message.text
+            }
             sentTime.text = DateParser.convertTimeToString(model.message.date)
 
             val photos = model.message.photos
@@ -159,16 +192,16 @@ class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAG
                     else -> 3
                 }
                 val photosLayoutManager =
-                    GridLayoutManager(photosRecyclerView.context,spanCount)
+                    GridLayoutManager(photosRecyclerView.context, spanCount)
 
                 photosRecyclerView.apply {
                     layoutManager = photosLayoutManager
-                    adapter = MessagePhotosAdapter(context,photos)
+                    adapter = MessagePhotosAdapter(context, photos)
                     setRecycledViewPool(viewPool)
                     isVisible = true
                 }
-            }else{
-                if(photosRecyclerView.isVisible){
+            } else {
+                if (photosRecyclerView.isVisible) {
                     photosRecyclerView.adapter = null
                     photosRecyclerView.isVisible = false
                 }

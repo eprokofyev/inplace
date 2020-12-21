@@ -36,7 +36,7 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/messagePhotos"
-            android:layout_width="@dimen/message_textView_maxWidth"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone" />
     </LinearLayout>

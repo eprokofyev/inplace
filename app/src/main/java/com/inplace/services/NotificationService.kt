@@ -98,7 +98,7 @@ class NotificationService : Service() {
             val serviceChannel = NotificationChannel(CHANNEL_MESSAGES, CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH)
             mManager = getSystemService(NotificationManager::class.java)
-            mManager!!.createNotificationChannel(serviceChannel)
+            mManager.createNotificationChannel(serviceChannel)
         }
     }
 }
