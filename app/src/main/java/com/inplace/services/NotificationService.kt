@@ -8,7 +8,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -54,11 +56,21 @@ class NotificationService : Service() {
         //       val database = AppDatabase.getInstance(this)
         //Уведомления
         // Подписка на новые сообщения
+
+
+
         ExecutorServices.getInstanceAPI().execute() {
     //    CoroutineScope(Dispatchers.IO).launch {
             while (true) {
                 val newMesgsResult = ApiVk.getNewMessages()
                 Log.d("ApiVK", "end of get new message request")
+                if (newMesgsResult.error != null) {
+                    Log.d("ApiVK", newMesgsResult.errTextMsg)
+                    continue
+                }
+
+
+
 
                 val newMessagesArray = newMesgsResult.result
 
