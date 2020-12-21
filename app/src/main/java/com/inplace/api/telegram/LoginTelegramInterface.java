@@ -8,4 +8,6 @@ public interface LoginTelegramInterface  {
 
     public String getDataDirPath();
 
+    public void isLogin();
+
 }

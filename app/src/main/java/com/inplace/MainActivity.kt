@@ -16,9 +16,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.inplace.api.telegram.ApiTelegram
-import com.inplace.api.telegram.ApiTelegramGetMe
-import com.inplace.api.telegram.LoginTelegramInterface
+import com.inplace.api.telegram.*
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
@@ -59,7 +57,7 @@ class MainActivity  : AppCompatActivity(), LoginTelegramInterface  {
             override fun onClick(v: View?) {
 
 
-                ApiTelegram.initTelegram(this@MainActivity);
+                ApiTelegramLogin.initTelegram(this@MainActivity);
 
             }
         }
@@ -74,8 +72,7 @@ class MainActivity  : AppCompatActivity(), LoginTelegramInterface  {
         val logOutButtonClickListener: View.OnClickListener = object : View.OnClickListener {
             override fun onClick(v: View?) {
 
-
-
+                ApiTelegramLogout.logout();
 
             }
         }
@@ -243,6 +240,18 @@ class MainActivity  : AppCompatActivity(), LoginTelegramInterface  {
 
     override fun getDataDirPath(): String {
        return getApplicationContext().getFilesDir().getAbsolutePath();
+    }
+
+    override fun isLogin() {
+        val myText: TextView = findViewById(textID)
+        myText.setText("успешная авторизация")
+    }
+
+
+    override fun onDestroy() {
+        // clear activity link
+        ApiTelegramLogin.clear();
+        super.onDestroy()
     }
 
 
