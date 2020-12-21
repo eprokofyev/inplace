@@ -64,6 +64,7 @@ class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
 
                     message.userID = oneMessageJSON.getString("from_id").toLong()
                     message.date = oneMessageJSON.getString("date").toLong()
+                    message.chatID = oneMessageJSON.getString("peer_id").toLong()
                     message.messageID = oneMessageJSON.getString("id").toInt()
                     if (message.userID == VK.getUserId().toLong()) {
                         message.myMsg = true

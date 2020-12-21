@@ -53,6 +53,7 @@ class GetMessagesHistoryCommand(private val start: Int, private val end: Int, pr
                     if (message.text == "") {
                         isText = false
                     }
+                    message.chatID = oneMessageJsonObj.getString("peer_id").toLong()
                     message.userID = oneMessageJsonObj.getString("from_id").toLong()
                     message.date = oneMessageJsonObj.getString("date").toLong()
                     if (message.userID == VK.getUserId().toLong()) {
