@@ -7,17 +7,20 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.paging.ExperimentalPagingApi
 import com.inplace.MainActivity
 import com.inplace.R
 import com.inplace.api.vk.ApiVk
+import com.inplace.db.AppDatabase
+import com.inplace.models.SuperChat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @ExperimentalPagingApi
 class NotificationService : Service() {
@@ -44,15 +47,16 @@ class NotificationService : Service() {
     private var mMessageCount = 0
     lateinit var mManager : NotificationManager
     lateinit var notificationChannel: NotificationChannel
-    private val intentToActivity = Intent(this, MainActivity::class.java)
+    //private val intentToActivity = Intent(this, MainActivity::class.java)
+
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        //       val database = AppDatabase.getInstance(this)
         //Уведомления
         // Подписка на новые сообщения
-        ExecutorServices.getInstanceAPI().execute()
-        {
+        //ExecutorServices.getInstanceAPI().execute()
+        CoroutineScope(Dispatchers.IO).launch {
             while (true) {
-
                 val newMesgsResult = ApiVk.getNewMessages()
                 Log.d("ApiVK", "end of get new message request")
 
@@ -60,21 +64,39 @@ class NotificationService : Service() {
 
                 for (el in newMessagesArray) {
                     showMessageNotification(el.text)
+//                    val vkChat = database.getGetChatDao().getChat(el.chatID)
+//                    val myIntent = Intent(this@NotificationService, MainActivity::class.java)
+//                    vkChat.let {
+//                        SuperChat(
+//                            it.title,
+//                            it.avatarUrl,
+//                            it.lastMessage,
+//                            true,
+//                            arrayListOf(it),
+//                            arrayListOf(),
+//                            it.chatID,
+//                            it.chatID
+//                        )
+//                    }
+//                    myIntent.putExtra("dfsd",vkChat)
+//                    sendBroadcast(myIntent);
                 }
                 Thread.sleep(3000)
             }
         }
         return START_NOT_STICKY
-            //   return super.onStartCommand(intent, flags, startId)
+        //   return super.onStartCommand(intent, flags, startId)
     }
 
     private fun showMessageNotification(messageToShow: String) {
-        val pendingIntent = PendingIntent.getActivity(
+        /*val pendingIntent = PendingIntent.getActivity(
             this,
             0,
             intentToActivity,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
+
+         */
         mMessageCount++
         createNotificationChannel()
         val largeIcon = BitmapFactory.decodeResource(resources, R.drawable.foto)
@@ -87,7 +109,7 @@ class NotificationService : Service() {
             .setLights(resources.getColor(LIGHT_COLOR_ARGB), 1000, 1000)
             .setColor(resources.getColor(R.color.purple_500))
             .setAutoCancel(true)
-            .setContentIntent(pendingIntent)
+            //.setContentIntent(pendingIntent)
         val style = NotificationCompat.BigTextStyle()
         style.bigText(messageToShow)
         builder.setStyle(style)
@@ -98,7 +120,8 @@ class NotificationService : Service() {
             val serviceChannel = NotificationChannel(CHANNEL_MESSAGES, CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH)
             mManager = getSystemService(NotificationManager::class.java)
-            mManager.createNotificationChannel(serviceChannel)
+            mManager!!.createNotificationChannel(serviceChannel)
         }
     }
+
 }

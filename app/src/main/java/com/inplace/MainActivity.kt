@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //NotificationService.startService(this)
         setContentView(R.layout.activity_main)
         Log.d("start", "start")
 
@@ -56,11 +57,11 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
 //val intentToNotification = Intent(this, NotificationService::class.java)
     override fun onStop() {
         super.onStop()
-        NotificationService.startService(this)
+       // NotificationService.startService(this)
     }
     override fun onRestart() {
         super.onRestart()
-        NotificationService.stopService(this)
+        //NotificationService.stopService(this)
     }
     override fun switch(chat: SuperChat) {
 
