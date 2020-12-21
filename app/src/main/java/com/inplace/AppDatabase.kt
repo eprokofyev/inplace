@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.inplace.chat.db.ChatRemoteKey
-import com.inplace.chat.db.ChatRemoteKeysDao
+import com.inplace.chat.db.ChatRemoteKeyDao
 import com.inplace.chat.db.MessageDao
 import com.inplace.models.Message
 
@@ -13,10 +13,10 @@ import com.inplace.models.Message
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun getMessageDao(): MessageDao
-    abstract fun getChatRemoteKeysDao(): ChatRemoteKeysDao
+    abstract fun getChatRemoteKeysDao(): ChatRemoteKeyDao
 
     companion object {
-        val INPLACE_DB = "inplace.dp"
+        val INPLACE_DB = "inplace.db"
 
 
         @Volatile

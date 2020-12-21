@@ -41,28 +41,26 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
         setContentView(R.layout.activity_main)
         Log.d("start", "start")
         val vkChat = VKChat(
-            256847537,
+            443110568,
             Source.VK,
             "Zarrukh Zoirzoda",
             null,
             "https://sun9-60.userapi.com/impf/mqqDx5yzyNAQRDgtOENjuoGMmr5aZWdmEYjY7Q/e6loTWETEOc.jpg?size=871x1080&quality=96&sign=22e5c81571b3cc8d6260d8ffa7fd0b34&type=album",
             mutableListOf(),
             true,
-            ChatType.PRIVATE,
+            ChatType.GROUP,
             Message(1234,12425,"sdghg",124,32534,true,Source.TELEGRAM,true, arrayListOf()),
             HashMap(),
             1234
         )
-        val map = HashMap<Long,VKChat>()
-        map[1234] = vkChat
 
         chat = SuperChat(
             "Zarrukh Zoirzoda",
             "https://sun9-60.userapi.com/impf/mqqDx5yzyNAQRDgtOENjuoGMmr5aZWdmEYjY7Q/e6loTWETEOc.jpg?size=871x1080&quality=96&sign=22e5c81571b3cc8d6260d8ffa7fd0b34&type=album",
             Message(1234,12425,"sdghg",124,32534,true,Source.TELEGRAM,true, arrayListOf()),
             true,
-            map,
-            hashMapOf(),
+            listOf(vkChat),
+            listOf(),
             12345,
             12324
         )

@@ -1,15 +1,14 @@
 package com.inplace.chat
 
+
 import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.inplace.api.ApiImageLoader
 import com.inplace.api.vk.ApiVk
-
-
 import com.inplace.models.Message
-import com.inplace.models.Source
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -23,23 +22,22 @@ class ChatRepo {
 
     fun fetchAvatar(url: String, context: Context?) {
         executor.execute {
-            val imageLoader  = ApiImageLoader.getInstance(context)
+            val imageLoader = ApiImageLoader.getInstance(context)
             val avatarBitmap = imageLoader.getImageByUrl(url)
             avatarLiveData.postValue(avatarBitmap)
         }
     }
 
-//    fun sendMessage(conversationId: Int, message: String) {
-//        executor.execute {
-//            val result = ApiVK.sendMessage(conversationId, message)
-//            if (result.error != null) {
-//                Log.d(LOG_TAG, "Error while sending message")
-//            } else {
-//                Log.d(LOG_TAG, "Message successfully sent")
-//            }
-//        }
-//    }
-
+    fun sendMessage(conversationId: Int, message: String,photos: ArrayList<Uri>) {
+        executor.execute {
+            val result = ApiVk.sendMessage(conversationId,message,photos)
+            if (result.error != null) {
+                Log.d(LOG_TAG, "Error while sending message")
+            } else {
+                Log.d(LOG_TAG, "Message successfully sent")
+            }
+        }
+    }
 
 
     fun getMessages(

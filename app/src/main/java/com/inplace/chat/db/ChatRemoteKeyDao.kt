@@ -1,12 +1,9 @@
 package com.inplace.chat.db
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 
 @Dao
-interface ChatRemoteKeysDao {
+interface ChatRemoteKeyDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrReplace(remoteKey: ChatRemoteKey)
 
@@ -15,4 +12,7 @@ interface ChatRemoteKeysDao {
 
     @Query("DELETE FROM chat_remote_keys WHERE chat_id = :chatID")
     suspend fun deleteByChatId(chatID: Long)
+
+    @Query("DELETE FROM chat_remote_keys")
+    suspend fun clearRemoteKeys()
 }

@@ -19,11 +19,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.paging.ExperimentalPagingApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.withTransaction
+import com.inplace.AppDatabase
 import com.inplace.R
 import com.inplace.models.ChatType
+import com.inplace.models.Message
+import com.inplace.models.Source
 import com.inplace.models.SuperChat
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.launch
+import kotlin.concurrent.thread
 
 
 class ChatFragment : Fragment(), OnImageRemoveClickListener {
@@ -31,6 +36,9 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
     private val EDIT_TEXT_STATE = "editTextState"
     private val IMAGES_PICK_CODE = 0
     private var avatarIsLoaded = false
+    private var sendMessage = false
+    private val database = this.activity?.applicationContext?.let { AppDatabase.getInstance(it) }
+    private val messageDao = database?.getMessageDao()
 
     lateinit var chat: SuperChat
     lateinit var messageEditText: EditText
@@ -44,7 +52,6 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
     lateinit var voiceButton: ImageView
     lateinit var sendImageButton: ImageView
     lateinit var pickedImagesRecyclerView: RecyclerView
-
     lateinit var pickedImagesAdapter: PickedImagesAdapter
 
     private lateinit var imageUris: ArrayList<Uri>
@@ -127,15 +134,20 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
         val tgChats = chat.telegramChats
 
         //setting toolbar info
-        if (vkChats.size == 1 && vkChats[1234]!!.type == ChatType.PRIVATE) {
-            username.text = vkChats[1234]!!.title
+        if (vkChats.size == 1 && vkChats[0].type == ChatType.PRIVATE) {
+            username.text = vkChats[0].title
             userActivity.text = "online"
             if (!avatarIsLoaded) {
-                chatViewModel.fetchAvatar(vkChats[1234]!!.avatarUrl)
+                chatViewModel.fetchAvatar(vkChats[0].avatarUrl)
                 avatarIsLoaded = true
             }
-        } else {
-            //TODO group chat
+        } else if(vkChats.size == 1 && vkChats[0].type == ChatType.GROUP) {
+            username.text = vkChats[0].title
+            userActivity.text = "${vkChats[0].sobesedniks.size} members"
+            if (!avatarIsLoaded) {
+                chatViewModel.fetchAvatar(vkChats[0].avatarUrl)
+                avatarIsLoaded = true
+            }
         }
 
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
@@ -154,8 +166,12 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
 
 
         lifecycleScope.launch {
-            chatViewModel.getMessages(vkChats[1234]!!.chatID).observe(viewLifecycleOwner) {
+            chatViewModel.getMessages(vkChats[0].chatID).observe(viewLifecycleOwner) {
                 chatAdapter.submitData(viewLifecycleOwner.lifecycle, it)
+                if (sendMessage){
+                    recycler.smoothScrollToPosition(0)
+                    sendMessage = false
+                }
             }
         }
 
@@ -168,9 +184,30 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
             val messageText: String = messageEditText.text.toString()
             //TODO send telegram messages
 
-            //chatViewModel.sendMessage(chat.conversationVkId.toInt(),messageText)
+            val message = Message(
+                0,
+                DateParser.getNowDate(),
+                messageText,
+                0,
+                vkChats[0].chatID,
+                true,
+                Source.VK,
+                false,
+                ArrayList(imageUris.map { it.toString() })
+            )
+
+            chatViewModel.sendMessage(vkChats[0].chatID.toInt(), messageText, imageUris)
+
+            lifecycleScope.launch {
+                database?.withTransaction {
+                    messageDao?.insert(message)
+                }
+            }
+            chatAdapter.refresh()
 
             messageEditText.setText("")
+            clearPickedImages()
+            sendMessage = true
         }
 
         sendImageButton.setOnClickListener {
@@ -192,6 +229,13 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
             }
         }
 
+    }
+
+    private fun clearPickedImages(){
+        imageUris.clear()
+        pickedImagesRecyclerView.isVisible = false
+        sendButton.isVisible = false
+        voiceButton.isVisible = true
     }
 
     private fun showPickedImages(imageUris: ArrayList<Uri>) {

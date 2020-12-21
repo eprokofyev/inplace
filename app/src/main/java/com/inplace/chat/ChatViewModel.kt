@@ -1,8 +1,10 @@
 package com.inplace.chat
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.map
+import androidx.lifecycle.viewModelScope
 import androidx.paging.*
 import com.inplace.AppDatabase
 import com.inplace.models.Message
@@ -45,12 +47,13 @@ class ChatViewModel(
         Pager(
             PagingConfig(
                 pageSize = 20,
+                initialLoadSize = 20,
                 enablePlaceholders = false,
                 prefetchDistance = 2,
             ),
-            remoteMediator = ChatRemoteMediator(chatID, chatRepo, database),
+            remoteMediator = ChatMediator(chatID, chatRepo, database),
             pagingSourceFactory = {messageDao.pagingSource(chatID)}
-        ).liveData
+        ).liveData.cachedIn(viewModelScope)
 
 
 //    private fun getMessagesListStream(conversationId: Long) =
@@ -62,7 +65,7 @@ class ChatViewModel(
 //            )
 //        ) {
 //            ChatPagingSource(chatRepo, conversationId)
-//        }.liveData
+//        }.liveData.cachedIn(viewModelScope)
 
     fun getAvatar() = mAvatar
 
@@ -70,7 +73,7 @@ class ChatViewModel(
         chatRepo.fetchAvatar(url, getApplication())
     }
 
-//    fun sendMessage(conversationId: Int, message: String) {
-//        chatRepo.sendMessage(conversationId, message)
-//    }
+    fun sendMessage(conversationId: Int, message: String,photos: ArrayList<Uri>) {
+        chatRepo.sendMessage(conversationId,message,photos)
+    }
 }

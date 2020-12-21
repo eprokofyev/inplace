@@ -13,6 +13,9 @@ interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(messages: List<Message>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(message: Message)
+
     @Query("SELECT * FROM messages WHERE chat_id = :chatID")
     fun pagingSource(chatID: Long): PagingSource<Int, Message>
 

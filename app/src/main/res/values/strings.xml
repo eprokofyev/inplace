@@ -16,4 +16,5 @@
     <string name="login_failed">"Login failed"</string>
     <string name="prompt_phone">Телефон</string>
     <string name="action_send_code">Отправить код</string>
+    <string name="unsupported_message_label">Sorry, we don\'t support this type of message yet :(</string>
 </resources>

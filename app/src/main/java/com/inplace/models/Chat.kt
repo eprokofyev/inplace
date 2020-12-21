@@ -14,18 +14,19 @@ enum class ChatType {
 
 @Entity
 @Parcelize
+@TypeConverters(SourceConverter::class, ChatTypeConverter::class)
 data class VKChat(
-    @PrimaryKey var chatID: Long,
-    @ColumnInfo(name = "source") @TypeConverters(SourceConverter::class) val source: Source = Source.VK,
-    var title: String,
-    @Ignore var avatar: Bitmap?,
-    var avatarUrl: String,
-    @Ignore var messages:@RawValue MutableList<Message>,
-    var isHeard: Boolean,
-    var type: @RawValue ChatType,
-    @Embedded var lastMessage:@RawValue Message,
-    @Ignore var sobesedniks:@RawValue HashMap<Long, IVKSobesednik>,
-    var createdAT: Long = 0
+    @PrimaryKey var chatID: Long = 0,
+    @ColumnInfo(name = "source") var source: @RawValue Source = Source.VK,
+    var title: String = "",
+    @Ignore var avatar: Bitmap? = null,
+    var avatarUrl: String = "",
+    @Ignore var messages: @RawValue MutableList<Message> = mutableListOf(),
+    var isHeard: Boolean = false,
+    var type: @RawValue ChatType = ChatType.PRIVATE,
+    @Embedded(prefix = "last_") var lastMessage: Message = Message(),
+    @Ignore var sobesedniks:@RawValue HashMap<Long, IVKSobesednik> = hashMapOf(),
+    var createdAT: Long = 0,
 ) : Parcelable
 
 
@@ -51,8 +52,8 @@ data class SuperChat(
     var avatarURL: String,
     var lastMessage: Message,
     var isHeard: Boolean,
-    var vkChats: HashMap<Long, VKChat>,
-    var telegramChats: HashMap<Long, TelegramChat>,
+    var vkChats: List<VKChat>,
+    var telegramChats: List<TelegramChat>,
     var defaultChatID: Long,
     var currentChat: Long
 ) : Parcelable
@@ -66,3 +67,22 @@ data class SimpleChat(
     var defaultChatID: Long,
     var isHeard: Boolean,
 ) : Parcelable
+
+
+object ChatTypeConverter {
+
+    @TypeConverter
+    @JvmStatic
+    fun fromChatType(type: ChatType?): String? {
+        return type.toString()
+    }
+
+    @TypeConverter
+    @JvmStatic
+    fun toChatType(data: String?): ChatType {
+        return when (data) {
+            "GROUP" -> ChatType.GROUP
+            else -> ChatType.PRIVATE
+        }
+    }
+}
