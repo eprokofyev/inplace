@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.map
 import androidx.paging.*
+import com.inplace.AppDatabase
 import com.inplace.models.Message
 
 class ChatViewModel(
@@ -13,6 +14,7 @@ class ChatViewModel(
     private var chatRepo = ChatRepo()
     private var mAvatar = chatRepo.getAvatar()
 
+    @ExperimentalPagingApi
     fun getMessages(id: Long) = getMessagesListStream(id)
         .map { value: PagingData<Message> ->
             value.map { message: Message ->
@@ -35,17 +37,32 @@ class ChatViewModel(
                 }
             }
         }
+    private val database = AppDatabase.getInstance(getApplication())
+    private val messageDao = database.getMessageDao()
 
-    private fun getMessagesListStream(conversationId: Long) =
+    @ExperimentalPagingApi
+    private fun getMessagesListStream(chatID:Long) =
         Pager(
             PagingConfig(
                 pageSize = 20,
                 enablePlaceholders = false,
                 prefetchDistance = 2,
-            )
-        ) {
-            ChatPagingSource(chatRepo, conversationId)
-        }.liveData
+            ),
+            remoteMediator = ChatRemoteMediator(chatID, chatRepo, database),
+            pagingSourceFactory = {messageDao.pagingSource(chatID)}
+        ).liveData
+
+
+//    private fun getMessagesListStream(conversationId: Long) =
+//        Pager(
+//            PagingConfig(
+//                pageSize = 20,
+//                enablePlaceholders = false,
+//                prefetchDistance = 2,
+//            )
+//        ) {
+//            ChatPagingSource(chatRepo, conversationId)
+//        }.liveData
 
     fun getAvatar() = mAvatar
 

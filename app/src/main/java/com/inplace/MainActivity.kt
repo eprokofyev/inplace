@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
         setContentView(R.layout.activity_main)
         Log.d("start", "start")
         val vkChat = VKChat(
-            443110568,
+            256847537,
             Source.VK,
             "Zarrukh Zoirzoda",
             null,
