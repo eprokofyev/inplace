@@ -17,8 +17,11 @@ interface ChatsDao {
     fun pagingSource(): PagingSource<Int, VKChat>
 
 
-    @Query("SELECT * FROM VKChat LIMIT :limit OFFSET :offset")
-    suspend fun getChats(offset: Int, limit: Int): List<VKChat>
+    //@Query("SELECT * FROM VKChat WHERE chatID IN :ids")
+    //suspend fun getChats(ids: List<Long>): List<VKChat>
+
+    @Query("SELECT * FROM VKChat WHERE chatID = :id")
+    suspend fun getChat(id: Long): List<VKChat>
 
     @Query("DELETE FROM VKChat")
     suspend fun deleteChats()

@@ -6,6 +6,8 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.inplace.chats.repository.vk.ChatsDao
+import com.inplace.chats.repository.vk.RemoteKeys
+import com.inplace.chats.repository.vk.RemoteKeysDao
 import com.inplace.models.Message
 import com.inplace.models.SourceConverter
 import com.inplace.models.VKChat
@@ -13,10 +15,12 @@ import com.inplace.models.VKSobesednik
 import com.vk.api.sdk.VK
 
 
-@Database(version = 1, entities = [Message::class, VKChat::class,VKSobesednik::class], exportSchema = false)
+@Database(version = 1, entities = [Message::class, VKChat::class,VKSobesednik::class, RemoteKeys::class], exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun getChatsDao(): ChatsDao
+
+    abstract fun getRemoteKeysDao(): RemoteKeysDao
 
     companion object {
 
@@ -33,6 +37,7 @@ abstract class AppDatabase : RoomDatabase() {
 
         private fun buildDatabase(context: Context) =
             Room.databaseBuilder(context.applicationContext, AppDatabase::class.java, INPLACE_DB)
+                .fallbackToDestructiveMigration()
                 .build()
     }
 

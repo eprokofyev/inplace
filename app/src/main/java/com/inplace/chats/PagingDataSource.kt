@@ -35,8 +35,8 @@ class ChatsPagingDataSource(
                                         it.avatarUrl,
                                         it.lastMessage,
                                         true,
-                                        hashMapOf(it.chatID to it),
-                                        hashMapOf(),
+                                        arrayListOf( it),
+                                        arrayListOf(),
                                         it.chatID,
                                         it.chatID
                                     ) },

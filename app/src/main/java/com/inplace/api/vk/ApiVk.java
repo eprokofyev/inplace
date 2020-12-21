@@ -27,7 +27,13 @@ public class ApiVk {
         ArrayList<Integer> ids = new ArrayList<Integer>();
         ids.add(VK.getUserId());
         CommandResult<ArrayList<? extends VkUser>> resultUsers = getUsers(ids);
-        result.result = resultUsers.result.get(0);
+        if (resultUsers.error != null) {
+            result.error = resultUsers.error;
+            result.errTextMsg = resultUsers.errTextMsg;
+        }
+        if (resultUsers.result != null && resultUsers.result.size() != 0) {
+            result.result = resultUsers.result.get(0);
+        }
         result.error = resultUsers.error;
         result.errTextMsg = resultUsers.errTextMsg;
         return result;
@@ -89,7 +95,7 @@ public class ApiVk {
             result.errTextMsg = "Some Exception";
         }
 
-        if (users.size() < 1 ) {
+        if (users == null || users.size() < 1 ) {
             Log.e("vk SDK", "getUsers() users size < 1");
             result.error = new Error("users size < 1");
             result.errTextMsg = "users size < 1";

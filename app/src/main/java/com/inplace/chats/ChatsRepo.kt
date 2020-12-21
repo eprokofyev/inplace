@@ -120,6 +120,8 @@ class ChatsRepo() {
             chats.add(chat)
         }
 
+        Log.d("status","chats " + chats.size.toString())
+
         return ResultVKChat.Success(chats)
     }
 

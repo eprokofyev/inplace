@@ -12,11 +12,11 @@ enum class ChatType {
     GROUP
 }
 
-@Entity(indices = [Index(value = ["chatID"], unique = true)])
+@Entity
 @Parcelize
 @TypeConverters(SourceConverter::class, ChatTypeConverter::class)
 data class VKChat(
-    var chatID: Long = 0,
+    @PrimaryKey var chatID: Long = 0,
     @ColumnInfo(name = "source") var source: @RawValue Source = Source.VK,
     var title: String = "",
     @Ignore var avatar: Bitmap? = null,
@@ -27,7 +27,6 @@ data class VKChat(
     @Embedded(prefix = "last_") var lastMessage: Message = Message(),
     @Ignore var sobesedniks:@RawValue HashMap<Long, IVKSobesednik> = hashMapOf(),
     var createdAT: Long = 0,
-    @PrimaryKey(autoGenerate = true) var local_id: Int = 0,
 ) : Parcelable
 
 
@@ -53,8 +52,8 @@ data class SuperChat(
     var avatarURL: String,
     var lastMessage: Message,
     var isHeard: Boolean,
-    var vkChats: HashMap<Long, VKChat>,
-    var telegramChats: HashMap<Long, TelegramChat>,
+    var vkChats: List<VKChat>,
+    var telegramChats: List<TelegramChat>,
     var defaultChatID: Long,
     var currentChat: Long
 ) : Parcelable
