@@ -48,7 +48,9 @@ class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
 
                 for (i in 0 until messagesArray.length()) {
                     val oneMessageJSON = messagesArray.getJSONObject(i)
+
                     val message = Message(0,0,"",0,0,false, Source.VK,false, arrayListOf())
+
                     message.text = oneMessageJSON.getString("text")
 
                     // add only text msg and photos
@@ -93,6 +95,7 @@ class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
                         val url = oneAttachment.getJSONObject("photo").getJSONArray("sizes")
                             .getJSONObject(2)
                             .getString("url")
+
 
                         message.photos.add(url)
                     }

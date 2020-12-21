@@ -44,6 +44,7 @@ class GetMessagesHistoryCommand(private val start: Int, private val end: Int, pr
                 val messages = ArrayList<Message>()
 
                 for (i in 0 until jsonMessages.length()) {
+
                     val message = Message(0,0,"",0,0,false, Source.VK,false, arrayListOf())
                     val oneMessageJsonObj = jsonMessages.getJSONObject(i)
                     message.text = oneMessageJsonObj.getString("text")

@@ -9,6 +9,10 @@
 .cxx
 *.jpg
 local.properties
+<<<<<<< HEAD
 .gitignore
 .app/src/main/java/com/inplace/auth/
 .app/src/main/java/com/inplace/chat/
+=======
+.gitignore
+>>>>>>> notifications

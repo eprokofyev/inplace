@@ -1,4 +1,4 @@
-package com.inplace.auth.ui.login
+package com.inplace.auth
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
@@ -20,7 +20,7 @@ class TgLoginFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.tg_login_fragment, container, false)
+        return inflater.inflate(R.layout.fragment_tg_login, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

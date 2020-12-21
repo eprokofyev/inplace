@@ -1,10 +1,9 @@
 package com.inplace.auth
 
 import androidx.appcompat.app.AppCompatActivity
-import android.annotation.SuppressLint
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
+
 import android.os.StrictMode
 import android.widget.Button
 import android.widget.EditText
@@ -14,10 +13,6 @@ import com.inplace.api.vk.*
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
-import com.vk.api.sdk.auth.VKScope
-import kotlin.concurrent.thread
-import android.util.Log
-import android.view.View
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Toast
@@ -27,7 +22,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.paging.ExperimentalPagingApi
 import com.inplace.MainActivity
 import com.inplace.R
-import com.inplace.auth.ui.login.*
 
 @ExperimentalPagingApi
 class AuthActivity : AppCompatActivity() {
@@ -57,21 +51,18 @@ class AuthActivity : AppCompatActivity() {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.auth_fragment, VkLoginFragment())
                     .commit()
-
             }
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        Log.d("odred", "result")
         val callback = object : VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
-                Log.d("tokenn", token.toString())
-                updateUiWithUser()
+                updateUiWithUser("Добро пожаловать")
             }
 
             override fun onLoginFailed(errorCode: Int) {
-                Log.d("tokenn", "error")
+                showLoginFailed("Ошибка авторизации")
             }
         }
         if (data == null || !VK.onActivityResult(requestCode, resultCode, data, callback)) {
@@ -79,8 +70,14 @@ class AuthActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateUiWithUser() {
+    private fun updateUiWithUser(successString: String) {
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
+        Toast.makeText(this, successString, Toast.LENGTH_LONG).show()
+        finish()
+    }
+
+    private fun showLoginFailed(errorString: String) {
+        Toast.makeText(this, errorString, Toast.LENGTH_LONG).show()
     }
 }

@@ -1,4 +1,4 @@
-package com.inplace.auth.ui.login
+package com.inplace.auth
 
 import androidx.lifecycle.ViewModel
 
