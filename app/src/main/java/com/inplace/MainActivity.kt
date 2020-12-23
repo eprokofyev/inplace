@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //NotificationService.startService(this)
+        NotificationService.startService(this)
         setContentView(R.layout.activity_main)
         Log.d("start", "start")
 
