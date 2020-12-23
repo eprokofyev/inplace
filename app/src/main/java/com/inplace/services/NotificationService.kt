@@ -8,7 +8,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -54,11 +56,21 @@ class NotificationService : Service() {
         //       val database = AppDatabase.getInstance(this)
         //Уведомления
         // Подписка на новые сообщения
-        //ExecutorServices.getInstanceAPI().execute()
-        CoroutineScope(Dispatchers.IO).launch {
+
+
+
+        ExecutorServices.getInstanceAPI().execute() {
+            //    CoroutineScope(Dispatchers.IO).launch {
             while (true) {
                 val newMesgsResult = ApiVk.getNewMessages()
                 Log.d("ApiVK", "end of get new message request")
+                if (newMesgsResult.error != null) {
+                    Log.d("ApiVK", newMesgsResult.errTextMsg)
+                    continue
+                }
+
+
+
 
                 val newMessagesArray = newMesgsResult.result
 
@@ -95,7 +107,6 @@ class NotificationService : Service() {
             intentToActivity,
             PendingIntent.FLAG_UPDATE_CURRENT
         )
-
          */
         mMessageCount++
         createNotificationChannel()
@@ -109,11 +120,12 @@ class NotificationService : Service() {
             .setLights(resources.getColor(LIGHT_COLOR_ARGB), 1000, 1000)
             .setColor(resources.getColor(R.color.purple_500))
             .setAutoCancel(true)
-            //.setContentIntent(pendingIntent)
+        //.setContentIntent(pendingIntent)
         val style = NotificationCompat.BigTextStyle()
         style.bigText(messageToShow)
         builder.setStyle(style)
-        mManager.notify(NOTIFICATION_ID_MESSAGE, builder.build())
+        startForeground(NOTIFICATION_ID_MESSAGE, builder.build())
+        //   mManager.notify(NOTIFICATION_ID_MESSAGE, builder.build())
     }
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

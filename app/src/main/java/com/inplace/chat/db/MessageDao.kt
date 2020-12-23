@@ -16,7 +16,7 @@ interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(message: Message)
 
-    @Query("SELECT * FROM messages WHERE chat_id = :chatID")
+    @Query("SELECT * FROM messages WHERE chat_id = :chatID ORDER BY date DESC")
     fun pagingSource(chatID: Long): PagingSource<Int, Message>
 
     @Query("DELETE FROM messages WHERE chat_id = :chatID")

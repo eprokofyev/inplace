@@ -4,27 +4,32 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
+import com.inplace.chat.db.ChatRemoteKey
+import com.inplace.chat.db.ChatRemoteKeyDao
+import com.inplace.chat.db.MessageDao
 import com.inplace.chats.repository.vk.ChatsDao
 import com.inplace.chats.repository.vk.RemoteKeys
 import com.inplace.chats.repository.vk.RemoteKeysDao
 import com.inplace.models.Message
-import com.inplace.models.SourceConverter
 import com.inplace.models.VKChat
 import com.inplace.models.VKSobesednik
-import com.vk.api.sdk.VK
 
 
-@Database(version = 1, entities = [Message::class, VKChat::class,VKSobesednik::class, RemoteKeys::class], exportSchema = false)
+@Database(
+    version = 2,
+    entities = [Message::class, VKChat::class, VKSobesednik::class, RemoteKeys::class, ChatRemoteKey::class],
+    exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun getChatsDao(): ChatsDao
-
     abstract fun getRemoteKeysDao(): RemoteKeysDao
+    abstract fun getMessageDao(): MessageDao
+    abstract fun getChatRemoteKeysDao(): ChatRemoteKeyDao
 
     companion object {
 
-        val INPLACE_DB = "inpalce.db"
+        val INPLACE_DB = "inplace.db"
 
         @Volatile
         private var INSTANCE: AppDatabase? = null

@@ -1,19 +1,18 @@
 package com.inplace.chat
 
 import android.app.Application
-import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
-import com.inplace.AppDatabase
+import com.inplace.db.AppDatabase
 import com.inplace.models.Message
 
 class ChatViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private var chatRepo = ChatRepo()
+    private var chatRepo = ChatRepo(getApplication())
     private var mAvatar = chatRepo.getAvatar()
 
     @ExperimentalPagingApi
@@ -70,10 +69,10 @@ class ChatViewModel(
     fun getAvatar() = mAvatar
 
     fun fetchAvatar(url: String) {
-        chatRepo.fetchAvatar(url, getApplication())
+        chatRepo.fetchAvatar(url)
     }
 
-    fun sendMessage(conversationId: Int, message: String,photos: ArrayList<Uri>) {
-        chatRepo.sendMessage(conversationId,message,photos)
+    fun sendMessage(message: Message) {
+        chatRepo.sendMessage(message)
     }
 }

@@ -6,8 +6,8 @@ import androidx.paging.LoadType
 import androidx.paging.PagingState
 import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
-import com.inplace.AppDatabase
 import com.inplace.chat.db.ChatRemoteKey
+import com.inplace.db.AppDatabase
 import com.inplace.models.Message
 import java.io.IOException
 import kotlin.coroutines.resume

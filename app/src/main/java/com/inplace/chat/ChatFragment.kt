@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.EditText
 import android.widget.ImageView
@@ -19,16 +20,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.paging.ExperimentalPagingApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.withTransaction
-import com.inplace.AppDatabase
 import com.inplace.R
+import com.inplace.db.AppDatabase
 import com.inplace.models.ChatType
 import com.inplace.models.Message
 import com.inplace.models.Source
 import com.inplace.models.SuperChat
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.launch
-import kotlin.concurrent.thread
+import kotlin.random.Random
 
 
 class ChatFragment : Fragment(), OnImageRemoveClickListener {
@@ -58,8 +58,9 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
+        Log.d("qwerty","onAcativityResult")
         if (requestCode == IMAGES_PICK_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            Log.d("qwerty","imagesClear")
             imageUris.clear()
             val clipData = data.clipData
             val resultData = data.data
@@ -169,7 +170,7 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
             chatViewModel.getMessages(vkChats[0].chatID).observe(viewLifecycleOwner) {
                 chatAdapter.submitData(viewLifecycleOwner.lifecycle, it)
                 if (sendMessage){
-                    recycler.smoothScrollToPosition(0)
+                    recycler.smoothScrollBy(0,0)
                     sendMessage = false
                 }
             }
@@ -185,7 +186,7 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
             //TODO send telegram messages
 
             val message = Message(
-                0,
+                Random.nextInt(),
                 DateParser.getNowDate(),
                 messageText,
                 0,
@@ -196,14 +197,9 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
                 ArrayList(imageUris.map { it.toString() })
             )
 
-            chatViewModel.sendMessage(vkChats[0].chatID.toInt(), messageText, imageUris)
+            chatViewModel.sendMessage(message)
 
-            lifecycleScope.launch {
-                database?.withTransaction {
-                    messageDao?.insert(message)
-                }
-            }
-            chatAdapter.refresh()
+//            chatAdapter.refresh()
 
             messageEditText.setText("")
             clearPickedImages()
