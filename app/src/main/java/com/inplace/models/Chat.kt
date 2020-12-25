@@ -55,7 +55,8 @@ data class SuperChat(
     var vkChats: List<VKChat>,
     var telegramChats: List<TelegramChat>,
     var defaultChatID: Long,
-    var currentChat: Long
+    var currentChat: Long,
+    var avatar: Bitmap? = null
 ) : Parcelable
 
 @Parcelize

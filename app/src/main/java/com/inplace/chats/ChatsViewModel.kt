@@ -6,6 +6,7 @@ import androidx.lifecycle.*
 import androidx.paging.*
 import com.inplace.chat.ChatsPagingDataSource
 import com.inplace.chats.data.vk.VKRepository
+import com.inplace.chats.models.ChatsModel
 import com.inplace.models.SuperChat
 import com.inplace.models.TelegramChat
 import com.inplace.models.VKChat
@@ -18,11 +19,10 @@ class ChatsViewModel(application: Application) : AndroidViewModel(application) {
 
     private var vkChats: MutableLiveData<MutableList<VKChat>> = MutableLiveData<MutableList<VKChat>>()
     private val telegramChats: MutableLiveData<MutableList<TelegramChat>> = MutableLiveData<MutableList<TelegramChat>>()
-    private val avatars: MutableLiveData<MutableList<Bitmap>> = MutableLiveData<MutableList<Bitmap>>()
 
     private var chats = repository.letVKChatsLiveData().cachedIn(viewModelScope)
 
-
+    private val avatars: MutableLiveData<MutableList<Bitmap>> = MutableLiveData<MutableList<Bitmap>>()
 
     fun getChats() = chats.map { it.map {  SuperChat(
         it.title,
@@ -33,7 +33,9 @@ class ChatsViewModel(application: Application) : AndroidViewModel(application) {
         arrayListOf(),
         it.chatID,
         it.chatID
-    )  } }
+    ) } }
+
+    fun getAvatars() = repository.chatsRepo.getAvatars()
 
 
 

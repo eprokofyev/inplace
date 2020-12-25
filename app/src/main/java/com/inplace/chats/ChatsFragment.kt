@@ -1,6 +1,5 @@
 package com.inplace.chats
 
-import android.app.Application
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
@@ -87,7 +86,7 @@ class ChatsFragment : Fragment() {
          */
 
 
-        val chatsAdapter = ChatsRecyclerViewAdapter(listener)
+        val chatsAdapter = ChatsRecyclerViewAdapter(listener, activity)
 
         recycler.apply {
             layoutManager = LinearLayoutManager(context)
