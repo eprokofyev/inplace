@@ -22,10 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.inplace.R
 import com.inplace.db.AppDatabase
-import com.inplace.models.ChatType
-import com.inplace.models.Message
-import com.inplace.models.Source
-import com.inplace.models.SuperChat
+import com.inplace.models.*
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -193,6 +190,7 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
                 vkChats[0].chatID,
                 true,
                 Source.VK,
+                MessageStatus.SENDING,
                 false,
                 ArrayList(imageUris.map { it.toString() })
             )

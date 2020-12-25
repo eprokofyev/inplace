@@ -1,6 +1,7 @@
 package com.inplace.api.vk
 
 import com.inplace.models.Message
+import com.inplace.models.MessageStatus
 import com.inplace.models.Source
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.VKApiManager
@@ -11,10 +12,13 @@ import com.vk.api.sdk.internal.ApiCommand
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import kotlin.collections.ArrayList
 
 
-class GetMessagesHistoryCommand(private val start: Int, private val end: Int, private val conversationId: Int): ApiCommand<ArrayList<Message>>() {
+class GetMessagesHistoryCommand(
+    private val start: Int,
+    private val end: Int,
+    private val conversationId: Int
+) : ApiCommand<ArrayList<Message>>() {
     override fun onExecute(manager: VKApiManager): ArrayList<Message> {
 
         val count = end - start
@@ -45,7 +49,7 @@ class GetMessagesHistoryCommand(private val start: Int, private val end: Int, pr
 
                 for (i in 0 until jsonMessages.length()) {
 
-                    val message = Message(0,0,"",0,0,false, Source.VK,false, arrayListOf())
+                    val message = Message()
                     val oneMessageJsonObj = jsonMessages.getJSONObject(i)
                     message.text = oneMessageJsonObj.getString("text")
 
@@ -63,7 +67,7 @@ class GetMessagesHistoryCommand(private val start: Int, private val end: Int, pr
                     message.messageID = oneMessageJsonObj.getString("id").toInt()
                     message.fromMessenger = Source.VK
 
-                    var attachmentsArray :JSONArray
+                    var attachmentsArray: JSONArray
                     try {
                         attachmentsArray = oneMessageJsonObj.getJSONArray("attachments")
                     } catch (ex: Exception) {

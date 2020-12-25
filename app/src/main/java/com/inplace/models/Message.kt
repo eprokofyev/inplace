@@ -1,17 +1,19 @@
 package com.inplace.models
 
 import android.os.Parcelable
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.RawValue
-import java.util.*
-import kotlin.collections.ArrayList
 
 
-@Entity(tableName = "messages",
+@Entity(
+        tableName = "messages",
         primaryKeys = arrayOf("message_id", "user_id", "chat_id", "from_messenger")
 )
-@TypeConverters(SourceConverter::class, PhotosConverter::class)
+@TypeConverters(SourceConverter::class, PhotosConverter::class, MessageStatusConverter::class)
 @Parcelize
 data class Message(
         @ColumnInfo(name = "message_id") var messageID: Int = 0,
@@ -21,21 +23,22 @@ data class Message(
         @ColumnInfo(name = "chat_id") var chatID: Long = 0,
         var myMsg: Boolean = false,
         @ColumnInfo(name = "from_messenger") var fromMessenger: Source = Source.VK,
+        var status: MessageStatus = MessageStatus.ERROR,
         var isRead: Boolean = false,
         var photos: @RawValue ArrayList<String> = arrayListOf(),
 ) : Parcelable
 
 class PhotosConverter {
-        @TypeConverter
-        fun fromPhotos(photos: ArrayList<String?>?): String? {
-                return photos?.filterNotNull()?.joinToString(separator = " ")
-        }
+    @TypeConverter
+    fun fromPhotos(photos: ArrayList<String?>?): String? {
+        return photos?.filterNotNull()?.joinToString(separator = " ")
+    }
 
-        @TypeConverter
-        fun toPhotos(data: String?): ArrayList<String> {
-                val list = data?.split(" ")?: listOf()
-                if (list.isNotEmpty() && list[0]!="")
-                        return ArrayList(list)
-                return arrayListOf()
-        }
+    @TypeConverter
+    fun toPhotos(data: String?): ArrayList<String> {
+        val list = data?.split(" ") ?: listOf()
+        if (list.isNotEmpty() && list[0] != "")
+            return ArrayList(list)
+        return arrayListOf()
+    }
 }

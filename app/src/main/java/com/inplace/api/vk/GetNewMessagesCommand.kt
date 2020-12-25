@@ -49,7 +49,7 @@ class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
                 for (i in 0 until messagesArray.length()) {
                     val oneMessageJSON = messagesArray.getJSONObject(i)
 
-                    val message = Message(0,0,"",0,0,false, Source.VK,false, arrayListOf())
+                    val message = Message()
 
                     message.text = oneMessageJSON.getString("text")
 
