@@ -60,6 +60,7 @@ class ChatsRepo(context: Context) {
                 vkChat.chatWithId.toLong(),
                 vkChat.lastMsgFromId == VK.getUserId(),
                 Source.VK,
+                MessageStatus.READ,
                 false,
                 arrayListOf(),
             )
