@@ -15,7 +15,7 @@ import com.vk.api.sdk.VK
 import java.util.concurrent.ExecutorService
 
 @ExperimentalPagingApi
-class VKRepository(val context: Context, val chatsRepo: ChatsRepo = ChatsRepo()) {
+class VKRepository(val context: Context, val chatsRepo: ChatsRepo = ChatsRepo(context)) {
 
     companion object {
         const val DEFAULT_PAGE_INDEX = 1
@@ -39,6 +39,5 @@ class VKRepository(val context: Context, val chatsRepo: ChatsRepo = ChatsRepo())
     private fun getDefaultPageConfig(): PagingConfig {
         return PagingConfig(pageSize = DEFAULT_PAGE_SIZE, prefetchDistance = PREFER_DISTANCE_SIZE, enablePlaceholders = true)
     }
-
 }
 

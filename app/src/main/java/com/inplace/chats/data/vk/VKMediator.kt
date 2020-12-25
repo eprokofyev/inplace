@@ -102,6 +102,8 @@ class VKMediator(
         }
 
         if (result is ResultVKChat.Success) {
+
+
             database.withTransaction {
                 if (loadType == LoadType.REFRESH) {
                     Log.d("status", "Refresh")

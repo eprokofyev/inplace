@@ -7,13 +7,18 @@ import androidx.lifecycle.MutableLiveData
 import com.inplace.api.ApiImageLoader
 import com.inplace.api.vk.*
 import com.inplace.api.vk.VkChat.CHAT_TYPE_USER
+import com.inplace.chats.models.Avatar
 import com.inplace.models.*
 import com.inplace.services.ExecutorServices
 import com.vk.api.sdk.VK
 import java.lang.Exception
 import java.util.concurrent.Executor
 
-class ChatsRepo() {
+class ChatsRepo(context: Context) {
+
+    private val avatars: MutableLiveData<MutableList<Avatar>> = MutableLiveData<MutableList<Avatar>>()
+
+    //private val loader = ApiImageLoader.getInstance(context)
 
     private val executor: Executor = ExecutorServices.getInstanceAPI()
 
@@ -124,6 +129,8 @@ class ChatsRepo() {
 
         return ResultVKChat.Success(chats)
     }
+
+    fun getAvatars() = avatars
 
     interface OnRequestCompleteListener {
         fun onRequestComplete(result: ResultVKChat)

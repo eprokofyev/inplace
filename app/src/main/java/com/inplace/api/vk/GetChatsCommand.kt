@@ -52,7 +52,7 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
                         jsonConversations.getJSONObject(i).getJSONObject("last_message")
 
                     vkChat.text = lastMessageObj.getString("text")
-                    vkChat.date = lastMessageObj.getString("date").toInt()
+                    vkChat.date = lastMessageObj.getString("date").toLong()
                     vkChat.lastMsgFromId = lastMessageObj.getString("from_id").toInt()
                     vkChat.lasMsgId = lastMessageObj.getString("id").toInt()
 
@@ -80,7 +80,7 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
 
                 val jsonUsers: JSONArray = rootJson.getJSONArray("profiles")
 
-                var bannedUsers = ArrayList<Int>()
+                val bannedUsers = ArrayList<Int>()
 
                 for (i in 0 until jsonUsers.length()) {
                     val vkUser = VkUser()
@@ -88,7 +88,7 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
                     vkUser.id = oneUserJsonObj.getString("id").toInt()
 
                     try {
-                        var banValue = oneUserJsonObj.getString("deactivated")
+                        val banValue = oneUserJsonObj.getString("deactivated")
                         if (banValue == "banned") {
                             bannedUsers.add(vkUser.id)
                             continue
