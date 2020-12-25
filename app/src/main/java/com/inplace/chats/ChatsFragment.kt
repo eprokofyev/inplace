@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.os.StrictMode
 import android.util.Log
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.Observer
@@ -24,6 +26,8 @@ class ChatsFragment : Fragment() {
 
     lateinit var recycler: RecyclerView
 
+    lateinit var toolbar: Toolbar
+
     private lateinit var listener: SwitcherInterface
 
     private var chatsViewModel: ChatsViewModel? = null
@@ -33,6 +37,12 @@ class ChatsFragment : Fragment() {
         if (context is SwitcherInterface) {
             listener = context as SwitcherInterface
         }
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.chats_menu, menu)
     }
 
     override fun onCreateView(
@@ -64,7 +74,7 @@ class ChatsFragment : Fragment() {
 
         setHasOptionsMenu(true);
 
-        return inflater.inflate(R.layout.fragment_item_list, container, false)
+        return inflater.inflate(R.layout.fragment_chats, container, false)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -75,6 +85,9 @@ class ChatsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        toolbar = view.findViewById(R.id.chats_toolbar)
+        (activity as AppCompatActivity).setSupportActionBar(toolbar)
 
         recycler = view.findViewById<RecyclerView>(R.id.list)
         /*val b = view.findViewById<View>(R.id.btn_do_it)
@@ -107,18 +120,6 @@ class ChatsFragment : Fragment() {
         }
 
     }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.chats_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        //get item id to handle item click
-
-        return super.onOptionsItemSelected(item)
-    }
-
 
     companion object {
         private const val key = "user"

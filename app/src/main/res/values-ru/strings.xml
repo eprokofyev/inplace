@@ -23,4 +23,24 @@
 
     <string name="unsupported_message_label">Sorry, we don\'t support this type of message yet :(</string>
     <string name="photo">Фото</string>
+    <string name="yesterday">вчера</string>
+    <string name="monday">пн</string>
+    <string name="tuesday">вт</string>
+    <string name="wednesday">ср</string>
+    <string name="thursday">чт</string>
+    <string name="friday">пт</string>
+    <string name="saturday">суб</string>
+    <string name="sunday">вс</string>
+    <string name="january">янв.</string>
+    <string name="february">февр.</string>
+    <string name="march">марта</string>
+    <string name="april">aпр.</string>
+    <string name="may">мая></string>
+    <string name="june">июня</string>
+    <string name="july">июля</string>
+    <string name="august">авг.</string>
+    <string name="september">сент.</string>
+    <string name="october">окт.</string>
+    <string name="november">нояб.</string>
+    <string name="december">дек.</string>
 </resources>

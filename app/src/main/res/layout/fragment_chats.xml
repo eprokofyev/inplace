@@ -7,12 +7,13 @@
     tools:context=".chats.ChatsFragment"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:title="Home"
-        style="@style/Widget.AppCompat.Toolbar"/>
+    <include
+        android:id="@+id/chats_toolbar"
+        layout="@layout/toolbar_chats"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -20,13 +21,12 @@
 
 
         <androidx.recyclerview.widget.RecyclerView
-            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/list"
             android:name="com.dz.technopark.ItemFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layoutManager="LinearLayoutManager"
-            tools:listitem="@layout/fragment_item" />
+            tools:listitem="@layout/fragment_chats_item" />
 
 
     </RelativeLayout>

@@ -3,7 +3,6 @@ package com.inplace.chats
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,8 +19,6 @@ import com.inplace.models.Source
 import com.inplace.models.SuperChat
 import com.inplace.services.ExecutorServices
 import de.hdodenhof.circleimageview.CircleImageView
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 class ChatsRecyclerViewAdapter(
@@ -38,7 +35,7 @@ class ChatsRecyclerViewAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.fragment_item, parent, false)
+            .inflate(R.layout.fragment_chats_item, parent, false)
 
 
         return MyHolder(view)
@@ -86,6 +83,8 @@ class ChatsRecyclerViewAdapter(
                     Source.TELEGRAM -> R.drawable.ic_tg_logo_no_background
                 }
             )
+
+
 
 
             if (chat.lastMessage.text.isEmpty()) {
