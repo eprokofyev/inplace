@@ -23,7 +23,7 @@ data class Message(
         @ColumnInfo(name = "chat_id") var chatID: Long = 0,
         var myMsg: Boolean = false,
         @ColumnInfo(name = "from_messenger") var fromMessenger: Source = Source.VK,
-        var status: MessageStatus = MessageStatus.ERROR,
+        var status: MessageStatus = MessageStatus.SENT,
         var isRead: Boolean = false,
         var photos: @RawValue ArrayList<String> = arrayListOf(),
 ) : Parcelable

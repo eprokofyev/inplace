@@ -33,7 +33,6 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
     private val EDIT_TEXT_STATE = "editTextState"
     private val IMAGES_PICK_CODE = 0
     private var avatarIsLoaded = false
-    private var sendMessage = false
     private val database = this.activity?.applicationContext?.let { AppDatabase.getInstance(it) }
     private val messageDao = database?.getMessageDao()
 
@@ -55,9 +54,7 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.d("qwerty","onAcativityResult")
         if (requestCode == IMAGES_PICK_CODE && resultCode == Activity.RESULT_OK && data != null) {
-            Log.d("qwerty","imagesClear")
             imageUris.clear()
             val clipData = data.clipData
             val resultData = data.data
@@ -139,7 +136,7 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
                 chatViewModel.fetchAvatar(vkChats[0].avatarUrl)
                 avatarIsLoaded = true
             }
-        } else if(vkChats.size == 1 && vkChats[0].type == ChatType.GROUP) {
+        } else if (vkChats.size == 1 && vkChats[0].type == ChatType.GROUP) {
             username.text = vkChats[0].title
             userActivity.text = "${vkChats[0].sobesedniks.size} members"
             if (!avatarIsLoaded) {
@@ -152,9 +149,11 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
         toolbar.setNavigationOnClickListener {
             activity?.onBackPressed()
         }
+        val linearLayoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, true)
+
 
         recycler.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, true)
+            layoutManager = linearLayoutManager
             isNestedScrollingEnabled = false
             adapter = chatAdapter
 //            adapter = chatAdapter.withLoadStateFooter(
@@ -162,20 +161,23 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
 //            )
         }
 
-
         lifecycleScope.launch {
             chatViewModel.getMessages(vkChats[0].chatID).observe(viewLifecycleOwner) {
                 chatAdapter.submitData(viewLifecycleOwner.lifecycle, it)
-                if (sendMessage){
-                    recycler.smoothScrollBy(0,0)
-                    sendMessage = false
-                }
             }
         }
 
-        chatViewModel.getAvatar().observe(viewLifecycleOwner) {
-            avatar.setImageBitmap(it)
+        chatViewModel.apply {
+            getAvatar().observe(viewLifecycleOwner) {
+                avatar.setImageBitmap(it)
+            }
+            getRefreshMessage().observe(viewLifecycleOwner){
+                recycler.smoothScrollToPosition(0)
+            }
         }
+
+
+
 
 
         sendButton.setOnClickListener {
@@ -195,13 +197,10 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
                 ArrayList(imageUris.map { it.toString() })
             )
 
-            chatViewModel.sendMessage(message)
-
-//            chatAdapter.refresh()
+            chatViewModel.sendMessage(1,message)
 
             messageEditText.setText("")
             clearPickedImages()
-            sendMessage = true
         }
 
         sendImageButton.setOnClickListener {
@@ -225,7 +224,7 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
 
     }
 
-    private fun clearPickedImages(){
+    private fun clearPickedImages() {
         imageUris.clear()
         pickedImagesRecyclerView.isVisible = false
         sendButton.isVisible = false

@@ -14,6 +14,7 @@ class ChatViewModel(
 
     private var chatRepo = ChatRepo(getApplication())
     private var mAvatar = chatRepo.getAvatar()
+    private val refreshMessage = chatRepo.getRefreshMessageLiveData()
 
     @ExperimentalPagingApi
     fun getMessages(id: Long) = getMessagesListStream(id)
@@ -38,20 +39,21 @@ class ChatViewModel(
                 }
             }
         }
+
     private val database = AppDatabase.getInstance(getApplication())
     private val messageDao = database.getMessageDao()
 
     @ExperimentalPagingApi
-    private fun getMessagesListStream(chatID:Long) =
+    private fun getMessagesListStream(chatID: Long) =
         Pager(
             PagingConfig(
                 pageSize = 20,
                 initialLoadSize = 20,
                 enablePlaceholders = false,
-                prefetchDistance = 2,
+                prefetchDistance = 5,
             ),
             remoteMediator = ChatMediator(chatID, chatRepo, database),
-            pagingSourceFactory = {messageDao.pagingSource(chatID)}
+            pagingSourceFactory = { messageDao.pagingSource(chatID) }
         ).liveData.cachedIn(viewModelScope)
 
 
@@ -68,11 +70,13 @@ class ChatViewModel(
 
     fun getAvatar() = mAvatar
 
+    fun getRefreshMessage() = refreshMessage
+
     fun fetchAvatar(url: String) {
         chatRepo.fetchAvatar(url)
     }
 
-    fun sendMessage(message: Message) {
-        chatRepo.sendMessage(message)
+    fun sendMessage(position: Int, message: Message) {
+        chatRepo.sendMessage(position, message)
     }
 }

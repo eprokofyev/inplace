@@ -1,18 +1,23 @@
 package com.inplace.chat
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.isVisible
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.inplace.R
+import com.inplace.models.MessageStatus
 import com.inplace.models.Source
 import de.hdodenhof.circleimageview.CircleImageView
 
@@ -43,6 +48,7 @@ class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAG
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        Log.d("chatAdapter", "bind in position: $position")
         when (holder.itemViewType) {
             MessageType.HOST -> {
                 val model = getItem(position) as ChatModel.MessageItem
@@ -90,6 +96,7 @@ class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAG
         private val sentTime: TextView = itemView.findViewById(R.id.sentTime)
         private val sourceTG: ImageView = itemView.findViewById(R.id.sourceTG)
         private val sourceVK: ImageView = itemView.findViewById(R.id.sourceVK)
+        private val status: ImageView = itemView.findViewById(R.id.message_status)
         private val photosRecyclerView: RecyclerView = itemView.findViewById(R.id.messagePhotos)
 
         fun bind(model: ChatModel.MessageItem) {
@@ -111,6 +118,18 @@ class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAG
                 messageText.setTextColor(Color.parseColor("black"))
                 messageText.typeface = Typeface.DEFAULT
                 messageText.text = model.message.text
+            }
+
+            val circularProgressDrawable = CircularProgressDrawable(itemView.context)
+            circularProgressDrawable.strokeWidth = 2f
+            circularProgressDrawable.centerRadius = 8f
+            circularProgressDrawable.start()
+
+            when(model.message.status){
+                MessageStatus.ERROR -> status.setImageResource(R.drawable.ic_error_flat)
+                MessageStatus.SENDING -> status.setImageDrawable(circularProgressDrawable)
+                MessageStatus.SENT -> status.setImageResource(R.drawable.ic_tick)
+                MessageStatus.READ -> status.setImageResource(R.drawable.ic_double_tick)
             }
 
             sentTime.text = DateParser.convertTimeToString(model.message.date)

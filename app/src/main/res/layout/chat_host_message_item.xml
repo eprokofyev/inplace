@@ -42,7 +42,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/message_status"
+        android:id="@+id/message_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -52,10 +52,11 @@
         app:layout_constraintTop_toBottomOf="@+id/messageContainer">
 
         <ImageView
+            android:id="@+id/message_status"
             android:layout_width="17dp"
             android:layout_height="10dp"
             android:layout_gravity="center"
-            app:srcCompat="@drawable/ic_double_tick" />
+            app:srcCompat="@drawable/ic_error_flat" />
 
         <TextView
             android:id="@+id/sentTime"
