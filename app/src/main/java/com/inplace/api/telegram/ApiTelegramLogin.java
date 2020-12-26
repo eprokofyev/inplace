@@ -3,22 +3,28 @@ package com.inplace.api.telegram;
 import android.util.Log;
 
 import com.inplace.MainActivity;
+import com.inplace.api.CommandResult;
 
 import org.drinkless.td.libcore.telegram.Client;
 import org.drinkless.td.libcore.telegram.TdApi;
 
+import java.io.File;
+
 public class ApiTelegramLogin {
 
-    private static MainActivity loginActivity = null;
 
-    public static void clear() {loginActivity = null;}
+    public static void clear() { TelegramSingleton.activity = null; }
 
 
     public static void initTelegram(MainActivity loginActivity) throws InterruptedException {
 
-        ApiTelegramLogin.loginActivity = loginActivity;
+        TelegramSingleton.activity = loginActivity;
 
-        Client.execute(new TdApi.SetLogVerbosityLevel(3));
+        TelegramSingleton.canLogin = true;
+
+        Client.execute(new TdApi.SetLogVerbosityLevel(TelegramSingleton.logLvl));
+
+
 
 //        if (Client.execute(new TdApi.SetLogStream(new TdApi.LogStreamFile("tdlib.log", 1 << 27, false))) instanceof TdApi.Error) {
 //            throw new IOError(new IOException("Write access to the current directory is required"));
@@ -39,10 +45,21 @@ public class ApiTelegramLogin {
         if (authorizationState != null) {
             TelegramSingleton.authorizationState = authorizationState;
         }
+        if (!TelegramSingleton.canLogin) {
+            return;
+        }
+
         switch (authorizationState.getConstructor()) {
             case TdApi.AuthorizationStateWaitTdlibParameters.CONSTRUCTOR:
+
+                String telegramDir = TelegramSingleton.activity.getDataDirPath() +
+                                     TelegramSingleton.telegramDir;
+
+                File wallpaperDirectory = new File(telegramDir);
+                wallpaperDirectory.mkdirs();
+
                 TdApi.TdlibParameters parameters = new TdApi.TdlibParameters();
-                parameters.databaseDirectory = loginActivity.getDataDirPath();
+                parameters.databaseDirectory =  TelegramSingleton.activity.getDataDirPath();
                 parameters.useMessageDatabase = true;
                 parameters.useSecretChats = true;
                 parameters.apiId = 2036243;
@@ -58,7 +75,7 @@ public class ApiTelegramLogin {
                 TelegramSingleton.client.send(new TdApi.CheckDatabaseEncryptionKey(), new ApiTelegramLogin.AuthorizationRequestHandler());
                 break;
             case TdApi.AuthorizationStateWaitPhoneNumber.CONSTRUCTOR: {
-                String phoneNumber = loginActivity.getString("Please enter phone number: ");
+                String phoneNumber =  TelegramSingleton.activity.getNumber();
                 TelegramSingleton.client.send(new TdApi.SetAuthenticationPhoneNumber(phoneNumber, null), new ApiTelegramLogin.AuthorizationRequestHandler());
                 break;
             }
@@ -68,22 +85,22 @@ public class ApiTelegramLogin {
                 break;
             }
             case TdApi.AuthorizationStateWaitCode.CONSTRUCTOR: {
-                String code = loginActivity.getString("Please enter authentication code: ");
-                Log.d("TdApi", "send code!");
+                String code =  TelegramSingleton.activity.getAuthCode();
+                Log.d("TdApi", "send code:" + code);
                 TelegramSingleton.client.send(new TdApi.CheckAuthenticationCode(code), new ApiTelegramLogin.AuthorizationRequestHandler());
                 break;
             }
-            case TdApi.AuthorizationStateWaitRegistration.CONSTRUCTOR: {
-                String firstName = loginActivity.getString("Please enter your first name: ");
-                String lastName = loginActivity.getString("Please enter your last name: ");
-                TelegramSingleton.client.send(new TdApi.RegisterUser(firstName, lastName), new ApiTelegramLogin.AuthorizationRequestHandler());
-                break;
-            }
-            case TdApi.AuthorizationStateWaitPassword.CONSTRUCTOR: {
-                String password = loginActivity.getString("Please enter password: ");
-                TelegramSingleton.client.send(new TdApi.CheckAuthenticationPassword(password), new ApiTelegramLogin.AuthorizationRequestHandler());
-                break;
-            }
+//            case TdApi.AuthorizationStateWaitRegistration.CONSTRUCTOR: {
+//                String firstName = loginActivity.getString("Please enter your first name: ");
+//                String lastName = loginActivity.getString("Please enter your last name: ");
+//                TelegramSingleton.client.send(new TdApi.RegisterUser(firstName, lastName), new ApiTelegramLogin.AuthorizationRequestHandler());
+//                break;
+//            }
+//            case TdApi.AuthorizationStateWaitPassword.CONSTRUCTOR: {
+//                String password = loginActivity.getString("Please enter password: ");
+//                TelegramSingleton.client.send(new TdApi.CheckAuthenticationPassword(password), new ApiTelegramLogin.AuthorizationRequestHandler());
+//                break;
+//            }
             case TdApi.AuthorizationStateReady.CONSTRUCTOR:
                 TelegramSingleton.haveAuthorization = true;
                 TelegramSingleton.authorizationLock.lock();
@@ -93,24 +110,27 @@ public class ApiTelegramLogin {
                     TelegramSingleton.authorizationLock.unlock();
                 }
                 break;
-            case TdApi.AuthorizationStateLoggingOut.CONSTRUCTOR:
+            case TdApi.AuthorizationStateLoggingOut.CONSTRUCTOR: {
                 TelegramSingleton.haveAuthorization = false;
-                loginActivity.writeMsg("Logging out");
+                CommandResult<Integer> cr = new CommandResult<>();
+                cr.result = 0;
+                TelegramSingleton.activity.logoutAct(cr);
                 break;
+            }
             case TdApi.AuthorizationStateClosing.CONSTRUCTOR:
                 TelegramSingleton.haveAuthorization = false;
-                loginActivity.writeMsg("Closing");
+//                TelegramSingleton.loginActivity.writeMsg("Closing");
                 break;
             case TdApi.AuthorizationStateClosed.CONSTRUCTOR:
-                loginActivity.writeMsg("Closed");
+//                TelegramSingleton.loginActivity.writeMsg("Closed");
                 if (!TelegramSingleton.needQuit) {
-                    TelegramSingleton.client = Client.create(new ApiTelegram.UpdateHandler(), null, null); // recreate client after previous has closed
+                    TelegramSingleton.client = Client.create(new ApiTelegram.UpdateHandler(), null, null);
                 } else {
                     TelegramSingleton.canQuit = true;
                 }
                 break;
             default:
-                Log.d("Api telega","Unsupported authorization state:"  + authorizationState);
+                Log.d("Api tel login","Unsupported authorization state:"  + authorizationState);
         }
     }
 
@@ -122,25 +142,24 @@ public class ApiTelegramLogin {
             switch (object.getConstructor()) {
                 case TdApi.Error.CONSTRUCTOR:
                     Log.d("Api telega","Receive an error:"  + object);
-                    onAuthorizationStateUpdated(null); // repeat last action
+                    //onAuthorizationStateUpdated(null); // repeat last action
+                    ApiTelegramLogout.logout();
+                    TelegramSingleton.activity.isLogin(false);
                     break;
                 case TdApi.Ok.CONSTRUCTOR:
-//                    if (TdApi.GetPhoneNumberInfo())
-//                    loginActivity.isLogin();
+                    if (TelegramSingleton.haveAuthorization && !TelegramSingleton.alreadyShowLogin) {
+                        TelegramSingleton.activity.isLogin(true);
+                        TelegramSingleton.alreadyShowLogin = true;
+                        TelegramSingleton.canQuit = true;
+                    }
                     break;
                 default:
                     Log.d("Api telega","Receive wrong response from TDLib:"  + object);
+                    TelegramSingleton.activity.isLogin(false);
             }
         }
     }
 
-    public static class TestHandler implements Client.ResultHandler {
-        @Override
-        public void onResult(TdApi.Object object) {
-            Log.d("default handler:", object.toString());
-            loginActivity.writeMsg("test handler result:\n" + object.toString());
-        }
-    }
 
 
 }

@@ -1,7 +1,6 @@
 package com.inplace.api.telegram;
 
 import android.util.Log;
-
 import org.drinkless.td.libcore.telegram.Client;
 import org.drinkless.td.libcore.telegram.TdApi;
 
@@ -13,6 +12,9 @@ public class ApiTelegram {
     public static class UpdateHandler implements Client.ResultHandler {
         @Override
         public void onResult(TdApi.Object object) {
+
+            //Log.e("UpdateHandler", "object:" + object.toString());
+
             switch (object.getConstructor()) {
                 case TdApi.UpdateAuthorizationState.CONSTRUCTOR:
                     // TODO check activity link in ApiTelegramLogin
@@ -21,7 +23,7 @@ public class ApiTelegram {
 
                 case TdApi.UpdateUser.CONSTRUCTOR:
                     TdApi.UpdateUser updateUser = (TdApi.UpdateUser) object;
-                    Log.e("get user name:",  updateUser.user.firstName );
+//                   Log.d("get user name:",  updateUser.user.firstName );
                     TelegramSingleton.users.put(updateUser.user.id, updateUser.user);
                     break;
                 case TdApi.UpdateUserStatus.CONSTRUCTOR:  {
@@ -32,6 +34,7 @@ public class ApiTelegram {
                     }
                     break;
                 }
+                
 //                case TdApi.UpdateBasicGroup.CONSTRUCTOR:
 //                    TdApi.UpdateBasicGroup updateBasicGroup = (TdApi.UpdateBasicGroup) object;
 //                    basicGroups.put(updateBasicGroup.basicGroup.id, updateBasicGroup.basicGroup);
@@ -224,7 +227,7 @@ public class ApiTelegram {
 //                    supergroupsFullInfo.put(updateSupergroupFullInfo.supergroupId, updateSupergroupFullInfo.supergroupFullInfo);
 //                    break;
                 default:
-                    // print("Unsupported update:" + newLine + object);
+                    // Log.d("telega ", "Unsupported update:" + newLine + object);
             }
         }
     }
