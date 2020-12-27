@@ -1,5 +1,6 @@
 package com.inplace.api.vk
 
+import android.util.Log
 import com.vk.api.sdk.VKApiManager
 import com.vk.api.sdk.VKApiResponseParser
 import com.vk.api.sdk.VKMethodCall
@@ -56,6 +57,8 @@ class GetChatsByIdCommand(private val ids: ArrayList<Int>): ApiCommand<VkChatWit
                     vkChat.chatWithId =
                         jsonChatsArray.getJSONObject(i).getString("id").toInt()
 
+                    Log.e("chatsbyId",jsonChatsArray.getString(i))
+
                     vkChat.groupChatTitle =
                         jsonChatsArray.getJSONObject(i).getString("title")
 
@@ -105,7 +108,7 @@ class GetChatsByIdCommand(private val ids: ArrayList<Int>): ApiCommand<VkChatWit
                     }
 
                     if (bannedUsers.size != 0) {
-                        clearBannedUsers(chatList, chatUsers, bannedUsers)
+                        VkChatWithUsers().clearBannedUsers(chatList, chatUsers, bannedUsers)
                     }
                 }
 
@@ -118,20 +121,6 @@ class GetChatsByIdCommand(private val ids: ArrayList<Int>): ApiCommand<VkChatWit
             }
         }
 
-
-
-        private fun clearBannedUsers(chats: ArrayList<VkChat>, users: HashMap<Int, VkUser>, banned : ArrayList<Int>){
-            for (idBanned in banned) {
-                users.remove(idBanned)
-            }
-            for (chat in chats) {
-                for (idBanned in banned) {
-                    if (chat.chatWithId == idBanned) {
-                        chats.remove(chat)
-                    }
-                }
-            }
-        }
 
     }
 }

@@ -1,5 +1,6 @@
 package com.inplace.api.vk
 
+import android.util.Log
 import com.inplace.models.Message
 import com.inplace.models.Source
 import com.vk.api.sdk.VK
@@ -41,12 +42,17 @@ class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
             try {
                 val rootJson = JSONObject(response).getJSONObject("response")
 
+                Log.d("get new response:",  JSONObject(response).getString("response"))
+
                 val messagesArray: JSONArray = rootJson.getJSONObject("messages")
                         .getJSONArray("items")
 
                 val newMessages = java.util.ArrayList<Message>()
 
                 for (i in 0 until messagesArray.length()) {
+
+                    Log.d("get new msg:", messagesArray.getString(i))
+
                     val oneMessageJSON = messagesArray.getJSONObject(i)
 
                     val message = Message(0,0,"",0,0,false, Source.VK,false, arrayListOf())

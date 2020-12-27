@@ -429,6 +429,91 @@ public class ApiVk {
         return result;
     }
 
+    // result -> VkChatWithUsers{ArrayList<VkChat> chats; HashMap<Integer,VkUser> users}
+    // no last msg, only lasMsgId for last msg
+    public static  CommandResult<VkChatWithUsers> getConversationsById(ArrayList<Integer> ids) {
+
+        CommandResult<VkChatWithUsers> result = new CommandResult<>();
+
+        if (!VK.isLoggedIn()){
+            result.error = new Error("no session");
+            result.errTextMsg = "you must login before this request";
+            return result;
+        }
+
+        VkChatWithUsers chatsWithUsers = null;
+        try {
+            chatsWithUsers = VK.executeSync(new GetConversationsById(ids));
+        } catch (InterruptedException e) {
+            Log.e("vk SDK", "getConversationsById() InterruptedException:" + e);
+            result.error = new Error("InterruptedException");
+            result.errTextMsg = "InterruptedException";
+
+        } catch (IOException e) {
+            Log.e("vk SDK", "getConversationsById() IOException" + e);
+            result.error = new Error("IOException");
+            result.errTextMsg = "IOException";
+
+        } catch (VKApiException e) {
+            Log.e("vk SDK", "getConversationsById() VKApiException" + e);
+            result.error = new Error("VKApiException");
+            result.errTextMsg = "VKApiException";
+        }
+        catch (Exception e) {
+            Log.e("vk SDK", "getConversationsById() Exception" + e);
+            result.error = new Error("Some Exception");
+            result.errTextMsg = "Some Exception";
+        }
+
+        if (result.error != null)
+            return result;
+
+        result.result = chatsWithUsers;
+        return result;
+    }
+
+
+
+    // result -> Boolean (isOk)
+    public static synchronized CommandResult<Boolean> markAsRead(int conversationId) {
+
+        CommandResult<Boolean> result = new CommandResult<>();
+
+        if (!VK.isLoggedIn()) {
+            result.error = new Error("no session");
+            result.errTextMsg = "you must login before this request";
+            return result;
+        }
+
+        try {
+            result.result = VK.executeSync(new MarkAsReadCommand(conversationId));
+        } catch (InterruptedException e) {
+            Log.e("vk SDK", "markAsRead() InterruptedException:" + e);
+            result.error = new Error("InterruptedException");
+            result.errTextMsg = "InterruptedException";
+
+        } catch (IOException e) {
+            Log.e("vk SDK", "markAsRead() IOException" + e);
+            result.error = new Error("IOException");
+            result.errTextMsg = "IOException";
+
+        } catch (VKApiException e) {
+            Log.e("vk SDK", "markAsRead() VKApiException" + e);
+            result.error = new Error("VKApiException");
+            result.errTextMsg = "VKApiException";
+        }
+        catch (Exception e) {
+            Log.e("vk SDK", "markAsRead() Exception" + e);
+            result.error = new Error("Some Exception");
+            result.errTextMsg = "Some Exception";
+        }
+        result.result = result.error != null;
+        return result;
+    }
+
+
+
+
 
 
     }
