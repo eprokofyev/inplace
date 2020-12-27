@@ -16,4 +16,15 @@ public class VkChat {
     public int chatWithId = -1;
     public int lastMsgFromId = -1;
     public int lasMsgId = -1;
+
+
+    // идентификатор последнего прочтенного входящего сообщения.
+    public int inRead = 0;
+
+    // идентификатор последнего прочтенного исходящего сообщения.
+    public int outRead = 0;
+
+
+    public int unreadСount = 0;
+
 }

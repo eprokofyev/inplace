@@ -41,12 +41,41 @@ class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
             try {
                 val rootJson = JSONObject(response).getJSONObject("response")
 
-                val messagesArray: JSONArray = rootJson.getJSONObject("messages")
-                        .getJSONArray("items")
-
                 val newMessages = java.util.ArrayList<Message>()
 
+                // parse history
+                val historyArray: JSONArray = rootJson.getJSONArray("history")
+                for (i in 0 until historyArray.length()) {
+
+                    try {
+
+                        val oneActionStr = historyArray.getJSONArray(i)
+                        var action = oneActionStr.get(0).toString().toInt()
+                        if (action != 7) {
+                            continue
+                        }
+                        val msgId = oneActionStr.get(2).toString().toInt()
+                        var chatId = oneActionStr.get(1).toString().toLong()
+
+                        val message =
+                            Message(msgId, 0, "", 0, 0, false, Source.VK, false, arrayListOf())
+                        message.isRead = true;
+                        message.chatID = chatId;
+
+                        newMessages.add(message)
+
+                    } catch (ex: Exception) {
+                        continue
+                    }
+                }
+
+
+
+                val messagesArray: JSONArray = rootJson.getJSONObject("messages")
+                    .getJSONArray("items")
+
                 for (i in 0 until messagesArray.length()) {
+
                     val oneMessageJSON = messagesArray.getJSONObject(i)
 
                     val message = Message(0,0,"",0,0,false, Source.VK,false, arrayListOf())

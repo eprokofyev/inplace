@@ -1,5 +1,6 @@
 package com.inplace.api.vk
 
+import android.util.Log
 import com.vk.api.sdk.VKApiManager
 import com.vk.api.sdk.VKApiResponseParser
 import com.vk.api.sdk.VKMethodCall
@@ -8,23 +9,27 @@ import com.vk.api.sdk.internal.ApiCommand
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.util.*
-import kotlin.collections.ArrayList
+import java.util.HashMap
 
-class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<VkChatWithUsers>() {
+class GetConversationsById(private val ids: java.util.ArrayList<Int>): ApiCommand<VkChatWithUsers>() {
     override fun onExecute(manager: VKApiManager): VkChatWithUsers {
 
-        val count = end - start
+        var idsStr = ""
+        for (i in 0 until ids.size ) {
+            idsStr += ids.get(i).toString()
+            if (i != ids.size - 1) {
+                idsStr += ","
+            }
+        }
 
         val call = VKMethodCall.Builder()
-         .method("messages.getConversations")
-         .args("offset", start.toString())
-         .args("count", count.toString())
-         .args("extended", "1")
-         .args("fields", "about,status,online,photo_200")
-         .version(manager.config.version)
-         .build()
-         return manager.execute(call, ResponseApiParser())
+            .method("messages.getConversationsById")
+            .args("peer_ids", idsStr)
+            .args("extended", "1")
+            .args("fields", "about,status,online,photo_200")
+            .version(manager.config.version)
+            .build()
+        return manager.execute(call, ResponseApiParser())
 
     }
 
@@ -42,36 +47,30 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
                 for (i in 0 until jsonConversations.length()) {
                     val vkChat = VkChat()
                     val type: String =
-                        jsonConversations.getJSONObject(i).getJSONObject("conversation")
-                            .getJSONObject("peer").getString("type")
+                        jsonConversations.getJSONObject(i)
+                            .getJSONObject("peer")
+                            .getString("type")
 
                     vkChat.chatWithId =
-                        jsonConversations.getJSONObject(i).getJSONObject("conversation")
+                        jsonConversations.getJSONObject(i)
                             .getJSONObject("peer").getString("id").toInt()
 
                     vkChat.inRead = jsonConversations.getJSONObject(i)
-                        .getJSONObject("conversation").getString("in_read").toInt()
+                        .getString("in_read").toInt()
 
                     vkChat.outRead = jsonConversations.getJSONObject(i)
-                        .getJSONObject("conversation").getString("out_read").toInt()
+                        .getString("out_read").toInt()
 
 
                     try {
                         vkChat.unreadСount = jsonConversations.getJSONObject(i)
-                            .getJSONObject("conversation")
                             .getString("unread_count").toInt()
                     } catch (e: Exception) {
                         vkChat.unreadСount = 0
                     }
 
-
-                    val lastMessageObj: JSONObject =
-                        jsonConversations.getJSONObject(i).getJSONObject("last_message")
-
-                    vkChat.text = lastMessageObj.getString("text")
-                    vkChat.date = lastMessageObj.getString("date").toLong()
-                    vkChat.lastMsgFromId = lastMessageObj.getString("from_id").toInt()
-                    vkChat.lasMsgId = lastMessageObj.getString("id").toInt()
+                    vkChat.lasMsgId =
+                        jsonConversations.getJSONObject(i).getString("last_message_id").toInt()
 
                     if (type == "user") {
                         vkChat.chatType = VkChat.CHAT_TYPE_USER
@@ -82,7 +81,7 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
                     if (type == "chat") {
                         vkChat.chatType = VkChat.CHAT_TYPE_GROUP_CHAT
                         vkChat.groupChatTitle =
-                            jsonConversations.getJSONObject(i).getJSONObject("conversation")
+                            jsonConversations.getJSONObject(i)
                                 .getJSONObject("chat_settings").getString("title")
                         chatList.add(vkChat)
                         continue
