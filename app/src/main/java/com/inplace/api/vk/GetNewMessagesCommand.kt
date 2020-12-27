@@ -42,7 +42,7 @@ class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
             try {
                 val rootJson = JSONObject(response).getJSONObject("response")
 
-                Log.d("get new response:",  JSONObject(response).getString("response"))
+                Log.e("get new response:",  JSONObject(response).getString("response"))
 
                 val messagesArray: JSONArray = rootJson.getJSONObject("messages")
                         .getJSONArray("items")
