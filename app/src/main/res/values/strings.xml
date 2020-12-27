@@ -20,6 +20,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="message_name">Новое сообщение</string>
+    <string name="for_foreground">Application is running</string>
 
     <string name="unsupported_message_label">Sorry, we don\'t support this type of message yet :(</string>
     <string name="photo">Photo</string>
