@@ -19,23 +19,31 @@ class ChatsByIdRepo {
 
     //private val loader = ApiImageLoader.getInstance(context)
 
-    private val executor: Executor = ExecutorServices.getInstanceAPI()
-
-    fun refresh(ids: ArrayList<Int>): MutableList<VKChat> {
+    fun refresh(ids: ArrayList<Int>): List<SuperChat> {
         val result = getChatsFromVK(ids)
-        return if (result is ResultVKChat.Success) {
+        Log.d("Chatsvk", result.toString())
+        val superChat: List<SuperChat>
+        if (result is ResultVKChat.Success) {
             Log.d("tag", result.data.size.toString())
-            result.data
+            superChat = result.data.map { SuperChat(
+                it.title,
+                it.avatarUrl,
+                it.lastMessage,
+                true,
+                arrayListOf(it),
+                arrayListOf(),
+                it.chatID,
+                it.chatID ) }
         } else {
-            mutableListOf()
+            superChat = listOf()
         }
+        return superChat
     }
 
 
     private fun getChatsFromVK(ids: ArrayList<Int>): ResultVKChat {
         val chats = mutableListOf<VKChat>()
-        val result = ApiVk.getChatsById(ids)
-
+        val result = ApiVk.getConversationsById(ids)
         Log.d("status","do")
 
         if (result.error != null) {
@@ -44,7 +52,6 @@ class ChatsByIdRepo {
 
         val vkChats = result.result?.chats ?: arrayListOf<VkChat>()
         val vkUsers = result.result?.users ?: hashMapOf<Int, VkUser>()
-
 
         for (vkChat in vkChats) {
 
@@ -59,7 +66,7 @@ class ChatsByIdRepo {
                 false,
                 arrayListOf(),
             )
-
+            Log.d("Message", msg.toString())
             var vkUser = vkUsers[vkChat.lastMsgFromId]
             if (vkUser == null) {
                 return ResultVKChat.Error(Exception("собеседник не найден"))

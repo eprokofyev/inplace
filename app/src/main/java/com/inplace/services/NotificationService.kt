@@ -38,6 +38,7 @@ class NotificationService : Service() {
             val stopIntent = Intent(context, NotificationService::class.java)
             context.stopService(stopIntent)
         }
+        const val EXTRAS_NAME = "Chats"
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -101,9 +102,10 @@ class NotificationService : Service() {
                         Log.d("ApiVK", "end of get chats by id")
                         continue
                     }
-                    val vkChatsArray = vkChats.toTypedArray()
+                    Log.d("Chats", vkChats.toString())
+                    //val vkChatsArray = vkChats.toTypedArray()
                     val myIntent = Intent(this@NotificationService, MainActivity::class.java)
-                    myIntent.putExtra("dfsd", vkChatsArray)
+                    myIntent.putExtra(EXTRAS_NAME, newMessagesArray)
                     sendBroadcast(myIntent);
                 }
                 Thread.sleep(3000)

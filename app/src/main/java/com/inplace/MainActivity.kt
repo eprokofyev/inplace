@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val callback = object: VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
-               switch(chat)
+                switch(chat)
             }
 
             override fun onLoginFailed(errorCode: Int) {
@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
     }
     override fun onStop() {
         super.onStop()
-       // NotificationService.startService(this)
+        // NotificationService.startService(this)
     }
     override fun onRestart() {
         super.onRestart()
@@ -100,4 +100,5 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
             else -> supportFragmentManager.popBackStack()
         }
     }
+
 }
