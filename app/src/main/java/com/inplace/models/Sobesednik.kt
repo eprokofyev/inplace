@@ -18,6 +18,7 @@ interface ITelegramSobesednik {
 }
 
 @Entity()
+@Parcelize
 data class VKSobesednik(
     @PrimaryKey var userID: Long = 0,
     var name: String = "",
@@ -27,7 +28,7 @@ data class VKSobesednik(
     var activeTime: String = "",
     var about: String = "",
     var createdAT: Long = 0
-)
+) : Parcelable
 
 @Entity
 data class TelegramSobesednik(

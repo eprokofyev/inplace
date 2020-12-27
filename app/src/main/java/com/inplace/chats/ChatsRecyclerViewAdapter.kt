@@ -3,18 +3,22 @@ package com.inplace.chats
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.GONE
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.inplace.R
 import com.inplace.api.ApiImageLoader
 import com.inplace.chat.DateParser
+import com.inplace.models.ChatType
 import com.inplace.models.Source
 import com.inplace.models.SuperChat
 import com.inplace.services.ExecutorServices
@@ -50,10 +54,25 @@ class ChatsRecyclerViewAdapter(
 
             holder.name.text = chat.title
 
+
+            var sobesednik = ""
+            if (chat.lastMessage.myMsg) {
+                sobesednik = context?.resources?.getString(R.string.sobesednik) ?: ""
+            } else if (chat.vkChats.firstOrNull()?.type ?: ChatType.GROUP == ChatType.GROUP) {
+                sobesednik = chat.lastMessage.userName + ":"
+            }
+
+            if (!sobesednik.isEmpty()) {
+                holder.sobesednik.text = sobesednik
+                holder.sobesednik.isVisible = true
+                holder.sobesednik.setTextColor(Color.BLUE)
+            } else {
+                holder.sobesednik.visibility = GONE
+            }
+
+
+
             /*
-            var name = ""
-
-
             if (!chat.lastMessage.myMsg && chat.) {
                 when (chat.lastMessage.fromMessenger) {
                     Source.VK -> for (ch in chat.vkChats) {
@@ -74,6 +93,7 @@ class ChatsRecyclerViewAdapter(
             }
             */
 
+
             holder.message.text = chat.lastMessage.text
 
 
@@ -84,9 +104,6 @@ class ChatsRecyclerViewAdapter(
                 }
             )
 
-
-
-
             if (chat.lastMessage.text.isEmpty()) {
                 holder.message.text = context?.resources?.getString(R.string.photo) ?: ""
                 holder.message.setTextColor(Color.BLUE)
@@ -94,7 +111,27 @@ class ChatsRecyclerViewAdapter(
                 holder.message.setTextColor(Color.GRAY)
             }
 
-            holder.time.text = DateParser.convertTimeToString(chat.lastMessage.date * 1000)
+            val currentDate = DateFormater.getNowDate()
+            val lastMessegeTime = chat.lastMessage.date * 1000
+            holder.time.text = if (DateFormater.getYear(lastMessegeTime) == DateFormater.getYear(currentDate)) {
+                if (DateFormater.getMonth(lastMessegeTime) == DateFormater.getMonth(currentDate) &&
+                    DateFormater.getDate(lastMessegeTime) == DateFormater.getDate(currentDate)) {
+                    if (DateFormater.getDayOfWeek(lastMessegeTime) == DateFormater.getDayOfWeek(currentDate)) {
+                        DateFormater.convertDateForCurrentDayToString(lastMessegeTime)
+                    } else if (DateFormater.getDayOfWeek(lastMessegeTime) == DateFormater.getDayOfWeek(currentDate) - 1) {
+                        Log.d("month", context?.resources?.getString(R.string.Apr).toString())
+                        context?.resources?.getString(R.string.yesterday) ?: DateFormater.convertDateForCurrentYearToString(lastMessegeTime)
+                    } else {
+                        Log.d("month", context?.resources?.getString(R.string.Apr).toString())
+                        DateFormater.convertDateForCurrentYearToString(lastMessegeTime)
+                    }
+                } else {
+                    Log.d("month", context?.resources?.getString(R.string.Jun).toString())
+                    DateFormater.convertDateForCurrentYearToString(lastMessegeTime)
+                }
+            } else {
+                DateFormater.convertDateOfPreviousYearToString(lastMessegeTime)
+            }
 
 
             if (chat.avatarURL.isEmpty()) {
@@ -134,6 +171,7 @@ class ChatsRecyclerViewAdapter(
         var avatar: CircleImageView = view.findViewById(R.id.profile_image)
         var mesenger: ImageView = view.findViewById(R.id.mesenger)
         var photo: ImageView = view.findViewById(R.id.photo)
+        var sobesednik: TextView = view.findViewById(R.id.sobesednik)
 
     }
 

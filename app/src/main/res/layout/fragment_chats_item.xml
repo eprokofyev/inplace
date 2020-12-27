@@ -47,39 +47,83 @@
             app:layout_constraintStart_toEndOf="@+id/profile_image"
             app:layout_constraintTop_toTopOf="@+id/profile_image" />
 
-        <ImageView
-            android:id="@+id/photo"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp"
-            android:maxWidth="260dp"
-            android:maxLines="1"
-            android:visibility="gone"
-            android:padding="1dp"
-            android:textSize="15sp"
-            app:layout_constraintBottom_toBottomOf="@+id/profile_image"
-            app:layout_constraintStart_toEndOf="@+id/profile_image"
-            />
-
-        <TextView
-            android:id="@+id/message"
-
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+
             android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp"
-            android:maxWidth="250dp"
-            android:maxLines="1"
-            android:padding="1dp"
-            android:text="Поехали!"
-            android:textSize="15sp"
-            android:scrollHorizontally="true"
-            android:ellipsize="end"
-            android:textStyle=""
+            android:layout_marginStart="4dp"
+
+            android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="@+id/profile_image"
-            app:layout_constraintStart_toEndOf="@+id/photo"
-            />
+            app:layout_constraintStart_toEndOf="@+id/profile_image"
+
+            >
+
+            <TextView
+                android:id="@+id/sobesednik"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:ellipsize="end"
+                android:maxWidth="250dp"
+                android:maxLines="1"
+                android:padding="1dp"
+
+                android:layout_marginStart="4dp"
+                android:visibility="gone"
+
+
+
+
+                android:scrollHorizontally="true"
+                android:textSize="15sp"
+                android:textStyle=""
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="parent"
+                tools:text="You: " />
+
+
+            <ImageView
+                android:id="@+id/photo"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:visibility="gone"
+                android:layout_marginStart="4dp"
+
+
+                android:maxWidth="260dp"
+                android:maxLines="1"
+
+
+
+                android:padding="1dp"
+                android:textSize="15sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/sobesednik" />
+
+            <TextView
+                android:id="@+id/message"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:layout_marginStart="4dp"
+
+
+                android:ellipsize="end"
+                android:maxWidth="250dp"
+                android:maxLines="1"
+                android:padding="1dp"
+                android:scrollHorizontally="true"
+                android:text="Поехали!"
+                android:textSize="15sp"
+                android:textStyle=""
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/photo" />
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/time"

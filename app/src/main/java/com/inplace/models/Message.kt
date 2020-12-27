@@ -23,6 +23,7 @@ data class Message(
         @ColumnInfo(name = "from_messenger") var fromMessenger: Source = Source.VK,
         var isRead: Boolean = false,
         var photos: @RawValue ArrayList<String> = arrayListOf(),
+        var userName: String = ""
 ) : Parcelable
 
 class PhotosConverter {

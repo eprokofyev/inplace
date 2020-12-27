@@ -16,7 +16,6 @@ import java.util.concurrent.Executor
 
 class ChatsRepo(context: Context) {
 
-    private val avatars: MutableLiveData<MutableList<Avatar>> = MutableLiveData<MutableList<Avatar>>()
 
     //private val loader = ApiImageLoader.getInstance(context)
 
@@ -69,6 +68,10 @@ class ChatsRepo(context: Context) {
             if (vkUser == null) {
                 return ResultVKChat.Error(Exception("собеседник не найден"))
             }
+
+            Log.d("user", vkUser.firstName + " "  + vkUser.lastName)
+
+            msg.userName = vkUser.firstName
 
             var sobesednik = VKSobesednik(
                 vkUser.id.toLong(),
@@ -129,8 +132,6 @@ class ChatsRepo(context: Context) {
 
         return ResultVKChat.Success(chats)
     }
-
-    fun getAvatars() = avatars
 
     interface OnRequestCompleteListener {
         fun onRequestComplete(result: ResultVKChat)

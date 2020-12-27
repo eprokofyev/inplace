@@ -1,6 +1,7 @@
 package com.inplace.models
 
 import android.graphics.Bitmap
+import android.os.Parcel
 import android.os.Parcelable
 import androidx.room.*
 import kotlinx.android.parcel.Parcelize
@@ -28,7 +29,6 @@ data class VKChat(
     @Ignore var sobesedniks:@RawValue HashMap<Long, IVKSobesednik> = hashMapOf(),
     var createdAT: Long = 0,
 ) : Parcelable
-
 
 @Entity
 @Parcelize
