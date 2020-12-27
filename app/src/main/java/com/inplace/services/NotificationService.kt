@@ -4,11 +4,8 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.os.Build
-import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -17,13 +14,7 @@ import com.inplace.MainActivity
 import com.inplace.R
 import com.inplace.api.vk.ApiVk
 import com.inplace.chats.ChatsByIdRepo
-import com.inplace.chats.ChatsRepo
-import com.inplace.db.AppDatabase
-import com.inplace.models.SuperChat
-import com.inplace.models.VKChat
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+
 
 @ExperimentalPagingApi
 class NotificationService : Service() {
@@ -39,6 +30,7 @@ class NotificationService : Service() {
             context.stopService(stopIntent)
         }
         const val EXTRAS_NAME = "Chats"
+        const val BROADCAST_ACTION = "com.inplace.services"
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -57,11 +49,12 @@ class NotificationService : Service() {
     private val CHANNEL_NAME = "Новое сообщение"
     private val CHANNEL_FOREGROUND_NAME = "Состояние"
     private var mMessageCount = 0
-    lateinit var mManager: NotificationManager
-    private val intentToActivity = Intent(this, MainActivity::class.java)
+    private lateinit var mManager: NotificationManager
+   // private val intentToActivity = Intent(this, MainActivity::class.java)
 
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        mManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         createNotificationChannel()
         val builderForForeground = NotificationCompat.Builder(this, CHANNEL_FOREGROUND)
             .setSmallIcon(R.drawable.ic_tick)
@@ -104,7 +97,7 @@ class NotificationService : Service() {
                     }
                     Log.d("Chats", vkChats.toString())
                     //val vkChatsArray = vkChats.toTypedArray()
-                    val myIntent = Intent(this@NotificationService, MainActivity::class.java)
+                    val myIntent = Intent(BROADCAST_ACTION)
                     myIntent.putExtra(EXTRAS_NAME, newMessagesArray)
                     sendBroadcast(myIntent);
                 }
@@ -115,13 +108,8 @@ class NotificationService : Service() {
     }
 
     private fun showMessageNotification(messageToShow: String) {
-        val pendingIntent = PendingIntent.getActivity(
-            this as Context,
-            0,
-            intentToActivity,
-            PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
+        val intentToActivity = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(this, 0, intentToActivity, 0)
         mMessageCount++
         val largeIcon = BitmapFactory.decodeResource(resources, R.drawable.foto)
         val builder = NotificationCompat.Builder(this, CHANNEL_MESSAGES)
@@ -142,8 +130,11 @@ class NotificationService : Service() {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            mManager = getSystemService(NotificationManager::class.java)
-            val serviceChannel = NotificationChannel(CHANNEL_FOREGROUND, CHANNEL_FOREGROUND_NAME, NotificationManager.IMPORTANCE_NONE)
+            val serviceChannel = NotificationChannel(
+                CHANNEL_FOREGROUND,
+                CHANNEL_FOREGROUND_NAME,
+                NotificationManager.IMPORTANCE_NONE
+            )
             mManager.createNotificationChannel(serviceChannel)
             val notificationChannel = NotificationChannel(
                 CHANNEL_MESSAGES, CHANNEL_NAME,
