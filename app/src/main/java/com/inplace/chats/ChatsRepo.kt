@@ -123,6 +123,9 @@ class ChatsRepo(context: Context) {
                 chatType,
                 msg,
                 hashMapOf<Long, IVKSobesednik>(sobesednik.userID to SuperSobesednik(sobesednik, null, Source.VK)),
+                vkChat.inRead,
+                vkChat.outRead,
+                vkChat.unreadСount
             )
 
             chats.add(chat)

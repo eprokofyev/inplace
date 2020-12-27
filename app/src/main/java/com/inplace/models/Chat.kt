@@ -27,6 +27,9 @@ data class VKChat(
     var type: @RawValue ChatType = ChatType.PRIVATE,
     @Embedded(prefix = "last_") var lastMessage: Message = Message(),
     @Ignore var sobesedniks:@RawValue HashMap<Long, IVKSobesednik> = hashMapOf(),
+    var inRead: Int = 0,
+    var outRead: Int = 0,
+    var unReadCount: Int = 0,
     var createdAT: Long = 0,
 ) : Parcelable
 

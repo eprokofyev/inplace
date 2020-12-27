@@ -50,7 +50,11 @@ class ChatsRecyclerViewAdapter(
 
         if (holder is MyHolder) {
 
-            val chat = getItem(position) as SuperChat
+            val chat = getItem(position)
+
+            if (chat == null) {
+                return
+            }
 
             holder.name.text = chat.title
 
