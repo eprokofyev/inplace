@@ -35,8 +35,4 @@ class ChatsViewModel(application: Application) : AndroidViewModel(application) {
         it.chatID
     ) } }
 
-    fun getAvatars() = repository.chatsRepo.getAvatars()
-
-
-
 }

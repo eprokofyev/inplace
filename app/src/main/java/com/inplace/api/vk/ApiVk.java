@@ -148,6 +148,7 @@ public class ApiVk {
             result.errTextMsg = "Some Exception";
         }
 
+
         if (result.error != null)
             return result;
 
