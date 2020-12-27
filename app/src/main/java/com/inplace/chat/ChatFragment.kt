@@ -6,10 +6,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
@@ -181,26 +178,30 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
 
 
         sendButton.setOnClickListener {
-            val messageText: String = messageEditText.text.toString()
-            //TODO send telegram messages
+            if(imageUris.size > 10){
+                Toast.makeText(context,context?.resources?.getString(R.string.too_many_photos_to_send),Toast.LENGTH_SHORT).show()
+            }else{
+                val messageText: String = messageEditText.text.toString()
+                //TODO send telegram messages
 
-            val message = Message(
-                Random.nextInt(),
-                DateParser.getNowDate(),
-                messageText,
-                0,
-                vkChats[0].chatID,
-                true,
-                Source.VK,
-                MessageStatus.SENDING,
-                false,
-                ArrayList(imageUris.map { it.toString() })
-            )
+                val message = Message(
+                    Random.nextInt(),
+                    DateParser.getNowDate(),
+                    messageText,
+                    0,
+                    vkChats[0].chatID,
+                    true,
+                    Source.VK,
+                    MessageStatus.SENDING,
+                    false,
+                    ArrayList(imageUris.map { it.toString() })
+                )
 
-            chatViewModel.sendMessage(1,message)
+                chatViewModel.sendMessage(1,message)
 
-            messageEditText.setText("")
-            clearPickedImages()
+                messageEditText.setText("")
+                clearPickedImages()
+            }
         }
 
         sendImageButton.setOnClickListener {
