@@ -1,6 +1,5 @@
 package com.inplace.api.vk
 
-import android.util.Log
 import com.inplace.models.Message
 import com.inplace.models.Source
 import com.vk.api.sdk.VK
@@ -42,16 +41,40 @@ class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
             try {
                 val rootJson = JSONObject(response).getJSONObject("response")
 
-                Log.d("get new response:",  JSONObject(response).getString("response"))
-
-                val messagesArray: JSONArray = rootJson.getJSONObject("messages")
-                        .getJSONArray("items")
-
                 val newMessages = java.util.ArrayList<Message>()
 
-                for (i in 0 until messagesArray.length()) {
+                // parse history
+                val historyArray: JSONArray = rootJson.getJSONArray("history")
+                for (i in 0 until historyArray.length()) {
 
-                    Log.d("get new msg:", messagesArray.getString(i))
+                    try {
+
+                        val oneActionStr = historyArray.getJSONArray(i)
+                        var action = oneActionStr.get(0).toString().toInt()
+                        if (action != 7) {
+                            continue
+                        }
+                        val msgId = oneActionStr.get(2).toString().toInt()
+                        var chatId = oneActionStr.get(1).toString().toLong()
+
+                        val message =
+                            Message(msgId, 0, "", 0, 0, false, Source.VK, false, arrayListOf())
+                        message.isRead = true;
+                        message.chatID = chatId;
+
+                        newMessages.add(message)
+
+                    } catch (ex: Exception) {
+                        continue
+                    }
+                }
+
+
+
+                val messagesArray: JSONArray = rootJson.getJSONObject("messages")
+                    .getJSONArray("items")
+
+                for (i in 0 until messagesArray.length()) {
 
                     val oneMessageJSON = messagesArray.getJSONObject(i)
 
