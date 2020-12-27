@@ -73,7 +73,6 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
                 }
 
 
-                val START_ID_GROUP_CHAT = 2000000000
 
                 // get users
                 val chatUsers = HashMap<Int, VkUser>()
@@ -85,6 +84,11 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
                 for (i in 0 until jsonUsers.length()) {
                     val vkUser = VkUser()
                     val oneUserJsonObj = jsonUsers.getJSONObject(i)
+
+                    if (oneUserJsonObj.getString("first_name").equals("DELETED")) {
+                        continue
+                    }
+
                     vkUser.id = oneUserJsonObj.getString("id").toInt()
 
                     try {
@@ -99,7 +103,7 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
 
 
                     // skip group chat
-                    if (vkUser.id > START_ID_GROUP_CHAT) continue
+                    if (vkUser.id > ApiVk.START_ID_GROUP_CHAT) continue
 
                     vkUser.firstName = oneUserJsonObj.getString("first_name")
                     vkUser.lastName = oneUserJsonObj.getString("last_name")

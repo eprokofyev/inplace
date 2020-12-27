@@ -1,10 +1,12 @@
 package com.inplace.api.vk;
 
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 import com.inplace.api.CommandResult;
 import com.inplace.models.Message;
 import com.vk.api.sdk.VK;
+import com.vk.api.sdk.VKApiConfig;
 import com.vk.api.sdk.exceptions.VKApiException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,6 +16,8 @@ import java.util.List;
 public class ApiVk {
 
     public static final int MAX_ITEMS_COUNT = 200;
+
+    public static final long START_ID_GROUP_CHAT = 2000000000;
 
 
     // result -> VkUser
@@ -379,6 +383,49 @@ public class ApiVk {
             return result;
 
         result.result = messages;
+        return result;
+    }
+
+    // result -> VkChatWithUsers{ArrayList<VkChat> chats; HashMap<Integer,VkUser> users}
+    // no last msg
+    public static  CommandResult<VkChatWithUsers> getChatsById(ArrayList<Integer> ids) {
+
+        CommandResult<VkChatWithUsers> result = new CommandResult<>();
+
+        if (!VK.isLoggedIn()){
+            result.error = new Error("no session");
+            result.errTextMsg = "you must login before this request";
+            return result;
+        }
+
+        VkChatWithUsers chatsWithUsers = null;
+        try {
+            chatsWithUsers = VK.executeSync(new GetChatsByIdCommand(ids));
+        } catch (InterruptedException e) {
+            Log.e("vk SDK", "getChatsById() InterruptedException:" + e);
+            result.error = new Error("InterruptedException");
+            result.errTextMsg = "InterruptedException";
+
+        } catch (IOException e) {
+            Log.e("vk SDK", "getChatsById() IOException" + e);
+            result.error = new Error("IOException");
+            result.errTextMsg = "IOException";
+
+        } catch (VKApiException e) {
+            Log.e("vk SDK", "getChatsById() VKApiException" + e);
+            result.error = new Error("VKApiException");
+            result.errTextMsg = "VKApiException";
+        }
+        catch (Exception e) {
+            Log.e("vk SDK", "getChatsById() Exception" + e);
+            result.error = new Error("Some Exception");
+            result.errTextMsg = "Some Exception";
+        }
+
+        if (result.error != null)
+            return result;
+
+        result.result = chatsWithUsers;
         return result;
     }
 
