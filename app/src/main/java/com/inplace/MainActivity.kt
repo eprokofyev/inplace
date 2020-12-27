@@ -487,6 +487,13 @@ class MainActivity : AppCompatActivity() {
                         var messagesText = ""
 
                         for (el in newMessagesArray) {
+
+                            if (el.isRead) {
+                                messagesText += "сообщение с id:" + el.messageID + "  и чатом:" + el.chatID + "  прочитано\n"
+                                continue
+                            }
+
+
                             messagesText += "message fromId:" + el.userID + "\tdata:" + el.date +
                                     "\t isMymsg:" + el.myMsg + "\ntext:" + el.text + "\n msgId:" + el.messageID
                             messagesText += "\n-----------------------\n"
