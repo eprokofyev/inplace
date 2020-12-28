@@ -15,6 +15,7 @@ class ChatViewModel(
     private var chatRepo = ChatRepo(getApplication())
     private var mAvatar = chatRepo.getAvatar()
     private val refreshMessage = chatRepo.getRefreshMessageLiveData()
+    private val getMe = chatRepo.getMeLiveData()
 
     @ExperimentalPagingApi
     fun getMessages(id: Long) = getMessagesListStream(id)
@@ -59,6 +60,12 @@ class ChatViewModel(
     fun getAvatar() = mAvatar
 
     fun getRefreshMessage() = refreshMessage
+
+    fun getMe() = getMe
+
+    fun fetchMe(){
+        chatRepo.getMe()
+    }
 
     fun fetchAvatar(url: String) {
         chatRepo.fetchAvatar(url)
