@@ -23,4 +23,10 @@ interface ChatsDao {
 
     @Query("DELETE FROM VKChat")
     suspend fun deleteChats()
+
+    @Query("UPDATE VKChat SET outRead = :outRead WHERE chatID = :chatID")
+    suspend fun updateOutRead(outRead:Int,chatID:Long)
+
+    @Query("UPDATE VKChat SET inRead = :inRead WHERE chatID = :chatID")
+    suspend fun updateInReadRead(inRead:Int,chatID:Long)
 }

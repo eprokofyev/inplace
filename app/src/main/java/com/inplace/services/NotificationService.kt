@@ -30,9 +30,11 @@ class NotificationService : Service() {
             val stopIntent = Intent(context, NotificationService::class.java)
             context.stopService(stopIntent)
         }
+
         const val EXTRAS_NAME = "Chats"
-        const val BROADCAST_ACTION = "com.inplace.services"
         const val CHAT_FROM_NOTIFICATION = "chatToIntent"
+        const val BROADCAST_ACTION = "com.inplace.services.NotificationService"
+
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -52,7 +54,7 @@ class NotificationService : Service() {
     private val CHANNEL_FOREGROUND_NAME = "Состояние"
     private var mMessageCount = 0
     private lateinit var mManager: NotificationManager
-   // private val intentToActivity = Intent(this, MainActivity::class.java)
+    // private val intentToActivity = Intent(this, MainActivity::class.java)
 
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -90,19 +92,21 @@ class NotificationService : Service() {
                     }
                     Log.d("after", "after")
                     //val vkChatsArray = vkChats.toTypedArray()
-                    val myIntent = Intent(BROADCAST_ACTION)
-                    myIntent.putExtra(EXTRAS_NAME, newMessagesArray)
-                    sendBroadcast(myIntent);
+
+                    if (newMessagesArray.size > 0) {
+                        val myIntent = Intent(BROADCAST_ACTION)
+                        myIntent.putExtra(EXTRAS_NAME, newMessagesArray)
+                        sendBroadcast(myIntent);
+                    }
                     for (el in newMessagesArray) {
-                        for (chat in vkChats){
+                        for (chat in vkChats) {
                             if (chat.lastMessage.messageID == el.messageID) {
                                 showMessageNotification(el.text, chat)
                             }
                         }
-
                     }
                 }
-                Thread.sleep(3000)
+                Thread.sleep(1000)
             }
         }
         return START_REDELIVER_INTENT

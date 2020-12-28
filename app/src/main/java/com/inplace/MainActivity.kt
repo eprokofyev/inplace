@@ -48,10 +48,10 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
         //NotificationService.startService(this)
 //        val notificationService = Intent(this, NotificationService::class.java)
 //        this.startService(notificationService)
-        //val startIntent = Intent(this, NotificationService::class.java)
-        //if (!isMyServiceRunning(NotificationService::class.java)) {
-          //  ContextCompat.startForegroundService(this, startIntent)
-        //}
+        val startIntent = Intent(this, NotificationService::class.java)
+        if (!isMyServiceRunning(NotificationService::class.java)) {
+            ContextCompat.startForegroundService(this, startIntent)
+        }
         setContentView(R.layout.activity_main)
         Log.d("start", "start")
 

@@ -1,15 +1,15 @@
 package com.inplace.chat
 
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
@@ -20,25 +20,21 @@ import androidx.lifecycle.lifecycleScope
 import androidx.paging.ExperimentalPagingApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import com.inplace.R
-import com.inplace.db.AppDatabase
-import com.inplace.models.ChatType
-import com.inplace.models.Message
-import com.inplace.models.Source
-import com.inplace.models.SuperChat
+import com.inplace.api.vk.ApiVk
+import com.inplace.models.*
+import com.inplace.services.NotificationService
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 
-class ChatFragment : Fragment(), OnImageRemoveClickListener {
+class ChatFragment : Fragment(), OnImageRemoveClickListener, OnUnreadMessageSight {
     private val AVATAR_STATE = "avatarState"
     private val EDIT_TEXT_STATE = "editTextState"
     private val IMAGES_PICK_CODE = 0
     private var avatarIsLoaded = false
-    private var sendMessage = false
-    private val database = this.activity?.applicationContext?.let { AppDatabase.getInstance(it) }
-    private val messageDao = database?.getMessageDao()
 
     lateinit var chat: SuperChat
     lateinit var messageEditText: EditText
@@ -53,14 +49,75 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
     lateinit var sendImageButton: ImageView
     lateinit var pickedImagesRecyclerView: RecyclerView
     lateinit var pickedImagesAdapter: PickedImagesAdapter
+    lateinit var chatAdapter: ChatAdapter
 
     private lateinit var imageUris: ArrayList<Uri>
 
+    @ExperimentalPagingApi
+    private val newMessageReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val newMessages =
+                intent?.getParcelableArrayListExtra<Message>(NotificationService.EXTRAS_NAME)?.map {
+                    Message(
+                        it.messageID,
+                        it.date * 1000,
+                        it.text,
+                        it.userID,
+                        it.chatID,
+                        it.myMsg,
+                        it.fromMessenger,
+                        it.status,
+                        it.isRead,
+                        it.photos,
+                        it.userName
+                    )
+                }
+            val chatID = chat.vkChats[0].chatID
+            val inMessages =
+                newMessages?.filter { it.chatID == chatID && !it.myMsg }
+            val outMessages = newMessages?.filter { it.myMsg }
+            if (outMessages != null && outMessages.isNotEmpty()) {
+                chatViewModel.insertMessages(outMessages)
+            }
+            val newOutRead: Int
+            var newInMessages: List<Message>
+            Log.d("newMessage", "newMessage: " + newMessages.toString())
+            if (inMessages != null && inMessages.isNotEmpty()) {
+                if (inMessages.size == 1 && inMessages[0].isRead) {
+                    newOutRead = inMessages[0].messageID
+                    chatAdapter.updateOutRead(newOutRead)
+//                    chatViewModel.updateOutRead(newOutRead,chatID)
+                } else {
+                    chatViewModel.insertMessages(inMessages)
+                    recycler.smoothScrollToPosition(0)
+                }
+                Log.d("newMessage", "thisChat: " + inMessages.toString())
+
+            }
+        }
+
+    }
+
+    @ExperimentalPagingApi
+    override fun onResume() {
+        super.onResume()
+        Log.d("newMessage", "registerReceiver")
+        activity?.registerReceiver(
+            newMessageReceiver,
+            IntentFilter(NotificationService.BROADCAST_ACTION)
+        )
+    }
+
+    @ExperimentalPagingApi
+    override fun onPause() {
+        super.onPause()
+        Log.d("newMessage", "unregisterReceiver")
+        activity?.unregisterReceiver(newMessageReceiver)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Log.d("qwerty","onAcativityResult")
         if (requestCode == IMAGES_PICK_CODE && resultCode == Activity.RESULT_OK && data != null) {
-            Log.d("qwerty","imagesClear")
             imageUris.clear()
             val clipData = data.clipData
             val resultData = data.data
@@ -124,29 +181,30 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
 
         chatViewModel = ViewModelProvider(this).get(ChatViewModel::class.java)
 
-        val chatAdapter = ChatAdapter()
+        val vkChat = chat.vkChats[0]
+
+        chatAdapter = ChatAdapter(vkChat.inRead, vkChat.outRead, this)
+
         pickedImagesAdapter = PickedImagesAdapter(context, this)
         pickedImagesRecyclerView.apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             adapter = pickedImagesAdapter
         }
 
-        val vkChats = chat.vkChats
-        val tgChats = chat.telegramChats
 
         //setting toolbar info
-        if (vkChats.size == 1 && vkChats[0].type == ChatType.PRIVATE) {
-            username.text = vkChats[0].title
+        if (vkChat.type == ChatType.PRIVATE) {
+            username.text = vkChat.title
             userActivity.text = "online"
             if (!avatarIsLoaded) {
-                chatViewModel.fetchAvatar(vkChats[0].avatarUrl)
+                chatViewModel.fetchAvatar(vkChat.avatarUrl)
                 avatarIsLoaded = true
             }
-        } else if(vkChats.size == 1 && vkChats[0].type == ChatType.GROUP) {
-            username.text = vkChats[0].title
-            userActivity.text = "${vkChats[0].sobesedniks.size} members"
+        } else {
+            username.text = vkChat.title
+            userActivity.text = "${vkChat.sobesedniks.size} members"
             if (!avatarIsLoaded) {
-                chatViewModel.fetchAvatar(vkChats[0].avatarUrl)
+                chatViewModel.fetchAvatar(vkChat.avatarUrl)
                 avatarIsLoaded = true
             }
         }
@@ -155,9 +213,11 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
         toolbar.setNavigationOnClickListener {
             activity?.onBackPressed()
         }
+        val linearLayoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, true)
 
+        (recycler.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
         recycler.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, true)
+            layoutManager = linearLayoutManager
             isNestedScrollingEnabled = false
             adapter = chatAdapter
 //            adapter = chatAdapter.withLoadStateFooter(
@@ -165,45 +225,54 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
 //            )
         }
 
-
         lifecycleScope.launch {
-            chatViewModel.getMessages(vkChats[0].chatID).observe(viewLifecycleOwner) {
+            chatViewModel.getMessages(vkChat.chatID).observe(viewLifecycleOwner) {
                 chatAdapter.submitData(viewLifecycleOwner.lifecycle, it)
-                if (sendMessage){
-                    recycler.smoothScrollBy(0,0)
-                    sendMessage = false
-                }
             }
         }
 
-        chatViewModel.getAvatar().observe(viewLifecycleOwner) {
-            avatar.setImageBitmap(it)
+        chatViewModel.apply {
+            getAvatar().observe(viewLifecycleOwner) {
+                avatar.setImageBitmap(it)
+            }
+            getRefreshMessage().observe(viewLifecycleOwner) {
+                recycler.smoothScrollToPosition(0)
+            }
         }
 
 
+
+
+
         sendButton.setOnClickListener {
-            val messageText: String = messageEditText.text.toString()
-            //TODO send telegram messages
+            if (imageUris.size > 10) {
+                Toast.makeText(
+                    context,
+                    context?.resources?.getString(R.string.too_many_photos_to_send),
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else {
+                val messageText: String = messageEditText.text.toString()
+                //TODO send telegram messages
 
-            val message = Message(
-                Random.nextInt(),
-                DateParser.getNowDate(),
-                messageText,
-                0,
-                vkChats[0].chatID,
-                true,
-                Source.VK,
-                false,
-                ArrayList(imageUris.map { it.toString() })
-            )
+                val message = Message(
+                    Random.nextInt(),
+                    DateParser.getNowDate(),
+                    messageText,
+                    ApiVk.getMe().result.id.toLong(),
+                    vkChat.chatID,
+                    true,
+                    Source.VK,
+                    MessageStatus.SENDING,
+                    false,
+                    ArrayList(imageUris.map { it.toString() })
+                )
 
-            chatViewModel.sendMessage(message)
+                chatViewModel.sendMessage(1, message)
 
-//            chatAdapter.refresh()
-
-            messageEditText.setText("")
-            clearPickedImages()
-            sendMessage = true
+                messageEditText.setText("")
+                clearPickedImages()
+            }
         }
 
         sendImageButton.setOnClickListener {
@@ -227,7 +296,7 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
 
     }
 
-    private fun clearPickedImages(){
+    private fun clearPickedImages() {
         imageUris.clear()
         pickedImagesRecyclerView.isVisible = false
         sendButton.isVisible = false
@@ -272,9 +341,17 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener {
             return fragment
         }
     }
+
+    override fun markAsRead() {
+        chatViewModel.markChatAsRead(chat.vkChats[0].chatID)
+    }
 }
 
 interface OnImageRemoveClickListener {
     fun removeImage(uri: Uri)
+}
+
+interface OnUnreadMessageSight {
+    fun markAsRead()
 }
 

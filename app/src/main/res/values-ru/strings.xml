@@ -45,4 +45,6 @@
     <string name="Nov">нояб.</string>
     <string name="Dec">дек.</string>
     <string name="sobesednik">Вы:</string>
+    <string name="too_many_photos_to_send">Можно отправлять не более 10 вложений.</string>
+    <string name="unread_messages">Непрочитанные сообщения</string>
 </resources>

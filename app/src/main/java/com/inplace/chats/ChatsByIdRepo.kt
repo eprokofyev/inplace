@@ -78,8 +78,6 @@ class ChatsByIdRepo {
                 vkChat.chatWithId.toLong(),
                 vkChat.lastMsgFromId == VK.getUserId(),
                 Source.VK,
-                false,
-                arrayListOf(),
             )
             Log.d("Message", msg.toString())
             var vkUser = vkUsers[userIds[counter]]

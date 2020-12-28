@@ -16,7 +16,7 @@ import com.inplace.models.VKSobesednik
 
 
 @Database(
-    version = 4,
+    version = 5,
     entities = [Message::class, VKChat::class, VKSobesednik::class, RemoteKeys::class, ChatRemoteKey::class],
     exportSchema = false
 )

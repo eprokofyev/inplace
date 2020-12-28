@@ -3,12 +3,14 @@ package com.inplace.chat
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.MutableLiveData
 import com.inplace.api.ApiImageLoader
 import com.inplace.api.vk.ApiVk
 import com.inplace.db.AppDatabase
 import com.inplace.models.Message
+import com.inplace.models.MessageStatus
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.util.concurrent.ExecutorService
@@ -20,7 +22,10 @@ class ChatRepo(private val context: Context) {
     private val executor: ExecutorService = Executors.newFixedThreadPool(5)
     private val database = AppDatabase.getInstance(context)
     private val messageDao = database.getMessageDao()
-    private var avatarLiveData: MutableLiveData<Bitmap> = MutableLiveData<Bitmap>()
+    private val avatarLiveData: MutableLiveData<Bitmap> = MutableLiveData<Bitmap>()
+    private val refreshMessageLiveData: MutableLiveData<Int> = MutableLiveData<Int>()
+
+    fun getRefreshMessageLiveData() = refreshMessageLiveData
 
     fun getAvatar() = avatarLiveData
 
@@ -32,20 +37,26 @@ class ChatRepo(private val context: Context) {
         }
     }
 
-    fun sendMessage(message: Message) {
+    fun sendMessage(position: Int, message: Message) {
+        val messageID = message.messageID
         val chatID = message.chatID
         val text = message.text
-        val photos = ArrayList(message.photos.map { it.toUri()})
+        val photos = ArrayList(message.photos.map { it.toUri() })
         executor.execute {
             GlobalScope.launch {
                 messageDao.insert(message)
+                Thread.sleep(200)
+                refreshMessageLiveData.postValue(position)
+                val result = ApiVk.sendMessage(chatID.toInt(), text, photos)
+                if (result.error != null) {
+                    Log.d(LOG_TAG, "Error while sending message")
+                    messageDao.updateMessageStatus(chatID,messageID,MessageStatus.ERROR)
+                } else {
+                    Log.d(LOG_TAG, "Message successfully sent")
+                    messageDao.updateMessageStatus(chatID,messageID,MessageStatus.SENT)
+                    messageDao.updateMessageID(chatID,messageID,result.result)
+                }
             }
-//            val result = ApiVk.sendMessage(chatID.toInt(),text,photos)
-//            if (result.error != null) {
-//                Log.d(LOG_TAG, "Error while sending message")
-//            } else {
-//                Log.d(LOG_TAG, "Message successfully sent")
-//            }
         }
     }
 
@@ -90,8 +101,33 @@ class ChatRepo(private val context: Context) {
             myMsg = messagePlain.myMsg,
             fromMessenger = messagePlain.fromMessenger,
             isRead = messagePlain.isRead,
-            photos = messagePlain.photos
+            photos = messagePlain.photos,
+            status = when(messagePlain.isRead){
+                true -> MessageStatus.READ
+                else -> MessageStatus.SENT
+            }
         )
+    }
+
+    fun markChatAsRead(chatID: Long) {
+        executor.execute {
+            val result = ApiVk.markAsRead(chatID.toInt())
+            Log.d("markAsRead","chat marked as read: ${result.result}")
+        }
+    }
+
+    fun insertMessages(messages: List<Message>) {
+        executor.execute {
+            GlobalScope.launch {
+                messageDao.insertAll(messages)
+                Thread.sleep(200)
+                refreshMessageLiveData.postValue(1)
+            }
+        }
+    }
+
+    fun updateOutRead(newOutRead: Int, chatID: Long) {
+
     }
 
     fun interface OnChatRequestCompleteListener {

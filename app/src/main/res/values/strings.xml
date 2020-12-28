@@ -23,6 +23,7 @@
     <string name="for_foreground">Application is running</string>
 
     <string name="unsupported_message_label">Sorry, we don\'t support this type of message yet :(</string>
+    <string name="too_many_photos_to_send">You can send no more than 10 attachments.</string>
     <string name="photo">Photo</string>
     <string name="yesterday">yesterday</string>
     <string name="monday">Mon</string>
@@ -45,4 +46,5 @@
     <string name="Nov">Nov</string>
     <string name="Dec">Dec</string>
     <string name="sobesednik">You:</string>
+    <string name="unread_messages">Unread messages</string>
 </resources>
