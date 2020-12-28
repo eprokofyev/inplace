@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -20,6 +21,8 @@ import com.inplace.chats.SwitcherInterface
 import com.inplace.models.SuperChat
 import com.inplace.services.NotificationService
 import com.vk.api.sdk.VK
+import com.vk.api.sdk.VKApiConfig
+import com.vk.api.sdk.VKDefaultValidationHandler
 import com.vk.api.sdk.auth.VKAccessToken
 import com.vk.api.sdk.auth.VKAuthCallback
 
@@ -27,6 +30,8 @@ import com.vk.api.sdk.auth.VKAuthCallback
 @ExperimentalPagingApi
 class MainActivity : AppCompatActivity(), SwitcherInterface {
     lateinit var chat: SuperChat
+
+    var status = false
 
     lateinit var newMessageReceiver: BroadcastReceiver
 
@@ -52,6 +57,22 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        status = savedInstanceState?.getBoolean("status") ?: false
+
+        if (!status) {
+            VK.setConfig(
+                VKApiConfig(
+                    context = applicationContext,
+                    appId = R.integer.com_vk_sdk_AppId,
+                    validationHandler = VKDefaultValidationHandler(applicationContext),
+                    lang = "ru",
+                    version = "5.80"
+                )
+            )
+            status = true
+        }
+
         //NotificationService.startService(this)
         //val notificationService = Intent(this, NotificationService::class.java)
         //this.startService(notificationService)
@@ -88,6 +109,12 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
             }
         }
         NotificationService.highImportance = false
+    }
+
+    override fun onSaveInstanceState(outState: Bundle, outPersistentState: PersistableBundle) {
+        super.onSaveInstanceState(outState, outPersistentState)
+
+        outState.putBoolean("status", status)
     }
 
     override fun onStop() {

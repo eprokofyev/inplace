@@ -3,10 +3,12 @@ package com.inplace.services
 import android.app.*
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
 import android.os.Message
 import android.util.Log
+import androidx.annotation.ColorInt
 import androidx.core.app.NotificationCompat
 import androidx.paging.ExperimentalPagingApi
 import com.inplace.MainActivity
@@ -38,7 +40,7 @@ class NotificationService : Service() {
 
     private val NOTIFICATION_ID_FOREGROUND = 1
     private val NOTIFICATION_ID_MESSAGE = 2
-    private val LIGHT_COLOR_ARGB = R.color.purple_500
+    private val LIGHT_COLOR_ARGB: Int = Color.parseColor("#95E1E5")
     private val CHANNEL_MESSAGES_LOW = "messages_low"
     private val CHANNEL_MESSAGES_HIGH = "messages_high"
     private val CHANNEL_FOREGROUND = "foreground"
@@ -129,8 +131,8 @@ class NotificationService : Service() {
             .setSmallIcon(R.drawable.ic_send)
             .setContentTitle(chatToIntent.title)
             .setContentText(message.text)
-            .setLights(resources.getColor(LIGHT_COLOR_ARGB), 1000, 1000)
-            .setColor(resources.getColor(R.color.purple_500))
+            .setLights(LIGHT_COLOR_ARGB, 1000, 1000)
+            .setColor(LIGHT_COLOR_ARGB)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
         if (highImportance) {
