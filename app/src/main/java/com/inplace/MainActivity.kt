@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import androidx.paging.ExperimentalPagingApi
 import com.inplace.chat.ChatFragment
 import com.inplace.chats.ChatsFragment
@@ -30,7 +31,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
     lateinit var newMessageReceiver: BroadcastReceiver
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val callback = object: VKAuthCallback {
+        val callback = object : VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
                 switch(chat)
             }
@@ -44,7 +45,8 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
                 resultCode,
                 data,
                 callback
-            ))) {
+            ))
+        ) {
             super.onActivityResult(requestCode, resultCode, data)
         }
     }
@@ -67,6 +69,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
             transaction.commitAllowingStateLoss()
         }
     }
+
     private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
         val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (service in manager.getRunningServices(Int.MAX_VALUE)) {
@@ -76,27 +79,31 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
         }
         return false
     }
-    override fun onStop() {
-        super.onStop()
-        // unregisterReceiver(newMessageReceiver)
-        // NotificationService.startService(this)
-    }
-    override fun onRestart() {
-        super.onRestart()
-        //unregisterReceiver(newMessageReceiver);
-        //NotificationService.stopService(this)
-    }
-    override fun switch(chat: SuperChat) {
 
+    override fun onResume() {
+        super.onResume()
+        if (intent.hasExtra(NotificationService.CHAT_FROM_NOTIFICATION)) {
+            intent.getParcelableExtra<SuperChat>(NotificationService.CHAT_FROM_NOTIFICATION)?.let {
+                switch(
+                    it
+                )
+            }
+        }
+        NotificationService.highImportance = false
+    }
+
+    override fun onStop() {
+        NotificationService.highImportance = true
+        super.onStop()
+    }
+
+    override fun switch(chat: SuperChat) {
+        NotificationService.notificationToClear = chat.lastMessage.userID.toInt()
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.fragment_container, ChatFragment.newInstance(chat))
             addToBackStack(null)
             commitAllowingStateLoss()
         }
-
-
-
-
     }
 
     override fun onBackPressed() {

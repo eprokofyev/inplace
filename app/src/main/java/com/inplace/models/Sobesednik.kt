@@ -30,6 +30,7 @@ data class VKSobesednik(
     var createdAT: Long = 0
 ) : Parcelable
 
+@Parcelize
 @Entity
 data class TelegramSobesednik(
     @PrimaryKey var userID: Long,
@@ -42,13 +43,14 @@ data class TelegramSobesednik(
     var activeTime: String,
     var about: String,
     var createdAT: Long = 0
-)
+) : Parcelable
 
+@Parcelize
 data class SuperSobesednik(
-    override var vk: VKSobesednik?,
-    override var telegram: TelegramSobesednik?,
-    var defaultSource: Source,
-) : IVKSobesednik, ITelegramSobesednik
+    override var vk: @RawValue VKSobesednik?,
+    override var telegram: @RawValue TelegramSobesednik?,
+    var defaultSource: @RawValue Source,
+) : IVKSobesednik, ITelegramSobesednik, Parcelable
 
 @Parcelize
 data class SimpleSobesednik(

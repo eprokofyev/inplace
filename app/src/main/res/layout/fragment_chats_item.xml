@@ -147,6 +147,51 @@
 
         </LinearLayout>
 
+        <ImageView
+
+            android:id="@+id/read"
+            android:src="@drawable/ic_double_tick"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:visibility="gone"
+
+
+
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+
+            android:text="1"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+
+
+            app:layout_constraintBottom_toBottomOf="@+id/linear"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/linear" />
+
+        <ImageView
+
+            android:id="@+id/unRead"
+
+            android:src="@drawable/ic_tick"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:visibility="gone"
+
+
+
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+
+            android:text="1"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+
+
+            app:layout_constraintBottom_toBottomOf="@+id/linear"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/linear"  />
+
         <TextView
             android:id="@+id/countMessages"
             android:layout_width="wrap_content"
