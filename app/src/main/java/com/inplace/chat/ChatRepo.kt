@@ -54,12 +54,24 @@ class ChatRepo(private val context: Context) {
                 refreshMessageLiveData.postValue(position)
                 val result = ApiVk.sendMessage(chatID.toInt(), text, photos)
                 if (result.error != null) {
-                    Log.d(LOG_TAG, "Error while sending message")
-                    messageDao.updateMessageStatus(chatID,messageID,MessageStatus.ERROR)
+                    try {
+                        message.status = MessageStatus.ERROR
+                        Log.d(LOG_TAG, "Error while sending message")
+                        messageDao.update(message)
+                    } catch (e: java.lang.Exception) {
+                        Log.d("message first", e.toString())
+                    }
                 } else {
+                    try {
                     Log.d(LOG_TAG, "Message successfully sent")
-                    messageDao.updateMessageStatus(chatID,messageID,MessageStatus.SENT)
-                    messageDao.updateMessageID(chatID,messageID,result.result)
+                        message.status = MessageStatus.SENT
+                        message.messageID = messageID
+                        messageDao.updateMessageStatus(chatID,messageID,MessageStatus.SENT)
+                        messageDao.updateMessageID(chatID,messageID,result.result, message.userID)
+                        //messageDao.update(message)
+                    } catch (e: java.lang.Exception) {
+                        Log.d("message secong", e.toString())
+                    }
                 }
             }
         }

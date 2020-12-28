@@ -45,6 +45,8 @@ class NewMessageReceiver(context: Context) : BroadcastReceiver() {
             })
         }
 
+        Log.d("messege out", newMessages.toString())
+
         val idsForNetwork = arrayListOf<Int>()
         map?.let { map ->
             executor.execute {
@@ -56,6 +58,7 @@ class NewMessageReceiver(context: Context) : BroadcastReceiver() {
                             chat.lastMessage = it
                             var inReadFlag = true
                             var outReadFlag = true
+                            Log.d("messege out", chat.outRead.toString())
                             list.forEach {
                                 if (it.isRead && it.myMsg && inReadFlag) {
                                     chat.inRead = it.chatID.toInt()
@@ -71,6 +74,7 @@ class NewMessageReceiver(context: Context) : BroadcastReceiver() {
                                     chat.unReadCount++
                                 }
                             }
+                            Log.d("messege out", chat.outRead.toString())
                         }
                     }
                     if (!map.keys.toList().contains(chat.chatID)) {

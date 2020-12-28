@@ -16,11 +16,14 @@ interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(message: Message)
 
+    @Update(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun update(message: Message)
+
     @Query("UPDATE messages SET status = :status WHERE message_id = :messageID AND chat_id = :chatID")
     suspend fun updateMessageStatus(chatID: Long, messageID: Int,status: MessageStatus)
 
-    @Query("UPDATE messages SET message_id = :newID WHERE message_id = :oldID AND chat_id = :chatID")
-    suspend fun updateMessageID(chatID: Long, oldID: Int, newID:Int)
+    @Query("UPDATE messages SET message_id = :newID WHERE message_id = :oldID AND chat_id = :chatID AND user_id = :userID")
+    suspend fun updateMessageID(chatID: Long, oldID: Int, newID:Int, userID: Long)
 
     @Query("SELECT * FROM messages WHERE chat_id = :chatID ORDER BY date DESC")
     fun pagingSource(chatID: Long): PagingSource<Int, Message>

@@ -62,14 +62,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
         status = savedInstanceState?.getBoolean("status") ?: false
 
         if (!status) {
-            VK.setConfig(
-                VKApiConfig(
-                    context = applicationContext,
-                    appId = R.integer.com_vk_sdk_AppId,
-                    validationHandler = VKDefaultValidationHandler(applicationContext),
-                    lang = "ru",
-                )
-            )
+
             status = true
         }
 

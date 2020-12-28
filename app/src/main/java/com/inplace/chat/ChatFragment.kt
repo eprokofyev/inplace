@@ -263,8 +263,10 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener, OnUnreadMessageSigh
                 val messageText: String = messageEditText.text.toString()
                 //TODO send telegram messages
 
+                var a = Random.nextInt(0, Int.MAX_VALUE) * -1
+                Log.d("random", a.toString())
                 val message = Message(
-                    Random.nextInt(),
+                    a,
                     DateParser.getNowDate(),
                     messageText,
                     myID.toLong(),
