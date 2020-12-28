@@ -23,15 +23,15 @@
                 android:layout_marginStart="0dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textColor="@color/black"
-                android:textSize="25sp"
+                android:textColor="#95E1E5"
+                android:textSize="30sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_optimizationLevel="chains"
-                tools:text="inplace" />
+                android:text="inplace" />
 
 
 

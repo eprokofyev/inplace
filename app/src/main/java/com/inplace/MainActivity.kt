@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import androidx.paging.ExperimentalPagingApi
 import com.inplace.chat.ChatFragment
 import com.inplace.chats.ChatsFragment
@@ -76,15 +77,24 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
         }
         return false
     }
-    override fun onStop() {
-        super.onStop()
-        // unregisterReceiver(newMessageReceiver)
-        // NotificationService.startService(this)
+
+    override fun onResume() {
+        super.onResume()
+        if (intent.hasExtra(NotificationService.CHAT_FROM_NOTIFICATION)){
+            intent.getParcelableExtra<SuperChat>(NotificationService.CHAT_FROM_NOTIFICATION)?.let {
+                switch(
+                    it
+                )
+            }
+        }
+        NotificationService.highImportance = false
     }
-    override fun onRestart() {
-        super.onRestart()
-        //unregisterReceiver(newMessageReceiver);
-        //NotificationService.stopService(this)
+
+    override fun onStop() {
+        NotificationService.highImportance = true
+        Log.d("stop", "imptrue")
+        super.onStop()
+
     }
     override fun switch(chat: SuperChat) {
 
@@ -93,10 +103,6 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
             addToBackStack(null)
             commitAllowingStateLoss()
         }
-
-
-
-
     }
 
     override fun onBackPressed() {

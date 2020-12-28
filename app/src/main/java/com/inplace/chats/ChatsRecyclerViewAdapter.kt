@@ -61,7 +61,7 @@ class ChatsRecyclerViewAdapter(
 
 
             var sobesednik = ""
-            if (chat.lastMessage.myMsg) {
+            if (chat.lastMessage.myMsg && chat.vkChats.firstOrNull()?.type ?: ChatType.PRIVATE != ChatType.PRIVATE) {
                 sobesednik =context?.resources?.getString(R.string.sobesednik) ?: ""
             } else if (chat.vkChats.firstOrNull()?.type ?: ChatType.GROUP == ChatType.GROUP) {
                 sobesednik = chat.lastMessage.userName
@@ -122,10 +122,20 @@ class ChatsRecyclerViewAdapter(
             }
 
             if (chat.vkChats.firstOrNull()?.unReadCount ?: 0 > 0) {
-                holder.countMessages.isVisible = true
-                holder.countMessages.text = chat.vkChats.firstOrNull()?.unReadCount.toString()
+                if (chat.lastMessage.myMsg) {
+                    holder.unRead.isVisible = true
+                } else {
+                    holder.countMessages.isVisible = true
+                    holder.countMessages.text = chat.vkChats.firstOrNull()?.unReadCount.toString()
+                }
             } else {
+                if (chat.lastMessage.myMsg) {
+                    holder.read.isVisible = true
+                } else {
+                    holder.read.visibility = GONE
+                }
                 holder.countMessages.visibility = GONE
+                holder.unRead.visibility = GONE
             }
 
             val currentDate = DateFormater.getNowDate()
@@ -191,6 +201,8 @@ class ChatsRecyclerViewAdapter(
         var sobesednik: TextView = view.findViewById(R.id.sobesednik)
         var colon: TextView = view.findViewById(R.id.colon)
         var countMessages: TextView = view.findViewById(R.id.countMessages)
+        var read: ImageView = view.findViewById(R.id.read)
+        var unRead: ImageView = view.findViewById(R.id.unRead)
 
     }
 

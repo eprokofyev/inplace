@@ -33,7 +33,7 @@ class AuthActivity : AppCompatActivity() {
         setContentView(R.layout.activity_auth)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .add(R.id.auth_fragment, TgLoginFragment())
+                .add(R.id.auth_fragment, VkLoginFragment())
                 .commit()
         }
         val messengers: RadioGroup = findViewById(R.id.choose_messenger)
