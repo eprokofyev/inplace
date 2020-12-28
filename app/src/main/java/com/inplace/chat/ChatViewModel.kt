@@ -56,18 +56,6 @@ class ChatViewModel(
             pagingSourceFactory = { messageDao.pagingSource(chatID) }
         ).liveData.cachedIn(viewModelScope)
 
-
-//    private fun getMessagesListStream(conversationId: Long) =
-//        Pager(
-//            PagingConfig(
-//                pageSize = 20,
-//                enablePlaceholders = false,
-//                prefetchDistance = 2,
-//            )
-//        ) {
-//            ChatPagingSource(chatRepo, conversationId)
-//        }.liveData.cachedIn(viewModelScope)
-
     fun getAvatar() = mAvatar
 
     fun getRefreshMessage() = refreshMessage
@@ -78,5 +66,17 @@ class ChatViewModel(
 
     fun sendMessage(position: Int, message: Message) {
         chatRepo.sendMessage(position, message)
+    }
+
+    fun insertMessages(messages: List<Message>){
+        chatRepo.insertMessages(messages)
+    }
+
+    fun markChatAsRead(chatID: Long){
+        chatRepo.markChatAsRead(chatID)
+    }
+
+    fun updateOutRead(newOutRead: Int, chatID: Long) {
+        chatRepo.updateOutRead(newOutRead,chatID)
     }
 }

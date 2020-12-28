@@ -109,6 +109,27 @@ class ChatRepo(private val context: Context) {
         )
     }
 
+    fun markChatAsRead(chatID: Long) {
+        executor.execute {
+            val result = ApiVk.markAsRead(chatID.toInt())
+            Log.d("markAsRead","chat marked as read: ${result.result}")
+        }
+    }
+
+    fun insertMessages(messages: List<Message>) {
+        executor.execute {
+            GlobalScope.launch {
+                messageDao.insertAll(messages)
+                Thread.sleep(200)
+                refreshMessageLiveData.postValue(1)
+            }
+        }
+    }
+
+    fun updateOutRead(newOutRead: Int, chatID: Long) {
+
+    }
+
     fun interface OnChatRequestCompleteListener {
         fun onChatRequestComplete(result: ChatRepoResult)
     }

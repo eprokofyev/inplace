@@ -21,7 +21,7 @@ import com.inplace.models.MessageStatus
 import com.inplace.models.Source
 import de.hdodenhof.circleimageview.CircleImageView
 
-class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAGE_COMPARATOR) {
+class ChatAdapter(private var inRead:Int,private var outRead:Int,private val unreadMessageSight: OnUnreadMessageSight) : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAGE_COMPARATOR) {
 
     private val viewPool = RecyclerView.RecycledViewPool()
 
@@ -82,6 +82,12 @@ class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAG
             MessageType.DATE
     }
 
+    fun updateOutRead(newOutRead:Int){
+        val unreadOutMessages = newOutRead - outRead
+        outRead = newOutRead
+        notifyItemRangeChanged(0,unreadOutMessages)
+    }
+
     inner class DateViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val date: TextView = itemView.findViewById(R.id.date_textView)
 
@@ -124,6 +130,14 @@ class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAG
             circularProgressDrawable.strokeWidth = 2f
             circularProgressDrawable.centerRadius = 8f
             circularProgressDrawable.start()
+
+            if(model.message.status != MessageStatus.SENDING && model.message.status != MessageStatus.ERROR){
+                if (model.message.messageID in 1..outRead){
+                    model.message.status = MessageStatus.READ
+                }else{
+                    model.message.status = MessageStatus.SENT
+                }
+            }
 
             when(model.message.status){
                 MessageStatus.ERROR -> status.setImageResource(R.drawable.ic_error_flat)
@@ -175,6 +189,7 @@ class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAG
         private val sentTime: TextView = itemView.findViewById(R.id.sentTime)
         private val sourceTG: ImageView = itemView.findViewById(R.id.sourceTG)
         private val sourceVK: ImageView = itemView.findViewById(R.id.sourceVK)
+        private val unreadMessageTextView: TextView  = itemView.findViewById(R.id.unread_message_textView)
         private val messageSender: TextView = itemView.findViewById(R.id.messageSender)
         private val messageSenderAvatar: CircleImageView =
             itemView.findViewById(R.id.messageSenderAvatar)
@@ -201,6 +216,12 @@ class ChatAdapter : PagingDataAdapter<ChatModel, RecyclerView.ViewHolder>(MESSAG
                 messageText.text = model.message.text
             }
             sentTime.text = DateParser.convertTimeToString(model.message.date)
+
+            unreadMessageTextView.isVisible = model.message.messageID == inRead && !unreadMessageTextView.isVisible
+
+            if (model.message.messageID > inRead){
+                unreadMessageSight.markAsRead()
+            }
 
             val photos = model.message.photos
 

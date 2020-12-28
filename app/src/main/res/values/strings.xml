@@ -46,4 +46,5 @@
     <string name="Nov">Nov</string>
     <string name="Dec">Dec</string>
     <string name="sobesednik">You:</string>
+    <string name="unread_messages">Unread messages</string>
 </resources>

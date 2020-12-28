@@ -29,8 +29,9 @@ class NotificationService : Service() {
             val stopIntent = Intent(context, NotificationService::class.java)
             context.stopService(stopIntent)
         }
+
         const val EXTRAS_NAME = "Chats"
-        const val BROADCAST_ACTION = "com.inplace.services"
+        const val BROADCAST_ACTION = "com.inplace.services.NotificationService"
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -50,7 +51,7 @@ class NotificationService : Service() {
     private val CHANNEL_FOREGROUND_NAME = "Состояние"
     private var mMessageCount = 0
     private lateinit var mManager: NotificationManager
-   // private val intentToActivity = Intent(this, MainActivity::class.java)
+    // private val intentToActivity = Intent(this, MainActivity::class.java)
 
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -97,11 +98,13 @@ class NotificationService : Service() {
                     }
                     Log.d("Chats", vkChats.toString())
                     //val vkChatsArray = vkChats.toTypedArray()
-                    val myIntent = Intent(BROADCAST_ACTION)
-                    myIntent.putExtra(EXTRAS_NAME, newMessagesArray)
-                    sendBroadcast(myIntent);
+                    if (newMessagesArray.size > 0) {
+                        val myIntent = Intent(BROADCAST_ACTION)
+                        myIntent.putParcelableArrayListExtra(EXTRAS_NAME, newMessagesArray)
+                        sendBroadcast(myIntent);
+                    }
                 }
-                Thread.sleep(3000)
+                Thread.sleep(1000)
             }
         }
         return START_REDELIVER_INTENT

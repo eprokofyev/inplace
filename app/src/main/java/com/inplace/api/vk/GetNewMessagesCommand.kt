@@ -58,7 +58,7 @@ class GetNewMessagesCommand(): ApiCommand<ArrayList<Message>>() {
                         var chatId = oneActionStr.get(1).toString().toLong()
 
                         val message =
-                            Message(msgId, 0, "", 0, 0, false, Source.VK, false, arrayListOf())
+                            Message(msgId, 0, "", 0, 0, false, Source.VK, )
                         message.isRead = true;
                         message.chatID = chatId;
 
