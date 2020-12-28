@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
     lateinit var newMessageReceiver: BroadcastReceiver
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val callback = object: VKAuthCallback {
+        val callback = object : VKAuthCallback {
             override fun onLogin(token: VKAccessToken) {
                 switch(chat)
             }
@@ -50,7 +50,8 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
                 resultCode,
                 data,
                 callback
-            ))) {
+            ))
+        ) {
             super.onActivityResult(requestCode, resultCode, data)
         }
     }
@@ -89,6 +90,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
             transaction.commitAllowingStateLoss()
         }
     }
+
     private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
         val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (service in manager.getRunningServices(Int.MAX_VALUE)) {
@@ -101,7 +103,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
 
     override fun onResume() {
         super.onResume()
-        if (intent.hasExtra(NotificationService.CHAT_FROM_NOTIFICATION)){
+        if (intent.hasExtra(NotificationService.CHAT_FROM_NOTIFICATION)) {
             intent.getParcelableExtra<SuperChat>(NotificationService.CHAT_FROM_NOTIFICATION)?.let {
                 switch(
                     it
@@ -119,12 +121,11 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
 
     override fun onStop() {
         NotificationService.highImportance = true
-        Log.d("stop", "imptrue")
         super.onStop()
-
     }
-    override fun switch(chat: SuperChat) {
 
+    override fun switch(chat: SuperChat) {
+        NotificationService.notificationToClear = chat.lastMessage.userID.toInt()
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.fragment_container, ChatFragment.newInstance(chat))
             addToBackStack(null)

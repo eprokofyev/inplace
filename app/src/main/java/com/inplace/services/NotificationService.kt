@@ -25,8 +25,7 @@ import java.util.*
 class NotificationService : Service() {
 
     companion object {
-
-
+        var notificationToClear = -1
         var highImportance = false
         const val EXTRAS_NAME = "Chats"
         const val CHAT_FROM_NOTIFICATION = "chatToIntent"
@@ -101,6 +100,10 @@ class NotificationService : Service() {
                     }
                 }
                 Thread.sleep(1000)
+                if (notificationToClear != -1) {
+                    mManager.cancel(notificationToClear)
+                    notificationToClear = -1
+                }
             }
         }
         return START_REDELIVER_INTENT
@@ -173,5 +176,8 @@ class NotificationService : Service() {
             }
             mManager.createNotificationChannel(notificationLowPriorityChannel)
         }
+    }
+    fun clear () {
+
     }
 }
