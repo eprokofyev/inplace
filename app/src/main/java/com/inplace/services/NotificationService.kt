@@ -14,6 +14,7 @@ import com.inplace.MainActivity
 import com.inplace.R
 import com.inplace.api.vk.ApiVk
 import com.inplace.chats.ChatsByIdRepo
+import com.inplace.models.SuperChat
 
 
 @ExperimentalPagingApi
@@ -31,6 +32,7 @@ class NotificationService : Service() {
         }
         const val EXTRAS_NAME = "Chats"
         const val BROADCAST_ACTION = "com.inplace.services"
+        const val CHAT_FROM_NOTIFICATION = "chatToIntent"
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -80,26 +82,25 @@ class NotificationService : Service() {
 
                 val newMessagesArray = newMesgsResult.result
                 if (newMessagesArray.isNotEmpty()) {
-                    val chatIds: ArrayList<Int> = ArrayList()
-
-                    for (el in newMessagesArray) {
-                        showMessageNotification(el.text)
-                        chatIds.add(el.chatID.toInt())
-                    }
-                    for (i in chatIds) {
-                        Log.d("ApiVK", i.toString())
-                    }
                     val repo = ChatsByIdRepo()
-                    val vkChats = repo.refresh(chatIds)
-                    if (vkChats.isNotEmpty()) {
-                        Log.d("ApiVK", "end of get chats by id")
+                    val vkChats = repo.refresh(newMessagesArray)
+                    if (vkChats.isEmpty()) {
+                        Log.d("ApiVK", "vkchats is empty")
                         continue
                     }
-                    Log.d("Chats", vkChats.toString())
+                    Log.d("after", "after")
                     //val vkChatsArray = vkChats.toTypedArray()
                     val myIntent = Intent(BROADCAST_ACTION)
                     myIntent.putExtra(EXTRAS_NAME, newMessagesArray)
                     sendBroadcast(myIntent);
+                    for (el in newMessagesArray) {
+                        for (chat in vkChats){
+                            if (chat.lastMessage.messageID == el.messageID) {
+                                showMessageNotification(el.text, chat)
+                            }
+                        }
+
+                    }
                 }
                 Thread.sleep(3000)
             }
@@ -107,8 +108,9 @@ class NotificationService : Service() {
         return START_REDELIVER_INTENT
     }
 
-    private fun showMessageNotification(messageToShow: String) {
+    private fun showMessageNotification(messageToShow: String, chatToIntent: SuperChat) {
         val intentToActivity = Intent(this, MainActivity::class.java)
+        //intentToActivity.putExtra(CHAT_FROM_NOTIFICATION, chatToIntent)
         val pendingIntent = PendingIntent.getActivity(this, 0, intentToActivity, 0)
         mMessageCount++
         val largeIcon = BitmapFactory.decodeResource(resources, R.drawable.foto)
