@@ -34,5 +34,5 @@ interface ChatsDao {
     suspend fun updateOutRead(outRead:Int,chatID:Long)
 
     @Query("UPDATE VKChat SET inRead = :inRead WHERE chatID = :chatID")
-    suspend fun updateInReadRead(inRead:Int,chatID:Long)
+    suspend fun updateInRead(inRead:Int,chatID:Long)
 }

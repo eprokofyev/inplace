@@ -8,6 +8,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.MutableLiveData
 import com.inplace.api.ApiImageLoader
 import com.inplace.api.vk.ApiVk
+import com.inplace.api.vk.VkUser
 import com.inplace.db.AppDatabase
 import com.inplace.models.Message
 import com.inplace.models.MessageStatus
@@ -22,12 +23,16 @@ class ChatRepo(private val context: Context) {
     private val executor: ExecutorService = Executors.newFixedThreadPool(5)
     private val database = AppDatabase.getInstance(context)
     private val messageDao = database.getMessageDao()
+    private val chatsDao = database.getChatsDao()
     private val avatarLiveData: MutableLiveData<Bitmap> = MutableLiveData<Bitmap>()
     private val refreshMessageLiveData: MutableLiveData<Int> = MutableLiveData<Int>()
+    private val getMeLiveData:MutableLiveData<Int> = MutableLiveData<Int>()
 
     fun getRefreshMessageLiveData() = refreshMessageLiveData
 
     fun getAvatar() = avatarLiveData
+
+    fun getMeLiveData() = getMeLiveData
 
     fun fetchAvatar(url: String) {
         executor.execute {
@@ -60,6 +65,19 @@ class ChatRepo(private val context: Context) {
         }
     }
 
+    fun getMe(){
+        executor.execute {
+            val response = ApiVk.getMe()
+            var user:VkUser
+            if (response.error == null){
+                user = response.result
+                getMeLiveData.postValue(user.id)
+            }else{
+                Log.d("getMe","error when getMe")
+            }
+        }
+    }
+
 
     fun getMessages(
         conversationId: Int,
@@ -77,8 +95,6 @@ class ChatRepo(private val context: Context) {
                     ChatRepoResult.Success(transform(messages))
                 }
             )
-
-
         }
     }
 
@@ -111,8 +127,12 @@ class ChatRepo(private val context: Context) {
 
     fun markChatAsRead(chatID: Long) {
         executor.execute {
-            val result = ApiVk.markAsRead(chatID.toInt())
-            Log.d("markAsRead","chat marked as read: ${result.result}")
+            GlobalScope.launch {
+                val result = ApiVk.markAsRead(chatID.toInt())
+                val lastInRead = messageDao.getLastInMessage(chatID).chatID
+                chatsDao.updateInRead(lastInRead.toInt(),chatID)
+                Log.d("markAsRead","chat marked as read: ${result.result}")
+            }
         }
     }
 
@@ -127,7 +147,11 @@ class ChatRepo(private val context: Context) {
     }
 
     fun updateOutRead(newOutRead: Int, chatID: Long) {
-
+        executor.execute {
+            GlobalScope.launch {
+                chatsDao.updateOutRead(newOutRead,chatID)
+            }
+        }
     }
 
     fun interface OnChatRequestCompleteListener {

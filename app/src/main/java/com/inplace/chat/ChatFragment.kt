@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import com.inplace.R
 import com.inplace.api.vk.ApiVk
+import com.inplace.api.vk.VkUser
 import com.inplace.models.*
 import com.inplace.services.NotificationService
 import de.hdodenhof.circleimageview.CircleImageView
@@ -50,6 +51,7 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener, OnUnreadMessageSigh
     lateinit var pickedImagesRecyclerView: RecyclerView
     lateinit var pickedImagesAdapter: PickedImagesAdapter
     lateinit var chatAdapter: ChatAdapter
+    private var myID:Int = 0
 
     private lateinit var imageUris: ArrayList<Uri>
 
@@ -86,7 +88,7 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener, OnUnreadMessageSigh
                 if (inMessages.size == 1 && inMessages[0].isRead) {
                     newOutRead = inMessages[0].messageID
                     chatAdapter.updateOutRead(newOutRead)
-//                    chatViewModel.updateOutRead(newOutRead,chatID)
+                    chatViewModel.updateOutRead(newOutRead,chatID)
                 } else {
                     chatViewModel.insertMessages(inMessages)
                     recycler.smoothScrollToPosition(0)
@@ -191,6 +193,12 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener, OnUnreadMessageSigh
             adapter = pickedImagesAdapter
         }
 
+        chatViewModel.fetchMe()
+
+        chatViewModel.getMe().observe(viewLifecycleOwner){
+            myID = it
+        }
+
 
         //setting toolbar info
         if (vkChat.type == ChatType.PRIVATE) {
@@ -259,7 +267,7 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener, OnUnreadMessageSigh
                     Random.nextInt(),
                     DateParser.getNowDate(),
                     messageText,
-                    ApiVk.getMe().result.id.toLong(),
+                    myID.toLong(),
                     vkChat.chatID,
                     true,
                     Source.VK,
