@@ -31,7 +31,7 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_optimizationLevel="chains"
-                android:text="inplace" />
+                android:text="@string/app_name" />
 
 
 
