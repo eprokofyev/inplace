@@ -80,6 +80,8 @@ class ChatsRecyclerViewAdapter(
 
 
 
+
+
             /*
             if (!chat.lastMessage.myMsg && chat.) {
                 when (chat.lastMessage.fromMessenger) {
@@ -117,6 +119,13 @@ class ChatsRecyclerViewAdapter(
                 holder.message.setTextColor(Color.BLUE)
             } else {
                 holder.message.setTextColor(Color.GRAY)
+            }
+
+            if (chat.vkChats.firstOrNull()?.unReadCount ?: 0 > 0) {
+                holder.countMessages.isVisible = true
+                holder.countMessages.text = chat.vkChats.firstOrNull()?.unReadCount.toString()
+            } else {
+                holder.countMessages.visibility = GONE
             }
 
             val currentDate = DateFormater.getNowDate()
@@ -181,6 +190,7 @@ class ChatsRecyclerViewAdapter(
         var photo: ImageView = view.findViewById(R.id.photo)
         var sobesednik: TextView = view.findViewById(R.id.sobesednik)
         var colon: TextView = view.findViewById(R.id.colon)
+        var countMessages: TextView = view.findViewById(R.id.countMessages)
 
     }
 

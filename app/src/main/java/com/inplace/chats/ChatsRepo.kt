@@ -12,6 +12,7 @@ import com.inplace.models.*
 import com.inplace.services.ExecutorServices
 import com.vk.api.sdk.VK
 import java.lang.Exception
+import java.util.ArrayList
 import java.util.concurrent.Executor
 
 class ChatsRepo(context: Context) {
@@ -34,6 +35,100 @@ class ChatsRepo(context: Context) {
 
     fun getVKChats(start: Int, end: Int): ResultVKChat {
         return getChatsFromVK(start, end)
+    }
+
+    fun getVKChatsByIds(ids: ArrayList<Int>, callback: OnRequestCompleteListener) {
+        executor.execute {
+            val chats = mutableListOf<VKChat>()
+            val result = ApiVk.getConversationsById(ids)
+
+            Log.d("status","do")
+
+            if (result.error != null) {
+                return@execute
+            }
+
+            val vkChats = result.result?.chats ?: arrayListOf<VkChat>()
+            val vkUsers = result.result?.users ?: hashMapOf<Int, VkUser>()
+
+
+            for (vkChat in vkChats) {
+
+
+
+                var vkUser = vkUsers[vkChat.lastMsgFromId]
+                if (vkUser == null) {
+                    Log.d("network", "собеседгик не найден")
+                    continue
+                }
+
+                Log.d("user", vkUser.firstName + " "  + vkUser.lastName)
+
+                //msg.userName = vkUser.firstName
+
+                var sobesednik = VKSobesednik(
+                    vkUser.id.toLong(),
+                    vkUser.firstName,
+                    vkUser.lastName,
+                    null,
+                    vkUser.photo200Square,
+                    if (vkUser.online) "online" else "",
+                    "about",
+                    0,
+                )
+
+                val usersMap = hashMapOf<Long, IVKSobesednik>()
+                var title = vkChat.groupChatTitle
+                var avatarUrl = ""
+                var chatType = ChatType.GROUP
+                if (vkChat.chatType == CHAT_TYPE_USER) {
+                    if (sobesednik.userID != vkChat.chatWithId.toLong()) {
+                        vkUser = vkUsers[vkChat.chatWithId]
+                        if (vkUser == null) {
+                            continue
+                            //return ResultVKChat.Error(Exception("собеседник не найден"))
+                        }
+
+                        sobesednik = VKSobesednik(
+                            vkUser.id.toLong(),
+                            vkUser.firstName,
+                            vkUser.lastName,
+                            null,
+                            vkUser.photo200Square,
+                            if (vkUser.online) "online" else "",
+                            "about",
+                            0,
+                        )
+                    }
+
+                    title = sobesednik.name + " " + sobesednik.lastName
+                    avatarUrl = sobesednik.avatarUrl
+                    chatType = ChatType.PRIVATE
+                }
+
+                val chat = VKChat(
+                    vkChat.chatWithId.toLong(),
+                    Source.VK,
+                    title,
+                    null,
+                    avatarUrl,
+                    arrayListOf(),
+                    true,
+                    chatType,
+                    Message(),
+                    hashMapOf<Long, IVKSobesednik>(sobesednik.userID to SuperSobesednik(sobesednik, null, Source.VK)),
+                    vkChat.inRead,
+                    vkChat.outRead,
+                    vkChat.unreadСount
+                )
+
+                chats.add(chat)
+            }
+
+            ResultVKChat.Success(chats)
+
+            callback.onRequestComplete(ResultVKChat.Success(chats))
+        }
     }
 
     private fun getChatsFromVK(start: Int, end: Int): ResultVKChat {

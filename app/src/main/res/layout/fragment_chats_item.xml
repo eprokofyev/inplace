@@ -48,6 +48,7 @@
             app:layout_constraintTop_toTopOf="@+id/profile_image" />
 
         <LinearLayout
+            android:id="@+id/linear"
             android:layout_width="265dp"
             android:layout_height="wrap_content"
 
@@ -147,12 +148,34 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/countMessages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+
+
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/circle_view"
+            android:gravity="center"
+
+            android:text="1"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+
+
+            app:layout_constraintBottom_toBottomOf="@+id/linear"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/linear" />
+
+
+        <TextView
             android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxWidth="60dp"
             android:maxLines="1"
             android:text="TextView"
+
             android:textSize="15sp"
             android:layout_marginEnd="8dp"
             app:layout_constraintBottom_toBottomOf="@+id/name"
@@ -160,6 +183,7 @@
             app:layout_constraintTop_toTopOf="@+id/name" />
 
         <ImageView
+
             android:id="@+id/mesenger"
             android:layout_width="20dp"
             android:layout_height="20dp"

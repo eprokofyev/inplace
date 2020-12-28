@@ -1,5 +1,8 @@
 package com.inplace.chats
 
+import android.content.BroadcastReceiver
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
@@ -19,6 +22,7 @@ import com.inplace.R
 import com.inplace.api.vk.ApiVk
 import com.inplace.api.vk.VkUser
 import com.inplace.models.*
+import com.inplace.services.NotificationService
 import kotlinx.coroutines.launch
 
 @ExperimentalPagingApi
@@ -27,6 +31,8 @@ class ChatsFragment : Fragment() {
     lateinit var recycler: RecyclerView
 
     lateinit var toolbar: Toolbar
+
+    lateinit var newMessageReceiver: BroadcastReceiver
 
     private lateinit var listener: SwitcherInterface
 
@@ -113,6 +119,18 @@ class ChatsFragment : Fragment() {
                 chatsAdapter.submitData(viewLifecycleOwner.lifecycle, it)
             }
             }
+        }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        activity?. let {
+            newMessageReceiver = NewMessageReceiver(it)
+            val filter = IntentFilter(NotificationService.BROADCAST_ACTION)
+            filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED)
+            it.registerReceiver(newMessageReceiver, filter)
+            it.registerReceiver(newMessageReceiver, filter)
         }
 
     }

@@ -10,6 +10,7 @@ import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.paging.ExperimentalPagingApi
 import com.inplace.chat.ChatFragment
 import com.inplace.chats.ChatsFragment
@@ -26,7 +27,7 @@ import com.vk.api.sdk.auth.VKAuthCallback
 class MainActivity : AppCompatActivity(), SwitcherInterface {
     lateinit var chat: SuperChat
 
-    var newMessageReceiver: BroadcastReceiver = NewMessageReceiver()
+    lateinit var newMessageReceiver: BroadcastReceiver
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val callback = object: VKAuthCallback {
@@ -51,17 +52,16 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //NotificationService.startService(this)
-//        val notificationService = Intent(this, NotificationService::class.java)
-//        this.startService(notificationService)
-        //val startIntent = Intent(this, NotificationService::class.java)
-        //if (!isMyServiceRunning(NotificationService::class.java)) {
-          //  ContextCompat.startForegroundService(this, startIntent)
-        //}
+        //val notificationService = Intent(this, NotificationService::class.java)
+        //this.startService(notificationService)
+        val startIntent = Intent(this, NotificationService::class.java)
+        if (!isMyServiceRunning(NotificationService::class.java)) {
+            ContextCompat.startForegroundService(this, startIntent)
+        }
+
         setContentView(R.layout.activity_main)
         Log.d("start", "start")
-        //val filter = IntentFilter(NotificationService.BROADCAST_ACTION)
-        //filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED)
-        //this.registerReceiver(newMessageReceiver, filter)
+
         val transaction = supportFragmentManager.beginTransaction()
         if (savedInstanceState == null) {
             transaction.add(R.id.fragment_container, ChatsFragment.newInstance())
@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
     }
     override fun onStop() {
         super.onStop()
-        //unregisterReceiver(newMessageReceiver)
+        // unregisterReceiver(newMessageReceiver)
         // NotificationService.startService(this)
     }
     override fun onRestart() {
