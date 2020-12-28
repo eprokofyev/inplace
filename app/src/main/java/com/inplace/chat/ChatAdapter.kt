@@ -217,7 +217,7 @@ class ChatAdapter(private var inRead:Int,private var outRead:Int,private val unr
             }
             sentTime.text = DateParser.convertTimeToString(model.message.date)
 
-            unreadMessageTextView.isVisible = model.message.messageID == inRead && !unreadMessageTextView.isVisible
+            unreadMessageTextView.isVisible = model.message.messageID == inRead+1 && !unreadMessageTextView.isVisible
 
             if (model.message.messageID > inRead){
                 unreadMessageSight.markAsRead()
