@@ -66,7 +66,8 @@ class ChatsRepo(context: Context) {
 
             var vkUser = vkUsers[vkChat.lastMsgFromId]
             if (vkUser == null) {
-                return ResultVKChat.Error(Exception("собеседник не найден"))
+                Log.d("network", "собеседгик не найден")
+                continue
             }
 
             Log.d("user", vkUser.firstName + " "  + vkUser.lastName)
@@ -92,7 +93,8 @@ class ChatsRepo(context: Context) {
                 if (sobesednik.userID != vkChat.chatWithId.toLong()) {
                     vkUser = vkUsers[vkChat.chatWithId]
                     if (vkUser == null) {
-                        return ResultVKChat.Error(Exception("собеседник не найден"))
+                        continue
+                        //return ResultVKChat.Error(Exception("собеседник не найден"))
                     }
 
                     sobesednik = VKSobesednik(

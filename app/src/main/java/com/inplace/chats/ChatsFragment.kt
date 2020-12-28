@@ -52,17 +52,11 @@ class ChatsFragment : Fragment() {
 
         superUser = savedInstanceState?.getParcelable(key) ?: arguments?.getParcelable(key)
 
-        if (Build.VERSION.SDK_INT > 9) {
-            val policy =
-                    StrictMode.ThreadPolicy.Builder().permitAll().build()
-            StrictMode.setThreadPolicy(policy)
-        }
-
         if (superUser == null) {
             Log.d("ApiVK", "start of auth request")
 
             // todo hardcore name and pass
-            val res = ApiVk.getMe()
+            /*val res = ApiVk.getMe()
             Log.d("user", res.toString())
             val vk = res.result
             vk?.let {
@@ -70,6 +64,8 @@ class ChatsFragment : Fragment() {
                 val user = VKUser(it.id.toLong(), it.firstName, it.lastName, it.photo200Square)
                 superUser = SuperUser(user.name, user.lastName, user.avatarURL, user, null)
             }
+
+             */
         }
 
         setHasOptionsMenu(true);
