@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.IBinder
+import android.os.Message
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.paging.ExperimentalPagingApi
@@ -82,7 +83,7 @@ class NotificationService : Service() {
                     for (el in newMessagesArray) {
                         for (chat in vkChats) {
                             if ((chat.lastMessage.messageID == el.messageID) && (el.userID.toInt() != VK.getUserId())) {
-                                showMessageNotification(el.text, chat)
+                                showMessageNotification(el, chat)
                             }
                         }
                     }
@@ -93,7 +94,7 @@ class NotificationService : Service() {
         return START_REDELIVER_INTENT
     }
 
-    private fun showMessageNotification(messageToShow: String, chatToIntent: SuperChat) {
+    private fun showMessageNotification(message: com.inplace.models.Message, chatToIntent: SuperChat) {
         val intentToActivity = Intent(this, MainActivity::class.java)
         intentToActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         intentToActivity.putExtra(CHAT_FROM_NOTIFICATION, chatToIntent)
@@ -117,7 +118,7 @@ class NotificationService : Service() {
             .setLargeIcon(largeIcon)
             .setSmallIcon(R.drawable.ic_send)
             .setContentTitle(chatToIntent.title)
-            .setContentText(messageToShow)
+            .setContentText(message.text)
             .setLights(resources.getColor(LIGHT_COLOR_ARGB), 1000, 1000)
             .setColor(resources.getColor(R.color.purple_500))
             .setAutoCancel(true)
@@ -128,9 +129,9 @@ class NotificationService : Service() {
             builder.priority = NotificationCompat.PRIORITY_LOW
         }
         val style = NotificationCompat.BigTextStyle()
-        style.bigText(messageToShow)
+        style.bigText(message.text)
         builder.setStyle(style)
-        mManager.notify(NOTIFICATION_ID_MESSAGE, builder.build())
+        mManager.notify(message.userID.toInt(), builder.build())
     }
 
     private fun createNotificationChannel() {
