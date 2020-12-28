@@ -25,6 +25,9 @@ interface MessageDao {
     @Query("SELECT * FROM messages WHERE chat_id = :chatID ORDER BY date DESC")
     fun pagingSource(chatID: Long): PagingSource<Int, Message>
 
+    @Query("SELECT * FROM messages WHERE chat_id = :chatID AND myMsg LIKE '0'")
+    fun getLastInMessage(chatID: Long):Message
+
     @Query("DELETE FROM messages WHERE chat_id = :chatID")
     suspend fun deleteByChatId(chatID: Long)
 

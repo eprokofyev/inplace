@@ -22,6 +22,7 @@ class ChatRepo(private val context: Context) {
     private val executor: ExecutorService = Executors.newFixedThreadPool(5)
     private val database = AppDatabase.getInstance(context)
     private val messageDao = database.getMessageDao()
+    private val chatsDao = database.getChatsDao()
     private val avatarLiveData: MutableLiveData<Bitmap> = MutableLiveData<Bitmap>()
     private val refreshMessageLiveData: MutableLiveData<Int> = MutableLiveData<Int>()
 
@@ -111,8 +112,12 @@ class ChatRepo(private val context: Context) {
 
     fun markChatAsRead(chatID: Long) {
         executor.execute {
-            val result = ApiVk.markAsRead(chatID.toInt())
-            Log.d("markAsRead","chat marked as read: ${result.result}")
+            GlobalScope.launch {
+                val result = ApiVk.markAsRead(chatID.toInt())
+                val lastInRead = messageDao.getLastInMessage(chatID).chatID
+                chatsDao.updateInRead(lastInRead.toInt(),chatID)
+                Log.d("markAsRead","chat marked as read: ${result.result}")
+            }
         }
     }
 
@@ -126,8 +131,22 @@ class ChatRepo(private val context: Context) {
         }
     }
 
-    fun updateOutRead(newOutRead: Int, chatID: Long) {
+    fun updateInRead(newInRead:Int,chatID: Long){
+        executor.execute {
+            GlobalScope.launch {
+                val lastInRead = messageDao.getLastInMessage(chatID)
+                Log.d("updateMessage",lastInRead.toString())
 
+            }
+        }
+    }
+
+    fun updateOutRead(newOutRead: Int, chatID: Long) {
+        executor.execute {
+            GlobalScope.launch {
+                chatsDao.updateOutRead(newOutRead,chatID)
+            }
+        }
     }
 
     fun interface OnChatRequestCompleteListener {

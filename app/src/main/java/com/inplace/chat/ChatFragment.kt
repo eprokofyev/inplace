@@ -86,7 +86,7 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener, OnUnreadMessageSigh
                 if (inMessages.size == 1 && inMessages[0].isRead) {
                     newOutRead = inMessages[0].messageID
                     chatAdapter.updateOutRead(newOutRead)
-//                    chatViewModel.updateOutRead(newOutRead,chatID)
+                    chatViewModel.updateOutRead(newOutRead,chatID)
                 } else {
                     chatViewModel.insertMessages(inMessages)
                     recycler.smoothScrollToPosition(0)
