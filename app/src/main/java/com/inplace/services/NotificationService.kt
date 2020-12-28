@@ -79,16 +79,16 @@ class NotificationService : Service() {
                 if (newMessagesArray.isNotEmpty()) {
                     val repo = ChatsByIdRepo()
                     val vkChats = repo.refresh(newMessagesArray)
+                    Log.d("after", "after")
                     if (vkChats.isEmpty()) {
                         Log.d("ApiVK", "vkchats is empty")
                         continue
                     }
-                    Log.d("after", "after")
                     //val vkChatsArray = vkChats.toTypedArray()
 
                     if (newMessagesArray.size > 0) {
                         val myIntent = Intent(BROADCAST_ACTION)
-                        myIntent.putExtra(EXTRAS_NAME, newMessagesArray)
+                        myIntent.putParcelableArrayListExtra(EXTRAS_NAME, newMessagesArray)
                         sendBroadcast(myIntent);
                     }
                     for (el in newMessagesArray) {

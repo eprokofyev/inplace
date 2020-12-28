@@ -68,7 +68,6 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
                     appId = R.integer.com_vk_sdk_AppId,
                     validationHandler = VKDefaultValidationHandler(applicationContext),
                     lang = "ru",
-                    version = "5.80"
                 )
             )
             status = true

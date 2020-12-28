@@ -127,10 +127,8 @@ class ChatsFragment : Fragment() {
         super.onResume()
         activity?. let {
             newMessageReceiver = NewMessageReceiver(it)
-            val filter = IntentFilter(NotificationService.BROADCAST_ACTION)
-            filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED)
-            it.registerReceiver(newMessageReceiver, filter)
-            it.registerReceiver(newMessageReceiver, filter)
+
+            it.registerReceiver(newMessageReceiver, IntentFilter(NotificationService.BROADCAST_ACTION))
         }
 
     }

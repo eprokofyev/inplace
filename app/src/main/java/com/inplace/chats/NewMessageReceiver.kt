@@ -28,7 +28,7 @@ class NewMessageReceiver(context: Context) : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         val newMessages = intent?.getParcelableArrayListExtra<Message>(NotificationService.EXTRAS_NAME)
 
-        val ids = mutableSetOf<Long>()
+        Log.d("user", newMessages?.size.toString())
 
         val chatsDao = db.getChatsDao()
 
