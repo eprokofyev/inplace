@@ -56,23 +56,29 @@ class ChatsRecyclerViewAdapter(
                 return
             }
 
+
             holder.name.text = chat.title
 
 
             var sobesednik = ""
             if (chat.lastMessage.myMsg) {
-                sobesednik = context?.resources?.getString(R.string.sobesednik) ?: ""
+                sobesednik =context?.resources?.getString(R.string.sobesednik) ?: ""
             } else if (chat.vkChats.firstOrNull()?.type ?: ChatType.GROUP == ChatType.GROUP) {
-                sobesednik = chat.lastMessage.userName + ":"
+                sobesednik = chat.lastMessage.userName
             }
 
             if (!sobesednik.isEmpty()) {
                 holder.sobesednik.text = sobesednik
                 holder.sobesednik.isVisible = true
+                holder.colon.isVisible = true
                 holder.sobesednik.setTextColor(Color.BLUE)
+                holder.colon.setTextColor(Color.BLUE)
             } else {
                 holder.sobesednik.visibility = GONE
+                holder.colon.visibility = GONE
             }
+
+
 
 
 
@@ -113,6 +119,13 @@ class ChatsRecyclerViewAdapter(
                 holder.message.setTextColor(Color.BLUE)
             } else {
                 holder.message.setTextColor(Color.GRAY)
+            }
+
+            if (chat.vkChats.firstOrNull()?.unReadCount ?: 0 > 0) {
+                holder.countMessages.isVisible = true
+                holder.countMessages.text = chat.vkChats.firstOrNull()?.unReadCount.toString()
+            } else {
+                holder.countMessages.visibility = GONE
             }
 
             val currentDate = DateFormater.getNowDate()
@@ -176,6 +189,8 @@ class ChatsRecyclerViewAdapter(
         var mesenger: ImageView = view.findViewById(R.id.mesenger)
         var photo: ImageView = view.findViewById(R.id.photo)
         var sobesednik: TextView = view.findViewById(R.id.sobesednik)
+        var colon: TextView = view.findViewById(R.id.colon)
+        var countMessages: TextView = view.findViewById(R.id.countMessages)
 
     }
 

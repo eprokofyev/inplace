@@ -2,8 +2,11 @@ package com.inplace
 
 
 import android.app.ActivityManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -11,8 +14,9 @@ import androidx.core.content.ContextCompat
 import androidx.paging.ExperimentalPagingApi
 import com.inplace.chat.ChatFragment
 import com.inplace.chats.ChatsFragment
+import com.inplace.chats.NewMessageReceiver
 import com.inplace.chats.SwitcherInterface
-import com.inplace.models.*
+import com.inplace.models.SuperChat
 import com.inplace.services.NotificationService
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAccessToken
@@ -22,6 +26,8 @@ import com.vk.api.sdk.auth.VKAuthCallback
 @ExperimentalPagingApi
 class MainActivity : AppCompatActivity(), SwitcherInterface {
     lateinit var chat: SuperChat
+
+    lateinit var newMessageReceiver: BroadcastReceiver
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val callback = object: VKAuthCallback {
@@ -46,8 +52,8 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //NotificationService.startService(this)
-//        val notificationService = Intent(this, NotificationService::class.java)
-//        this.startService(notificationService)
+        //val notificationService = Intent(this, NotificationService::class.java)
+        //this.startService(notificationService)
         val startIntent = Intent(this, NotificationService::class.java)
         if (!isMyServiceRunning(NotificationService::class.java)) {
             ContextCompat.startForegroundService(this, startIntent)
@@ -72,10 +78,12 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
     }
     override fun onStop() {
         super.onStop()
+        // unregisterReceiver(newMessageReceiver)
         // NotificationService.startService(this)
     }
     override fun onRestart() {
         super.onRestart()
+        //unregisterReceiver(newMessageReceiver);
         //NotificationService.stopService(this)
     }
     override fun switch(chat: SuperChat) {

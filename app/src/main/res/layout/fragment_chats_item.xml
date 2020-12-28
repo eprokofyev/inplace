@@ -48,11 +48,17 @@
             app:layout_constraintTop_toTopOf="@+id/profile_image" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/linear"
+            android:layout_width="265dp"
             android:layout_height="wrap_content"
 
             android:layout_marginBottom="8dp"
             android:layout_marginStart="4dp"
+
+
+            android:maxWidth="260dp"
+
+
 
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="@+id/profile_image"
@@ -67,14 +73,12 @@
                 android:layout_height="wrap_content"
 
                 android:ellipsize="end"
-                android:maxWidth="250dp"
+                android:maxWidth="200dp"
                 android:maxLines="1"
-                android:padding="1dp"
-
-                android:layout_marginStart="4dp"
                 android:visibility="gone"
 
 
+                android:layout_marginStart="4dp"
 
 
                 android:scrollHorizontally="true"
@@ -82,7 +86,29 @@
                 android:textStyle=""
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="parent"
-                tools:text="You: " />
+                tools:text="You" />
+
+            <TextView
+                android:id="@+id/colon"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:ellipsize="end"
+                android:maxWidth="100dp"
+                android:maxLines="1"
+                android:text=":"
+                android:visibility="gone"
+
+                android:layout_marginStart="0dp"
+
+
+                android:scrollHorizontally="true"
+                android:textSize="15sp"
+                android:textStyle=""
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/sobesednik"
+                />
 
 
             <ImageView
@@ -91,9 +117,6 @@
                 android:layout_height="22dp"
                 android:visibility="gone"
                 android:layout_marginStart="4dp"
-
-
-                android:maxWidth="260dp"
                 android:maxLines="1"
 
 
@@ -101,19 +124,18 @@
                 android:padding="1dp"
                 android:textSize="15sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/sobesednik" />
+                app:layout_constraintStart_toEndOf="@+id/colon" />
 
             <TextView
                 android:id="@+id/message"
 
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
                 android:layout_marginStart="4dp"
 
 
                 android:ellipsize="end"
-                android:maxWidth="250dp"
                 android:maxLines="1"
                 android:padding="1dp"
                 android:scrollHorizontally="true"
@@ -126,12 +148,34 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/countMessages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+
+
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/circle_view"
+            android:gravity="center"
+
+            android:text="1"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+
+
+            app:layout_constraintBottom_toBottomOf="@+id/linear"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/linear" />
+
+
+        <TextView
             android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxWidth="60dp"
             android:maxLines="1"
             android:text="TextView"
+
             android:textSize="15sp"
             android:layout_marginEnd="8dp"
             app:layout_constraintBottom_toBottomOf="@+id/name"
@@ -139,6 +183,7 @@
             app:layout_constraintTop_toTopOf="@+id/name" />
 
         <ImageView
+
             android:id="@+id/mesenger"
             android:layout_width="20dp"
             android:layout_height="20dp"

@@ -118,16 +118,25 @@ class GetChatsCommand(private val start: Int, private val end: Int): ApiCommand<
                         // nothing, user have no ban
                     }
 
-
                     // skip group chat
                     if (vkUser.id > ApiVk.START_ID_GROUP_CHAT) continue
 
                     vkUser.firstName = oneUserJsonObj.getString("first_name")
                     vkUser.lastName = oneUserJsonObj.getString("last_name")
-                    val isClosed = oneUserJsonObj.getString("is_closed")
-                    vkUser.isClosed = isClosed == "true"
+                    var isClosed = false
+                    try {
+                        isClosed = oneUserJsonObj.getString("is_closed") == "true"
+                    } catch (ex: Exception) {
+                        isClosed = false
+                    }
 
-                    vkUser.status = oneUserJsonObj.getString("status")
+                    vkUser.isClosed = isClosed
+
+                    try {
+                        vkUser.status = oneUserJsonObj.getString("status")
+                    } catch (e: JSONException) {
+                        vkUser.status = ""
+                    }
                     val online = oneUserJsonObj.getString("online")
                     vkUser.online = online == "1"
                     vkUser.photo200Square = oneUserJsonObj.getString("photo_200")
