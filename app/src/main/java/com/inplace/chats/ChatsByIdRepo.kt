@@ -125,22 +125,26 @@ class ChatsByIdRepo {
             }
 
             val chat = VKChat(
-                vkChat.chatWithId.toLong(),
-                Source.VK,
-                title,
-                null,
-                avatarUrl,
-                arrayListOf(msg),
-                true,
-                chatType,
-                msg,
-                hashMapOf<Long, IVKSobesednik>(
+                chatID = vkChat.chatWithId.toLong(),
+                source = Source.VK,
+                title = title,
+                avatar = null,
+                avatarUrl = avatarUrl,
+                messages = arrayListOf(msg),
+                isHeard = true,
+                type = chatType,
+                lastMessage = msg,
+                sobesedniks = hashMapOf<Long, IVKSobesednik>(
                     sobesednik.userID to SuperSobesednik(
                         sobesednik,
                         null,
                         Source.VK
                     )
                 ),
+                inRead = vkChat.inRead,
+                outRead = vkChat.outRead,
+                unReadCount = vkChat.unreadСount,
+                createdAT = vkChat.date
             )
 
             chats.add(chat)

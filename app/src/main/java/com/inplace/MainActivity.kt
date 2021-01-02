@@ -117,7 +117,8 @@ class MainActivity : AppCompatActivity(), SwitcherInterface {
     }
 
     override fun switch(chat: SuperChat) {
-        NotificationService.notificationToClear = chat.lastMessage.userID.toInt()
+        NotificationService.notificationToClear = chat.lastMessage.chatID.toInt()
+        NotificationService.chatIdToNotShow = chat.lastMessage.chatID.toInt()
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.fragment_container, ChatFragment.newInstance(chat))
             addToBackStack(null)

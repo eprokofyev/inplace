@@ -110,9 +110,17 @@ class ChatFragment : Fragment(), OnImageRemoveClickListener, OnUnreadMessageSigh
         )
     }
 
+//    @ExperimentalPagingApi
+//    override fun onPause() {
+//        super.onPause()
+//        Log.d("newMessage", "unregisterReceiver")
+//        activity?.unregisterReceiver(newMessageReceiver)
+//    }
+
     @ExperimentalPagingApi
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
+        NotificationService.chatIdToNotShow = -1
         Log.d("newMessage", "unregisterReceiver")
         activity?.unregisterReceiver(newMessageReceiver)
     }

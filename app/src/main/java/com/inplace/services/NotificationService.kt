@@ -6,9 +6,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
-import android.os.Message
 import android.util.Log
-import androidx.annotation.ColorInt
 import androidx.core.app.NotificationCompat
 import androidx.paging.ExperimentalPagingApi
 import com.inplace.MainActivity
@@ -30,6 +28,7 @@ class NotificationService : Service() {
         const val EXTRAS_NAME = "Chats"
         const val CHAT_FROM_NOTIFICATION = "chatToIntent"
         const val BROADCAST_ACTION = "com.inplace.services.NotificationService"
+        var chatIdToNotShow = -1
 
     }
 
@@ -61,7 +60,7 @@ class NotificationService : Service() {
             .setContentTitle(getString(R.string.app_name))
             .setContentText(getString(R.string.for_foreground))
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setColor(resources.getColor(R.color.purple_500))
+            .setColor(LIGHT_COLOR_ARGB)
         startForeground(NOTIFICATION_ID_FOREGROUND, builderForForeground.build())
 
         //Уведомления
@@ -77,6 +76,13 @@ class NotificationService : Service() {
 
                 val newMessagesArray = newMesgsResult.result
                 if (newMessagesArray.isNotEmpty()) {
+
+                    if (newMessagesArray.size > 0) {
+                        val myIntent = Intent(BROADCAST_ACTION)
+                        myIntent.putParcelableArrayListExtra(EXTRAS_NAME, newMessagesArray)
+                        sendBroadcast(myIntent);
+                    }
+
                     val repo = ChatsByIdRepo()
                     val vkChats = repo.refresh(newMessagesArray)
                     Log.d("after", "after")
@@ -86,14 +92,10 @@ class NotificationService : Service() {
                     }
                     //val vkChatsArray = vkChats.toTypedArray()
 
-                    if (newMessagesArray.size > 0) {
-                        val myIntent = Intent(BROADCAST_ACTION)
-                        myIntent.putParcelableArrayListExtra(EXTRAS_NAME, newMessagesArray)
-                        sendBroadcast(myIntent);
-                    }
+
                     for (el in newMessagesArray) {
                         for (chat in vkChats) {
-                            if ((chat.lastMessage.messageID == el.messageID) && (el.userID.toInt() != VK.getUserId())) {
+                            if ((chat.lastMessage.messageID == el.messageID) && (el.userID.toInt() != VK.getUserId()) && chatIdToNotShow != chat.lastMessage.chatID.toInt()) {
                                 showMessageNotification(el, chat)
                             }
                         }
@@ -109,7 +111,10 @@ class NotificationService : Service() {
         return START_REDELIVER_INTENT
     }
 
-    private fun showMessageNotification(message: com.inplace.models.Message, chatToIntent: SuperChat) {
+    private fun showMessageNotification(
+        message: com.inplace.models.Message,
+        chatToIntent: SuperChat
+    ) {
         val intentToActivity = Intent(this, MainActivity::class.java)
         intentToActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         intentToActivity.putExtra(CHAT_FROM_NOTIFICATION, chatToIntent)
@@ -125,7 +130,7 @@ class NotificationService : Service() {
         } else {
             loader.getImageByUrl(chatToIntent.avatarURL)
         }
-        val builder = if(highImportance) {
+        val builder = if (highImportance) {
             NotificationCompat.Builder(this, CHANNEL_MESSAGES_HIGH)
         } else {
             NotificationCompat.Builder(this, CHANNEL_MESSAGES_LOW)
@@ -146,7 +151,7 @@ class NotificationService : Service() {
         val style = NotificationCompat.BigTextStyle()
         style.bigText(message.text)
         builder.setStyle(style)
-        mManager.notify(message.userID.toInt(), builder.build())
+        mManager.notify(message.chatID.toInt(), builder.build())
     }
 
     private fun createNotificationChannel() {
@@ -177,7 +182,8 @@ class NotificationService : Service() {
             mManager.createNotificationChannel(notificationLowPriorityChannel)
         }
     }
-    fun clear () {
+
+    fun clear() {
 
     }
 }

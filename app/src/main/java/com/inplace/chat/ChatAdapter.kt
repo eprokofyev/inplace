@@ -219,7 +219,7 @@ class ChatAdapter(private var inRead:Int,private var outRead:Int,private val unr
 
             unreadMessageTextView.isVisible = model.message.messageID == inRead+1 && !unreadMessageTextView.isVisible
 
-            if (model.message.messageID > inRead){
+            if (model.message.messageID > inRead+1){
                 unreadMessageSight.markAsRead()
             }
 
