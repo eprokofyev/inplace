@@ -143,7 +143,10 @@ class ChatRepo(private val context: Context) {
                 val result = ApiVk.markAsRead(chatID.toInt())
                 val lastInRead = messageDao.getLastInMessage(chatID).chatID
                 chatsDao.updateInRead(lastInRead.toInt(),chatID)
+<<<<<<< HEAD
                 chatsDao.updateUnreadCount(0,chatID)
+=======
+>>>>>>> 4e202b8f1c67192f3d86706b365a329d34a5fe63
                 Log.d("markAsRead","chat marked as read: ${result.result}")
             }
         }
